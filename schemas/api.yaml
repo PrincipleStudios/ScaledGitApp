@@ -1,0 +1,31 @@
+openapi: 3.0.2
+info:
+  title: ScaledGitApp API
+  version: 1.0.0
+  description: ScaledGitApp API
+
+paths:
+  /api/env:
+    summary: Gets the public API environment data
+    get:
+      operationId: getInfo
+      summary: Gets the public API environment data
+      responses:
+        200:
+          description:
+            Contains public environment info that is still useful for developers
+            when debugging issues
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gitHash
+                  - tag
+                properties:
+                  gitHash:
+                    description: Git commit hash
+                    type: string
+                  tag:
+                    description: Build tag id
+                    type: string

@@ -33,6 +33,7 @@ COPY ["./Directory.Build.*", "./"]
 COPY ["./eng/", "./"]
 RUN dotnet restore
 
+COPY ["./schemas/", "./schemas/"]
 COPY ["./Server/", "./Server/"]
 
 RUN dotnet publish "Server/Server.csproj" -c Release
@@ -40,6 +41,8 @@ RUN dotnet publish "Server/Server.csproj" -c Release
 FROM base as final
 ARG GITHASH
 ENV BUILD__GITHASH=${GITHASH}
+ARG BUILDTAG
+ENV BUILD__TAG=${BUILDTAG}
 COPY --from=build-dotnet /src/artifacts/bin/Server/Release/net8.0/publish .
 
 ENTRYPOINT ["dotnet", "PrincipleStudios.ScaledGitApp.Server.dll"]

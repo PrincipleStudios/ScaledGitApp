@@ -1,0 +1,58 @@
+<Project>
+	<PropertyGroup>
+		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+		<CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+		<!--
+			CA1852 - seal internal types
+			CA2007 - ConfigureAwait
+		 -->
+		<NoWarn>$(NoWarn),CA1852,CA2007</NoWarn>
+		<!--
+			CA1303 - use resource table (TODO: fix this after refactor for error messages)
+			CA1304 - specify CultureInfo
+			CA1305 - specify IFormatProvider
+			CA1307 - specify StringComparison for clarity
+			CA1310 - specify StringComparison for correctness (TODO: may want to fix this)
+			CA1311 - specify a culture or use invariant
+		 -->
+		<NoWarn>$(NoWarn),CA1303,CA1304,CA1305,CA1307,CA1310,CA1311</NoWarn>
+		<!--
+			CA1707 - assembly naming
+			CA1062 - validate parameters (TODO: may want to fix this)
+		 -->
+		<NoWarn>$(NoWarn),CA1707,CA1062</NoWarn>
+	</PropertyGroup>
+
+	<!-- The following are test assembly supressions -->
+	<PropertyGroup Condition=" $(AssemblyName.EndsWith('.Test')) ">
+		<!--
+			CA1033 - mark as sealed
+			CA1052 - tests cannot be static types
+			CA1063 - Dispose pattern
+			CA1711 - "Collection" refers to xunit test collections
+			CA2016 - Cancellation token
+			CA1806 - expanding enumerable causes side effects
+			CA1822 - can be marked as static
+			CA1031 - do not catch generic exception types
+			CA1816 - finalizer suppression
+			CA2234 - call with Uri instead of string
+			CA1003 - use EventHandler instead of Action-based `event`
+		 -->
+		<NoWarn >$(NoWarn),CA1033,CA1052,CA1063,CA1711,CA2016,CA1806,CA1822,CA1031,CA1816,CA2234,CA1003</NoWarn>
+		<!--
+			CS8002 - allow test assemblies to reference assemblies without strong names
+		 -->
+		<NoWarn>$(NoWarn);CS8002</NoWarn>
+	</PropertyGroup>
+		
+
+	<Target Name="_FormatSourceFiles" BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="@(IntermediateAssembly)">
+		<Exec WorkingDirectory="$(ProjectDir)" Command="dotnet format $(ProjectPath)" />
+	</Target>
+
+</Project>

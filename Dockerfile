@@ -1,5 +1,7 @@
 # using `jammy` because https://ppa.launchpadcontent.net/git-core/ppa/ubuntu/dists/ does not support dotnet's default (bookworm)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy AS base
+EXPOSE 80
+
 WORKDIR /app
 RUN apt update \
     # Install Microsoft's repo
@@ -18,12 +20,26 @@ RUN apt update \
         # powershell is necessary because the git tools are in powershell
         powershell \
     && rm -rf /var/lib/apt/lists/*
+ENV ASPNETCORE_HTTP_PORTS=80
 
 RUN git clone https://github.com/PrincipleStudios/scalable-git-branching-tools.git /git-tools
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-dotnet
+WORKDIR /src
+
+COPY ["./PrincipleStudios.ScaledGitApp.sln", "./"]
+COPY ["./Server/Server.csproj", "./Server/"]
+COPY ["./Directory.Build.*", "./"]
+COPY ["./eng/", "./"]
+RUN dotnet restore
+
+COPY ["./Server/", "./Server/"]
+
+RUN dotnet publish "Server/Server.csproj" -c Release
 
 FROM base as final
 ARG GITHASH
 ENV BUILD__GITHASH=${GITHASH}
+COPY --from=build-dotnet /src/artifacts/bin/Server/Release/net8.0/publish .
 
-# TODO - add entrypoint
-# ENTRYPOINT ["dotnet", "ScaledGitApp.Server.dll"]
+ENTRYPOINT ["dotnet", "PrincipleStudios.ScaledGitApp.Server.dll"]

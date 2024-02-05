@@ -4,8 +4,11 @@
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
 		<LangVersion>12</LangVersion>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
 
-		<AssemblyName>PrincipleStudios.$(MSBuildProjectName)</AssemblyName>
+		<RootNamespace>PrincipleStudios.ScaledGitApp</RootNamespace>
+		<AssemblyName>PrincipleStudios.ScaledGitApp.$(MSBuildProjectName)</AssemblyName>
 		<IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
 		<SolutionRoot>$(MSBuildThisFileDirectory)</SolutionRoot>
 		<RepositoryEngineeringDir>$(SolutionRoot)eng/</RepositoryEngineeringDir>

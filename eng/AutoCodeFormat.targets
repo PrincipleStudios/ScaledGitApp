@@ -51,7 +51,11 @@
 	</PropertyGroup>
 		
 
-	<Target Name="_FormatSourceFiles" BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="@(IntermediateAssembly)">
+	<Target Name="_FormatSourceFiles"
+	        Condition=" '$(Configuration)' == 'Debug' "
+	        BeforeTargets="BeforeBuild"
+	        Inputs="@(Compile)"
+	        Outputs="@(IntermediateAssembly)">
 		<Exec WorkingDirectory="$(ProjectDir)" Command="dotnet format $(ProjectPath)" />
 	</Target>
 

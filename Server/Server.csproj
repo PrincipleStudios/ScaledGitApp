@@ -11,4 +11,8 @@
     <OpenApiSchemaMvcServer Include="..\schemas\api.yaml" Link="Api\api.yaml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionRoot)ui/Ui.esproj" Condition="Exists('$(SolutionRoot)ui/Ui.esproj')" />
+  </ItemGroup>
+
 </Project>

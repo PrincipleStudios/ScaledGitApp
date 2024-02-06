@@ -11,8 +11,6 @@
 
         <PnpmInstallScript Condition=" '$(PnpmInstallScript)' == '' and $(Configuration) != 'Release' ">pnpm install</PnpmInstallScript>
         <PnpmInstallScript Condition=" '$(PnpmInstallScript)' == '' and $(Configuration) == 'Release' ">pnpm install --frozen-lockfile</PnpmInstallScript>
-        <PnpmBuildScript Condition=" '$(PnpmBuildScript)' == '' ">pnpm build</PnpmBuildScript>
-        <PnpmTestScript Condition=" '$(PnpmTestScript)' == '' ">pnpm test</PnpmTestScript>
     </PropertyGroup>
 
     <ItemGroup>
@@ -54,7 +52,7 @@
             BuildInParallel="false" />
     </Target>
 
-    <Target Name="NodeBuild" BeforeTargets="Build" Inputs="@(Compile);@(RestoreConfig);@(CompileConfig)" Outputs="@(CompileOutputs)">
+    <Target Name="NodeBuild" Condition="'$(PnpmBuildScript)' != ''" BeforeTargets="Build" Inputs="@(Compile);@(RestoreConfig);@(CompileConfig)" Outputs="@(CompileOutputs)">
         <ItemGroup>
             <OutputCleanup Include="dist/**/*" />
         </ItemGroup>
@@ -80,7 +78,7 @@
         <Touch Files="package.json" Time="$(PackageJsonLastModifiedTime)" />
     </Target>
 
-    <Target Name="VSTest">
+    <Target Name="VSTest" Condition=" '$(PnpmTestScript)' != '' ">
         <CallTarget Condition="'$(VSTestNoBuild)' != 'true'" Targets="Build" />
 
         <Exec WorkingDirectory="$(ProjectDir)" Command="$(PnpmTestScript)" />

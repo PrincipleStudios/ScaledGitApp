@@ -27,11 +27,10 @@ RUN git clone https://github.com/PrincipleStudios/scalable-git-branching-tools.g
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-dotnet
 WORKDIR /src
 
-COPY ["./PrincipleStudios.ScaledGitApp.sln", "./"]
 COPY ["./Server/Server.csproj", "./Server/"]
 COPY ["./Directory.Build.*", "./"]
 COPY ["./eng/", "./eng/"]
-RUN dotnet build -c Release -t:Restore
+RUN dotnet build "Server/Server.csproj" -c Release -t:Restore
 
 COPY ["./schemas/", "./schemas/"]
 COPY ["./Server/", "./Server/"]

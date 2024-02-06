@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.Build.NoTargets/3.7.0">
 	<PropertyGroup>
-		<PnpmBuildScript>pnpm vite build</PnpmBuildScript>
-		<PnpmBuildScript Condition=" '$(Configuration)' == 'Debug' ">pnpm vite build --sourcemap --mode development --minify false</PnpmBuildScript>
-		<SkipBuild Condition=" '$(Configuration)' == 'Debug' ">true</SkipBuild>
+		<PnpmBuildScript Condition=" '$(Configuration)' != 'Debug' ">pnpm vite build</PnpmBuildScript>
+		<PnpmTestScript>pnpm test</PnpmTestScript>
 	</PropertyGroup>
 	<Import Project="$(RepositoryEngineeringDir)pnpm.targets" />
 

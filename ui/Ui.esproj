@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+	<PropertyGroup>
+		<PnpmBuildScript>pnpm vite build</PnpmBuildScript>
+		<PnpmBuildScript Condition=" '$(Configuration)' == 'Debug' ">pnpm vite build --sourcemap --mode development --minify false</PnpmBuildScript>
+		<SkipBuild Condition=" '$(Configuration)' == 'Debug' ">true</SkipBuild>
+	</PropertyGroup>
+	<Import Project="$(RepositoryEngineeringDir)pnpm.targets" />
+
+	<ItemGroup>
+		<Compile Include="vite.config.ts" />
+		<Compile Include="public/**/*" />
+		<Compile Remove="src/**/stories/**/*;src/**/*.stories.*" />
+
+		<ZodInput Include="src/doc-types/*/schema.json">
+			<OutputPath>$([System.IO.Path]::GetDirectoryName(%(Identity)))/schema.ts</OutputPath>
+		</ZodInput>
+
+		<CompileOutputs Include="$(SolutionRoot)/Server/wwwroot/index.html" />
+	</ItemGroup>
+
+	<Target Name="_PrepareClean" BeforeTargets="CoreClean">
+		<ItemGroup>
+			<CompileOutputs Include="$(SolutionRoot)Server/wwwroot/**/*" Exclude="$(SolutionRoot)Server/wwwroot/.gitkeep" />
+			<CompileOutputs Include="src/api/**/*" />
+			<CompileOutputs Include="@(ZodInput->'%(OutputPath)')" />
+			<Clean Include="@(CompileOutputs)" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="Ensure gitkeep" AfterTargets="Build">
+		<Touch AlwaysCreate="true" ForceTouch="true" Files="$(SolutionRoot)Server/wwwroot/.gitkeep" />
+	</Target>
+
+	<!-- <Target Name="GenerateApi" BeforeTargets="Generation" Inputs="$(SolutionRoot)schemas\api.yaml" Outputs="src/api/.gitignore">
+		<Exec WorkingDirectory="$(ProjectDir)" Command="pnpm openapi-codegen-typescript ../schemas/api.yaml src/api/ -c -o codegen.config.yaml"/>
+	</Target> -->
+
+	<Target Name="Generation" BeforeTargets="NodeBuild">
+	</Target>
+
+	<Target Name="TypeCheck" BeforeTargets="NodeBuild" DependsOnTargets="Generation" Condition=" $(Configuration) == 'Release' ">
+		<Exec WorkingDirectory="$(ProjectDir)" Command="pnpm tsc"/>
+	</Target>
+
+	<Target Name="_ComputeNodeOutputs" BeforeTargets="NodeBuild">
+		<ItemGroup>
+			<CompileConfig Include="tsconfig*.json" />
+			<CompileOutputs Include="$(SolutionRoot)Server\wwwroot\index.html" />
+			<CompileOutputs Include="$(SolutionRoot)Server\wwwroot\index-*.js" />
+		</ItemGroup>
+	</Target>
+</Project>

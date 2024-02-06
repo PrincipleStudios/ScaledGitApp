@@ -5,3 +5,6 @@ Dockerfile
 .vs/
 artifacts/
 *.local.*
+Server/wwwroot/**/*
+!Server/wwwroot/.gitkeep
+**/node_modules

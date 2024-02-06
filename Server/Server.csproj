@@ -3,6 +3,8 @@
   <ItemGroup>
     <PackageReference Include="PrincipleStudios.OpenApiCodegen.Json.Extensions" Version="0.14.0" PrivateAssets="All" />
     <PackageReference Include="PrincipleStudios.OpenApiCodegen.Server.Mvc" Version="0.14.3" />
+    <PackageReference Include="PrincipleStudios.ViteDevelopmentServer" Version="0.1.0-preview.1" Condition=" '$(Configuration)' == 'Debug' " />
+		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

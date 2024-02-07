@@ -16,8 +16,9 @@ Development will be orchestrated via msbuild.
 
 Prerequisites:
 - [.NET 8.0.x SDK][dotnet-8]
-- [.NET 6.0.x Runtime][codegen-dotnet-version] (for the [Principle Studios
+- [.NET 7.0.x Runtime][codegen-dotnet-version] (for the [Principle Studios
   OpenAPI code generators][ps-openapi-codegen])
+- [pnpm][pnpm-setup]
 
 To run locally, use one of the following options:
 
@@ -34,6 +35,14 @@ To run locally, use one of the following options:
         dotnet run
         ```
 
+- Within the `ui` folder:
+    1. Set up local configuration (TODO)
+    2. Run the following commands in your terminal:
+        ```sh
+        cd ui
+        pnpm start
+        ```
+
 ## Hosting
 
 Hosting for these tools will be via a Docker container with environment
@@ -46,5 +55,6 @@ support for GitHub and AzureDevOps is planned.
 
 [git-tools]: https://github.com/PrincipleStudios/scalable-git-branching-tools/
 [dotnet-8]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
-[codegen-dotnet-version]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+[codegen-dotnet-version]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
 [ps-openapi-codegen]: https://github.com/PrincipleStudios/principle-studios-openapi-generators
+[pnpm-setup]: https://pnpm.io/cli/install

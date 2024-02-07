@@ -34,6 +34,6 @@
 	},
 	"dotnet.defaultSolution": "PrincipleStudios.ScaledGitApp.sln",
 	"files.associations": {
-	  "*.esbuild": "xml"
+		"*.esbuild": "xml"
 	}
 }

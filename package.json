@@ -8,8 +8,8 @@
 		"lint:fix": "npm run typecheck && npm run eslint:fix && npm run prettier:fix",
 		"eslint": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\"",
 		"eslint:fix": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\" --fix",
-		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,ts,tsx,json}\"",
-		"prettier:fix": "prettier --write \"**/*.{cjs,mjs,js,ts,tsx,json}\"",
+		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
+		"prettier:fix": "prettier --write \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
 		"typecheck": "dotnet build -t:PrepareForBuild && tsc -b"
 	},
 	"engines": {

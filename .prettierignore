@@ -3,3 +3,4 @@
 */dev-dist/
 
 **/package.json
+/pnpm-lock.yaml

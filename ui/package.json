@@ -7,8 +7,8 @@
 		"start": "cd ../Server && dotnet watch",
 		"serve": "vite",
 		"test": "echo \"TODO\"; exit 1",
-		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build"
+		"storybook": "dotnet build -t:PrepareForBuild && storybook dev -p 6006",
+		"build-storybook": "dotnet build -t:PrepareForBuild && storybook build -o ../artifacts/storybook"
 	},
 	"author": "",
 	"license": "MIT",

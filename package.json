@@ -4,6 +4,8 @@
 	"type": "module",
 	"private": "true",
 	"scripts": {
+		"lint": "npm run typecheck && npm run eslint && npm run prettier",
+		"lint:fix": "npm run typecheck && npm run eslint:fix && npm run prettier:fix",
 		"eslint": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\"",
 		"eslint:fix": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\" --fix",
 		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,ts,tsx,md,json}\"",

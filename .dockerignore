@@ -9,3 +9,4 @@ Server/wwwroot/**/*
 !Server/wwwroot/.gitkeep
 **/node_modules
 ui/src/generated/
+*/dev-dist/**/*

@@ -23,13 +23,9 @@
 		<Touch AlwaysCreate="true" ForceTouch="true" Files="$(ViteBuildDir).gitkeep" />
 	</Target>
 
-	<Target Name="GenerateApi" BeforeTargets="Generation" Inputs="$(SolutionRoot)schemas\api.yaml" Outputs="src/generated/api/.gitignore">
+	<Target Name="GenerateApi" BeforeTargets="Generation" DependsOnTargets="PnpmInstall" Inputs="$(SolutionRoot)schemas\api.yaml" Outputs="src/generated/api/.gitignore">
 		<Exec WorkingDirectory="$(ProjectDir)" Command="pnpm openapi-codegen-typescript ../schemas/api.yaml src/generated/api/ -c -o codegen.config.yaml"/>
 	</Target>
 
-	<Target Name="Generation" BeforeTargets="NodeBuild" />
-
-	<Target Name="TypeCheck" BeforeTargets="NodeBuild" DependsOnTargets="Generation" Condition=" $(Configuration) == 'Release' ">
-		<Exec WorkingDirectory="$(ProjectDir)" Command="pnpm tsc"/>
-	</Target>
+	<Target Name="Generation" BeforeTargets="PrepareForBuild" />
 </Project>

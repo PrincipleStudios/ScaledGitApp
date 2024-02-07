@@ -7,7 +7,7 @@
 		"target": "ESNext",
 		"moduleResolution": "bundler",
 		"allowSyntheticDefaultImports": true,
-		"noEmit": true
+		"outDir": "./dev-dist/node"
 	},
-	"include": ["*.ts", ".*.cjs", "scripts"]
+	"include": ["*.ts", "*.mts", "*.cts", ".*.cjs", "scripts"]
 }

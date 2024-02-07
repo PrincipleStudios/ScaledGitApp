@@ -76,6 +76,7 @@ RUN cd ./ui/ && dotnet build -c Release -t:Restore
 
 COPY ./schemas/ ./schemas/
 COPY ./ui/ ./ui/
+COPY ./tsconfig* ./
 
 ARG GITHASH
 ENV VITE_GITHASH=${GITHASH}

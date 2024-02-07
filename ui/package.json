@@ -6,12 +6,14 @@
 	"scripts": {
 		"start": "cd ../Server && dotnet watch",
 		"serve": "vite",
-		"typecheck": "tsc -b",
+		"typecheck": "dotnet build -t:Generation && tsc -b",
 		"test": "echo \"TODO\"; exit 1"
 	},
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
+		"@principlestudios/openapi-codegen-typescript": "^0.7.0",
+		"@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
 		"@types/react": "^18.2.54",
 		"@vitejs/plugin-react": "^4.2.1",
 		"react": "^18.2.0",

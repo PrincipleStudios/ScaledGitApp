@@ -51,8 +51,8 @@ RUN apt-get update \
     \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      # Add .NET 6 for OpenAPI generators
-      dotnet-sdk-6.0 \
+      # Add .NET 7 for OpenAPI generators
+      dotnet-runtime-7.0 \
       # Add .NET 8 for Build tooling
       dotnet-sdk-8.0 \
     && apt-get clean

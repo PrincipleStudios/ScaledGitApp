@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"composite": true,
+		"skipLibCheck": true,
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "bundler",
+		"allowSyntheticDefaultImports": true,
+		"outDir": "./artifacts/tsconfig-node-json"
+	},
+	"include": ["*.ts", "*.mts", "*.cts", ".*.cjs", "scripts"]
+}

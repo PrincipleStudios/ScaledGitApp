@@ -1,0 +1,14 @@
+name: Run all tests via `dotnet test``
+on:
+  pull_request:
+    types: [edited, opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/workflows/parts/cache/
+      - name: 'Run tests'
+        run: |
+          dotnet test

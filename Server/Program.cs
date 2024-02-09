@@ -1,18 +1,18 @@
+#pragma warning disable CA1861 // Avoid constant arrays as arguments - the envfile list belongs here, and static arrays cannot be created in Program.cs
+using dotenv.net;
+using PrincipleStudios.ScaledGitApp.Api.Environment;
+using PrincipleStudios.ScaledGitApp.Git;
+
+DotEnv.Load(new DotEnvOptions(envFilePaths: new[] {
+	"../.env",
+	".env",
+}));
+
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-services.AddHealthChecks();
-services.AddControllers();
 
-services.Configure<PrincipleStudios.ScaledGitApp.Api.Environment.BuildOptions>(builder.Configuration.GetSection("build"));
-
-services.AddSpaStaticFiles(configuration =>
-{
-#if DEBUG
-	configuration.RootPath = "../ui/dist";
-#else
-	configuration.RootPath = "wwwroot";
-#endif
-});
+services.RegisterEnvironment(builder.Configuration.GetSection("build"));
+services.RegisterGit(builder.Configuration.GetSection("git"));
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@ Dockerfile
 .dockerignore
 .git/
 
+.env
 .vs/
 artifacts/
 *.local.*

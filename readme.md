@@ -23,25 +23,25 @@ Prerequisites:
 To run locally, use one of the following options:
 
 - Using Visual Studio:
-    1. Open `./PrincipleStudios.ScaledGitApp.sln`.
-    2. Set up local configuration (TODO)
-    3. Debug or run the `Server` project.
+  1. Open `./PrincipleStudios.ScaledGitApp.sln`.
+  2. Set up local configuration (TODO)
+  3. Debug or run the `Server` project.
 
 - Using the `dotnet` CLI:
-    1. Set up local configuration (TODO)
-    2. Run the following commands in your terminal:
-        ```sh
-        cd Server
-        dotnet run
-        ```
+  1. Set up local configuration (TODO)
+  2. Run the following commands in your terminal:
+     ```sh
+     cd Server
+     dotnet run
+     ```
 
 - Within the `ui` folder:
-    1. Set up local configuration (TODO)
-    2. Run the following commands in your terminal:
-        ```sh
-        cd ui
-        pnpm start
-        ```
+  1. Set up local configuration (TODO)
+  2. Run the following commands in your terminal:
+     ```sh
+     cd ui
+     pnpm start
+     ```
 
 ## Hosting
 

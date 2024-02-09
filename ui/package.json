@@ -6,7 +6,6 @@
 	"scripts": {
 		"start": "cd ../Server && dotnet watch",
 		"serve": "vite",
-		"typecheck": "dotnet build -t:Generation && tsc -b",
 		"test": "echo \"TODO\"; exit 1"
 	},
 	"author": "",

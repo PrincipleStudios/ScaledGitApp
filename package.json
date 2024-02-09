@@ -3,11 +3,27 @@
 	"version": "0.0.0",
 	"type": "module",
 	"private": "true",
+	"scripts": {
+		"lint": "npm run typecheck && npm run eslint && npm run prettier",
+		"lint:fix": "npm run typecheck && npm run eslint:fix && npm run prettier:fix",
+		"eslint": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\"",
+		"eslint:fix": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\" --fix",
+		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
+		"prettier:fix": "prettier --write \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
+		"typecheck": "dotnet build -t:PrepareForBuild && tsc -b"
+	},
 	"engines": {
 		"node": ">=20.8.1",
 		"pnpm": ">=8.10.5"
 	},
 	"dependencies": {
+		"@typescript-eslint/eslint-plugin": "^6.21.0",
+		"@typescript-eslint/parser": "^6.21.0",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"eslint-plugin-storybook": "^0.6.15",
+		"prettier": "^3.2.5",
 		"typescript": "^5.3.3"
 	}
 }

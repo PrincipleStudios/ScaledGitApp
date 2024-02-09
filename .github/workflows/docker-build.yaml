@@ -1,7 +1,6 @@
 name: Build Docker
 
-on:
-  pull_request
+on: pull_request
 
 env:
   registryLoginServer: 'example.com' # TODO
@@ -13,8 +12,8 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: 'Build image'
-      run: |
-        docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
+      - name: 'Build image'
+        run: |
+          docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}

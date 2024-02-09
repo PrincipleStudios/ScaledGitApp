@@ -1,4 +1,4 @@
-name: Lint DotNet
+name: Lint UI
 on:
   pull_request:
     types: [edited, opened, reopened, synchronize, ready_for_review]
@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/parts/cache/
-      - name: 'Run dotnet checks'
+      - name: 'Prepare UI for linting'
         run: |
-          dotnet format --verify-no-changes
+          pnpm install
+      - name: 'Run full lint'
+        run: |
+          pnpm lint

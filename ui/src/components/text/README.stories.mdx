@@ -1,0 +1,40 @@
+import { Meta, Unstyled } from '@storybook/blocks';
+import { H1, H2, H3, H4, H5, H6 } from './headings';
+import { Prose, HintText, Code } from './text';
+
+<Meta title="Components/Text" />
+<Unstyled>
+
+<H1>Demonstration of Text Components</H1>
+
+<Prose>
+	Text components are basic building blocks for standard styles. They can
+	be used for explaining what a page is, providing debugging instructions,
+	or any number of other things.
+</Prose>
+
+<H2>Standard styles</H2>
+<Prose>
+	Because these are intended as building blocks, they allow for any HTML
+	attributes to be passed to them, but that doesn't mean they should always
+	be used like this. You should only be using these components as-is (as in
+	this document) or with additional styles in further components.
+</Prose>
+
+<H2>Building Blocks</H2>
+<Prose>
+	When leveraging these components as building blocks, consider using the
+	`.extend` functionality to create new standard styles.
+</Prose>
+{/* MDX auto-formats and syntax highlights this in various odd ways, so I'm
+explicitly using the `children` prop here, although it is not necessary. */}
+<Code children={`const ErrorMessage = Prose.extend(
+	'ErrorMessage', 
+	(T) => <T className="text-red-800 dark:text-red-200" />
+);`}/>
+<HintText>
+	Using this technique, you can keep your presentational components clean
+	and encapsulate styles in a more reusable way.
+</HintText>
+
+</Unstyled>

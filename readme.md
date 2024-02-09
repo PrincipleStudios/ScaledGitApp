@@ -14,7 +14,34 @@ This application is intended to:
 
 Development will be orchestrated via msbuild.
 
-Setup steps TBD.
+Prerequisites:
+- [.NET 8.0.x SDK][dotnet-8]
+- [.NET 7.0.x Runtime][codegen-dotnet-version] (for the [Principle Studios
+  OpenAPI code generators][ps-openapi-codegen])
+- [pnpm][pnpm-setup]
+
+To run locally, use one of the following options:
+
+- Using Visual Studio:
+    1. Open `./PrincipleStudios.ScaledGitApp.sln`.
+    2. Set up local configuration (TODO)
+    3. Debug or run the `Server` project.
+
+- Using the `dotnet` CLI:
+    1. Set up local configuration (TODO)
+    2. Run the following commands in your terminal:
+        ```sh
+        cd Server
+        dotnet run
+        ```
+
+- Within the `ui` folder:
+    1. Set up local configuration (TODO)
+    2. Run the following commands in your terminal:
+        ```sh
+        cd ui
+        pnpm start
+        ```
 
 ## Hosting
 
@@ -27,3 +54,7 @@ Standard support for `git fetch` via SSH will be provided. In addition, webhook
 support for GitHub and AzureDevOps is planned.
 
 [git-tools]: https://github.com/PrincipleStudios/scalable-git-branching-tools/
+[dotnet-8]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+[codegen-dotnet-version]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
+[ps-openapi-codegen]: https://github.com/PrincipleStudios/principle-studios-openapi-generators
+[pnpm-setup]: https://pnpm.io/cli/install

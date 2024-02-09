@@ -1,0 +1,13 @@
+{
+	"name": "scaledgitapp-monorepo",
+	"version": "0.0.0",
+	"type": "module",
+	"private": "true",
+	"engines": {
+		"node": ">=20.8.1",
+		"pnpm": ">=8.10.5"
+	},
+	"dependencies": {
+		"typescript": "^5.3.3"
+	}
+}

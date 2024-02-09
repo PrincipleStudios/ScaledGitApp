@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"composite": true,
+		"skipLibCheck": true,
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "bundler",
+		"allowSyntheticDefaultImports": true,
+		"noEmit": true
+	},
+	"include": ["*.ts", ".*.cjs", "scripts"]
+}

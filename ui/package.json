@@ -1,0 +1,23 @@
+{
+	"name": "scaledgitapp-ui",
+	"version": "0.1.0",
+	"description": "",
+	"private": "true",
+	"scripts": {
+		"start": "cd ../Server && dotnet watch",
+		"serve": "vite",
+		"typecheck": "dotnet build -t:Generation && tsc -b",
+		"test": "echo \"TODO\"; exit 1"
+	},
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"@principlestudios/openapi-codegen-typescript": "^0.7.0",
+		"@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
+		"@types/react": "^18.2.54",
+		"@vitejs/plugin-react": "^4.2.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"vite": "^5.0.12"
+	}
+}

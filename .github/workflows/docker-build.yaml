@@ -17,4 +17,4 @@ jobs:
 
     - name: 'Build image'
       run: |
-        docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }}
+        docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}

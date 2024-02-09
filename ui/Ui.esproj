@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+	<PropertyGroup>
+		<PnpmBuildScript Condition=" '$(Configuration)' != 'Debug' ">pnpm vite build</PnpmBuildScript>
+		<PnpmTestScript>pnpm test</PnpmTestScript>
+
+		<ViteBuildDir>$(SolutionRoot)Server/wwwroot/</ViteBuildDir>
+	</PropertyGroup>
+	<Import Project="$(RepositoryEngineeringDir)pnpm.targets" />
+
+	<ItemGroup>
+		<Compile Include="vite.config.ts" />
+		<Compile Include="public/**/*" />
+		<Compile Remove="src/**/stories/**/*;src/**/*.stories.*" />
+
+		<CompileOutputs Include="$(ViteBuildDir)\index.html" />
+		
+		<Clean Include="$(ViteBuildDir)**/*" Exclude="$(ViteBuildDir).gitkeep" />
+		<Clean Include="src/generated/api/**/*" />
+	</ItemGroup>
+
+	<Target Name="Ensure gitkeep" AfterTargets="Build">
+		<!-- Vite will destroy the gitkeep file -->
+		<Touch AlwaysCreate="true" ForceTouch="true" Files="$(ViteBuildDir).gitkeep" />
+	</Target>
+
+	<Target Name="GenerateApi" BeforeTargets="Generation" Inputs="$(SolutionRoot)schemas\api.yaml" Outputs="src/generated/api/.gitignore">
+		<Exec WorkingDirectory="$(ProjectDir)" Command="pnpm openapi-codegen-typescript ../schemas/api.yaml src/generated/api/ -c -o codegen.config.yaml"/>
+	</Target>
+
+	<Target Name="Generation" BeforeTargets="NodeBuild" />
+
+	<Target Name="TypeCheck" BeforeTargets="NodeBuild" DependsOnTargets="Generation" Condition=" $(Configuration) == 'Release' ">
+		<Exec WorkingDirectory="$(ProjectDir)" Command="pnpm tsc"/>
+	</Target>
+</Project>

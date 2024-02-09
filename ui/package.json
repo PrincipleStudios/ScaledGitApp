@@ -6,7 +6,10 @@
 	"scripts": {
 		"start": "cd ../Server && dotnet watch",
 		"serve": "vite",
-		"test": "echo \"TODO\"; exit 1"
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"storybook": "dotnet build -t:PrepareForBuild && storybook dev -p 6006",
+		"build-storybook": "dotnet build -t:PrepareForBuild && storybook build -o ../artifacts/storybook"
 	},
 	"author": "",
 	"license": "MIT",
@@ -18,5 +21,24 @@
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"vite": "^5.0.12"
+	},
+	"devDependencies": {
+		"@storybook/addon-essentials": "^7.6.13",
+		"@storybook/addon-interactions": "^7.6.13",
+		"@storybook/addon-links": "^7.6.13",
+		"@storybook/addon-onboarding": "1.0.11",
+		"@storybook/blocks": "^7.6.13",
+		"@storybook/react": "^7.6.13",
+		"@storybook/react-vite": "^7.6.13",
+		"@storybook/test": "^7.6.13",
+		"@testing-library/jest-dom": "^6.4.2",
+		"@testing-library/react": "^14.2.1",
+		"autoprefixer": "^10.4.17",
+		"jsdom": "^24.0.0",
+		"storybook": "^7.6.13",
+		"tailwind-merge": "^2.2.1",
+		"tailwindcss": "^3.4.1",
+		"tsx": "^4.7.0",
+		"vitest": "^1.2.2"
 	}
 }

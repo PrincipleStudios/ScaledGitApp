@@ -11,6 +11,7 @@
 		<Compile Include="vite.config.ts" />
 		<Compile Include="public/**/*" />
 		<Compile Remove="src/**/stories/**/*;src/**/*.stories.*" />
+		<Watch Include="$(SolutionRoot)schemas/**/*" />
 
 		<CompileOutputs Include="$(ViteBuildDir)\index.html" />
 		

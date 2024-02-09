@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+	@apply bg-white text-black;
+}
+html.dark {
+	@apply bg-black text-white;
+}
+
+html, body, #root {
+	@apply w-full h-full;
+}
+
+::-webkit-scrollbar {
+	@apply w-2;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	@apply shadow-inner;
+	@apply bg-slate-50 shadow-black/25;
+}
+:is(.dark) ::-webkit-scrollbar-track {
+	@apply bg-slate-950 shadow-white/25;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	@apply transition-colors rounded-sm;
+	@apply bg-slate-300;
+}
+::-webkit-scrollbar-thumb:hover {
+	@apply bg-slate-500;
+}
+:is(.dark) ::-webkit-scrollbar-thumb {
+	@apply bg-slate-700;
+}
+:is(.dark) ::-webkit-scrollbar-thumb:hover {
+	@apply bg-slate-500;
+}

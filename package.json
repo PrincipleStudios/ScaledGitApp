@@ -4,13 +4,15 @@
 	"type": "module",
 	"private": "true",
 	"scripts": {
+		"start": "cd Server && dotnet watch",
 		"lint": "npm run typecheck && npm run eslint && npm run prettier",
 		"lint:fix": "npm run typecheck && npm run eslint:fix && npm run prettier:fix",
 		"eslint": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\"",
 		"eslint:fix": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\" --fix",
 		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
 		"prettier:fix": "prettier --write \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
-		"typecheck": "dotnet build -t:PrepareForBuild && tsc -b"
+		"typecheck": "dotnet build -t:PrepareForBuild && tsc -b",
+		"storybook": "pnpm --filter scaledgitapp-ui storybook"
 	},
 	"engines": {
 		"node": ">=20.8.1",
@@ -25,5 +27,10 @@
 		"eslint-plugin-storybook": "^0.6.15",
 		"prettier": "^3.2.5",
 		"typescript": "^5.3.3"
+	},
+	"pnpm": {
+		"overrides": {
+			"@vitejs/plugin-react": "^4.2.1"
+		}
 	}
 }

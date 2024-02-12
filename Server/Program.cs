@@ -2,6 +2,7 @@
 using dotenv.net;
 using PrincipleStudios.ScaledGitApp.Api.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
+using PrincipleStudios.ScaledGitApp.ShellUtililties;
 
 DotEnv.Load(new DotEnvOptions(envFilePaths: new[] {
 	"../.env",
@@ -13,6 +14,7 @@ var services = builder.Services;
 
 services.RegisterEnvironment(builder.Configuration.GetSection("build"));
 services.RegisterGit(builder.Configuration.GetSection("git"));
+services.RegisterShellUtilities();
 
 var app = builder.Build();
 

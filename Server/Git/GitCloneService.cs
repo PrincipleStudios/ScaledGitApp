@@ -1,8 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Collections;
-using System.IO;
-using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
@@ -10,11 +6,13 @@ public class GitCloneService : IHostedService
 {
 	private readonly GitOptions gitOptions;
 	private readonly GitToolsPowershell gitToolsPowershell;
+	private readonly ILogger<GitCloneService> logger;
 
-	public GitCloneService(IOptions<GitOptions> options, GitToolsPowershell gitToolsPowershell)
+	public GitCloneService(IOptions<GitOptions> options, GitToolsPowershell gitToolsPowershell, ILogger<GitCloneService> logger)
 	{
 		gitOptions = options.Value;
 		this.gitToolsPowershell = gitToolsPowershell;
+		this.logger = logger;
 	}
 
 	public async Task StartAsync(CancellationToken cancellationToken)
@@ -29,7 +27,9 @@ public class GitCloneService : IHostedService
 				.AddParameter("target", "git-setup")
 				.AddParameter("recurse"));
 
-			Console.WriteLine(powershellResponse.Results);
+#pragma warning disable CA1848 // Use the LoggerMessage delegates
+			logger.LogInformation("Temp: pwsh response: {Response}", powershellResponse);
+#pragma warning restore CA1848 // Use the LoggerMessage delegates
 		}
 	}
 

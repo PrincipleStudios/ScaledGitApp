@@ -39,11 +39,11 @@ namespace PrincipleStudios.ScaledGitApp.ShellUtililties
 			return result;
 		}
 
-		public PowerShell Create(Runspace? runspace = null)
+		public IPowerShell Create(Runspace? runspace = null)
 		{
-			return runspace != null
+			return new PowerShellWrapperImplementation(runspace != null
 				? PowerShell.Create(runspace)
-				: PowerShell.Create(initialSessionState);
+				: PowerShell.Create(initialSessionState));
 		}
 
 	}

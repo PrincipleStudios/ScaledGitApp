@@ -159,7 +159,7 @@ public class PowershellScriptingShould
 		return Assert.IsType<JsonObject>(parameters);
 	}
 
-	private Task<PowerShellInvocationResult> InvokeDemoScript(PowerShell ps, Action<PowerShell>? addParameters = null)
+	private Task<PowerShellInvocationResult> InvokeDemoScript(IPowerShell ps, Action<PowerShell>? addParameters = null)
 	{
 		return ps.InvokeExternalScriptAsync(absolutePathToDemoScript, addParameters ?? AddDefaultParameters);
 	}

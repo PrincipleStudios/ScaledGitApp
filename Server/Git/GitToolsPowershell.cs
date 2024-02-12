@@ -24,22 +24,31 @@ public sealed class GitToolsPowershell : IDisposable
 	{
 		using var ps = psFactory.Create();
 		ps.SetCurrentWorkingDirectory(Path.Join(Directory.GetCurrentDirectory(), gitOptions.WorkingDirectory));
-		var gitTopLevel = (await ps.InvokeCliAsync("git", "rev-parse", "--show-toplevel")).Results.Single().ToString();
-		if (ps.InvocationStateInfo.State != PSInvocationState.Completed)
+		var gitTopLevel = await ps.InvokeCliAsync("git", "rev-parse", "--show-toplevel") switch
 		{
-			throw new InvalidOperationException("Unable to get the git repository root.");
-		}
+			{ HadErrors: false, Results: [PSObject item] } => item.ToString(),
+			_ => throw new InvalidOperationException("Unknown result from `git rev-parse --show-toplevel`")
+		};
 
 		var rs = psFactory.CreateRunspace();
 		rs.SetCurrentWorkingDirectory(gitTopLevel);
 		return rs;
 	}
 
-	internal async Task<PowerShell> CreateGitToolsPowershell()
+	internal async Task<IPowerShell> CreateGitToolsPowershell()
 	{
 		return psFactory.Create(await runspaceFactory.Value);
 	}
 
+	internal async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
+	{
+		using var ps = await CreateGitToolsPowershell();
+		var scriptPath = Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
+
+		return await ps.InvokeExternalScriptAsync(scriptPath, addParameters);
+	}
+
+	#region Dispose Pattern
 	private void Dispose(bool disposing)
 	{
 		if (!disposedValue)
@@ -47,7 +56,6 @@ public sealed class GitToolsPowershell : IDisposable
 			if (disposing)
 			{
 				((IDisposable?)runspace)?.Dispose();
-				// TODO: dispose more
 			}
 
 			runspace = null;
@@ -61,13 +69,5 @@ public sealed class GitToolsPowershell : IDisposable
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
-
-	internal async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
-	{
-		using var ps = await CreateGitToolsPowershell();
-		var scriptPath = Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
-
-		return await ps.InvokeExternalScriptAsync(scriptPath, addParameters);
-	}
-
+	#endregion Dispose Pattern
 }

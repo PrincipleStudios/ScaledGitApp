@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using PrincipleStudios.ScaledGitApp.Git;
-using PrincipleStudios.ScaledGitApp.ShellUtililties;
+﻿using PrincipleStudios.ScaledGitApp.ShellUtililties;
 using System.Collections;
 using System.Management.Automation;
 using System.Text.Json.Nodes;

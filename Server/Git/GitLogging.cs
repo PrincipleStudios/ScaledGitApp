@@ -15,6 +15,9 @@ public static partial class GitLogging
 	[LoggerMessage(LogLevel.Information, "Git successfully cloned in {Directory} for {Remote}")]
 	public static partial void GitClonedSuccessfully(this ILogger logger, string remote, string directory);
 
+	[LoggerMessage(LogLevel.Error, "Git already initialized with no remotes")]
+	public static partial void GitWithNoRemotes(this ILogger logger);
+
 	[LoggerMessage(LogLevel.Warning, "Multiple git repositories were configured: {GitRepositories}. Use a separate directory for this application for expected behavior.")]
 	public static partial void MultipleGitRepositoriesConfigured(this ILogger logger, IEnumerable<string> gitRepositories);
 

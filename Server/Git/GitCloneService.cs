@@ -7,7 +7,6 @@ public class GitCloneService : IHostedService
 	private readonly GitOptions gitOptions;
 	private readonly IGitToolsPowershell gitToolsPowershell;
 	private readonly ILogger<GitCloneService> logger;
-	private Task? startupTask;
 
 	public GitCloneService(IOptions<GitOptions> options, IGitToolsPowershell gitToolsPowershell, ILogger<GitCloneService> logger)
 	{
@@ -19,7 +18,7 @@ public class GitCloneService : IHostedService
 	public Task StartAsync(CancellationToken cancellationToken)
 	{
 		// Spin out to background worker so as to not block the main app startup
-		startupTask = Task.Run(EnsureGitClone, cancellationToken);
+		Task.Run(EnsureGitClone, cancellationToken);
 		return Task.CompletedTask;
 	}
 
@@ -28,32 +27,37 @@ public class GitCloneService : IHostedService
 		return Task.CompletedTask;
 	}
 
-	private async Task EnsureGitClone()
+	public async Task<GitCloneServiceStatus> EnsureGitClone()
 	{
 		if (gitOptions.Repository == null)
 		{
 			logger.NoGitRepositoryConfigured();
-			return;
+			return GitCloneServiceStatus.NoRepository;
 		}
 
 		try
 		{
 			var remotes = await gitToolsPowershell.GitRemote();
 
-			if (remotes.Remotes.Count != 1)
+			if (remotes.Remotes.Count == 0)
+			{
+				logger.GitWithNoRemotes();
+				return GitCloneServiceStatus.NoRemotes;
+			}
+			if (remotes.Remotes.Count > 1)
 			{
 				logger.MultipleGitRepositoriesConfigured(remotes.Remotes.Select(r => r.Alias));
-				return;
+				return GitCloneServiceStatus.MultipleRemotes;
 			}
 
 			if (remotes.Remotes[0].FetchUrl != gitOptions.Repository)
 			{
 				logger.GitRepositoryMismatch(expected: gitOptions.Repository, actual: remotes.Remotes[0].FetchUrl);
-				return;
+				return GitCloneServiceStatus.RepositoryMismatch;
 			}
 
 			logger.GitAlreadyCloned(remote: gitOptions.Repository, directory: gitOptions.WorkingDirectory);
-			return;
+			return GitCloneServiceStatus.AlreadyCloned;
 		}
 		catch (GitException)
 		{
@@ -69,10 +73,12 @@ public class GitCloneService : IHostedService
 		{
 			await gitToolsPowershell.GitClone(gitOptions.Repository);
 			logger.GitClonedSuccessfully(gitOptions.Repository, gitOptions.WorkingDirectory);
+			return GitCloneServiceStatus.ClonedSuccessfully;
 		}
 		catch (GitException ex)
 		{
 			logger.GitFailedToClone(ex);
+			return GitCloneServiceStatus.CloneFailed;
 		}
 		catch (Exception ex)
 		{
@@ -80,4 +86,15 @@ public class GitCloneService : IHostedService
 			throw;
 		}
 	}
+}
+
+public enum GitCloneServiceStatus
+{
+	NoRepository,
+	NoRemotes,
+	MultipleRemotes,
+	RepositoryMismatch,
+	AlreadyCloned,
+	ClonedSuccessfully,
+	CloneFailed,
 }

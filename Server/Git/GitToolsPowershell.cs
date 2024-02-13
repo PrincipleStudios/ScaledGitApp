@@ -5,42 +5,59 @@ using System.Management.Automation.Runspaces;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsPowershell : IDisposable
+public sealed partial class GitToolsPowershell : IGitToolsPowershell
 {
 	private readonly GitOptions gitOptions;
-	private readonly Lazy<Task<Runspace>> runspaceFactory;
-	private readonly PowerShellFactory psFactory;
+	private readonly Lazy<Task<Func<IPowerShell>>> powerShellFactory;
+	private readonly ILogger<GitToolsPowershell> logger;
 	private Runspace? runspace;
 	private bool disposedValue;
 
-	public GitToolsPowershell(IOptions<GitOptions> options, PowerShellFactory psFactory)
+	public GitToolsPowershell(IOptions<GitOptions> options, PowerShellFactory psFactory, ILogger<GitToolsPowershell> logger)
 	{
 		gitOptions = options.Value;
-		runspaceFactory = new Lazy<Task<Runspace>>(CreateRunspace);
-		this.psFactory = psFactory;
+		powerShellFactory = new(() => CreatePowerShellWithGitDirectory(psFactory));
+		this.logger = logger;
 	}
 
-	async Task<Runspace> CreateRunspace()
+	public GitToolsPowershell(IOptions<GitOptions> options, Func<IPowerShell> psFactory, ILogger<GitToolsPowershell> logger)
+	{
+		gitOptions = options.Value;
+		powerShellFactory = new(Task.FromResult(psFactory));
+		this.logger = logger;
+	}
+
+	async Task<Func<IPowerShell>> CreatePowerShellWithGitDirectory(PowerShellFactory psFactory)
 	{
 		using var ps = psFactory.Create();
-		ps.SetCurrentWorkingDirectory(Path.Join(Directory.GetCurrentDirectory(), gitOptions.WorkingDirectory));
+		var absoluteInitialDirectory = Path.IsPathRooted(gitOptions.WorkingDirectory)
+			? gitOptions.WorkingDirectory
+			: Path.Join(Directory.GetCurrentDirectory(), gitOptions.WorkingDirectory);
+		logger.UsingGitWorkingDirectory(absoluteInitialDirectory);
+
+		// Creates if they do not exist already, recursively
+		Directory.CreateDirectory(absoluteInitialDirectory);
+
+		ps.SetCurrentWorkingDirectory(absoluteInitialDirectory);
+		// Gets the _actual_ top level of the working directory, in case 
 		var gitTopLevel = await ps.InvokeCliAsync("git", "rev-parse", "--show-toplevel") switch
 		{
 			{ HadErrors: false, Results: [PSObject item] } => item.ToString(),
+			{ HadErrors: true } => absoluteInitialDirectory,
 			_ => throw new InvalidOperationException("Unknown result from `git rev-parse --show-toplevel`")
 		};
 
-		var rs = psFactory.CreateRunspace();
-		rs.SetCurrentWorkingDirectory(gitTopLevel);
-		return rs;
+		runspace = psFactory.CreateRunspace();
+		runspace.SetCurrentWorkingDirectory(gitTopLevel);
+		return () => psFactory.Create(runspace);
 	}
 
-	internal async Task<IPowerShell> CreateGitToolsPowershell()
+	private async Task<IPowerShell> CreateGitToolsPowershell()
 	{
-		return psFactory.Create(await runspaceFactory.Value);
+		return (await powerShellFactory.Value)();
 	}
 
-	internal async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
+	private async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
 	{
 		using var ps = await CreateGitToolsPowershell();
 		var scriptPath = Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
@@ -55,7 +72,7 @@ public sealed class GitToolsPowershell : IDisposable
 		{
 			if (disposing)
 			{
-				((IDisposable?)runspace)?.Dispose();
+				runspace?.Dispose();
 			}
 
 			runspace = null;
@@ -69,5 +86,6 @@ public sealed class GitToolsPowershell : IDisposable
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
+
 	#endregion Dispose Pattern
 }

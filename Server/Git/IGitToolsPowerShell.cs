@@ -2,7 +2,7 @@
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public interface IGitToolsPowershell : IDisposable
+public interface IGitToolsPowerShell : IDisposable
 {
 	/// <summary>
 	/// Clones a git repository into the git working directory.

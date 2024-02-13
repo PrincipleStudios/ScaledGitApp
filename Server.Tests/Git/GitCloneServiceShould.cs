@@ -11,11 +11,11 @@ public class GitCloneServiceShould
 	private static readonly InvalidOperationException stubUnknownException = new("Unknown exception");
 	private static readonly GitException stubException = new();
 
-	static (GitCloneService Service, Mock<IGitToolsPowershell> PowerShellMock) CreateService(GitOptions? options = null)
+	static (GitCloneService Service, Mock<IGitToolsPowerShell> PowerShellMock) CreateService(GitOptions? options = null)
 	{
 		options ??= new GitOptions { Repository = expectedRepository };
 
-		var mockPowerShell = new Mock<IGitToolsPowershell>(MockBehavior.Strict);
+		var mockPowerShell = new Mock<IGitToolsPowerShell>(MockBehavior.Strict);
 		var gitCloneService = new GitCloneService(Options.Create(options), mockPowerShell.Object, Mock.Of<ILogger<GitCloneService>>());
 
 		return (gitCloneService, mockPowerShell);
@@ -126,13 +126,13 @@ public class GitCloneServiceShould
 		Assert.Equal(stubUnknownException, actualException);
 	}
 
-	private static void SetupGitRemotes(Mock<IGitToolsPowershell> mockPwsh, GitRemote[] remotes)
+	private static void SetupGitRemotes(Mock<IGitToolsPowerShell> mockPwsh, GitRemote[] remotes)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.GitRemote())
 			.ReturnsAsync(new GitRemoteResult(remotes));
 	}
-	private static void SetupNoGitDirectory(Mock<IGitToolsPowershell> mockPwsh)
+	private static void SetupNoGitDirectory(Mock<IGitToolsPowerShell> mockPwsh)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.GitRemote())

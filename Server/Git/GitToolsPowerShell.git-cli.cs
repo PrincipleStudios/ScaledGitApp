@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed partial class GitToolsPowershell : IGitToolsPowershell
+public sealed partial class GitToolsPowerShell : IGitToolsPowerShell
 {
 	public async Task GitClone(string repository)
 	{

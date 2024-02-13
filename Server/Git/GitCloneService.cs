@@ -5,10 +5,10 @@ namespace PrincipleStudios.ScaledGitApp.Git;
 public class GitCloneService : IHostedService
 {
 	private readonly GitOptions gitOptions;
-	private readonly IGitToolsPowershell gitToolsPowershell;
+	private readonly IGitToolsPowerShell gitToolsPowershell;
 	private readonly ILogger<GitCloneService> logger;
 
-	public GitCloneService(IOptions<GitOptions> options, IGitToolsPowershell gitToolsPowershell, ILogger<GitCloneService> logger)
+	public GitCloneService(IOptions<GitOptions> options, IGitToolsPowerShell gitToolsPowershell, ILogger<GitCloneService> logger)
 	{
 		gitOptions = options.Value;
 		this.gitToolsPowershell = gitToolsPowershell;

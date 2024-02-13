@@ -5,22 +5,22 @@ using System.Management.Automation.Runspaces;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed partial class GitToolsPowershell : IGitToolsPowershell
+public sealed partial class GitToolsPowerShell : IGitToolsPowerShell
 {
 	private readonly GitOptions gitOptions;
 	private readonly Lazy<Task<Func<IPowerShell>>> powerShellFactory;
-	private readonly ILogger<GitToolsPowershell> logger;
+	private readonly ILogger<GitToolsPowerShell> logger;
 	private Runspace? runspace;
 	private bool disposedValue;
 
-	public GitToolsPowershell(IOptions<GitOptions> options, PowerShellFactory psFactory, ILogger<GitToolsPowershell> logger)
+	public GitToolsPowerShell(IOptions<GitOptions> options, PowerShellFactory psFactory, ILogger<GitToolsPowerShell> logger)
 	{
 		gitOptions = options.Value;
 		powerShellFactory = new(() => CreatePowerShellWithGitDirectory(psFactory));
 		this.logger = logger;
 	}
 
-	public GitToolsPowershell(IOptions<GitOptions> options, Func<IPowerShell> psFactory, ILogger<GitToolsPowershell> logger)
+	public GitToolsPowerShell(IOptions<GitOptions> options, Func<IPowerShell> psFactory, ILogger<GitToolsPowerShell> logger)
 	{
 		gitOptions = options.Value;
 		powerShellFactory = new(Task.FromResult(psFactory));

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using PrincipleStudios.ScaledGitApp.ShellUtililties;
+using PrincipleStudios.ScaledGitApp.ShellUtilities;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 

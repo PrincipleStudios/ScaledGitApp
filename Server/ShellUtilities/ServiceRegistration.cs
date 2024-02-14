@@ -1,6 +1,6 @@
 ﻿using PrincipleStudios.ScaledGitApp.Git;
 
-namespace PrincipleStudios.ScaledGitApp.ShellUtililties;
+namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 public static class ServiceRegistration
 {

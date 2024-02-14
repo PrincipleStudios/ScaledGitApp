@@ -1,6 +1,6 @@
 ﻿using System.Management.Automation;
 
-namespace PrincipleStudios.ScaledGitApp.ShellUtililties;
+namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 public interface IPowerShell : IDisposable
 {

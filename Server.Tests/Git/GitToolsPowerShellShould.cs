@@ -44,7 +44,7 @@ public partial class GitToolsPowerShellShould : IClassFixture<GitToolsPowerShell
 		fixture.MockPowerShellFactory.Setup(ps => ps.CreateRunspace(null)).Returns(runspace);
 		var createdWithRunspace = fixture.MockPowerShellFactory.Verifiable(ps => ps.Create(runspace), s => s.Returns(mockFinal.Object));
 
-		var verifyGitRemote = SetupGitRemote(mockFinal);
+		var verifyGitRemote = ToolsCommands.GitRemoteShould.SetupGitRemote(mockFinal);
 
 		// By mocking the factory directly, we test the typical DI constructor with working directory setup
 		using var target = fixture.CreateTarget(mockFactoryDirectly: false);
@@ -62,7 +62,7 @@ public partial class GitToolsPowerShellShould : IClassFixture<GitToolsPowerShell
 		var mockFinal = new Mock<IPowerShell>();
 		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
 
-		var verifyGitRemote = SetupGitRemote(mockFinal);
+		var verifyGitRemote = ToolsCommands.GitRemoteShould.SetupGitRemote(mockFinal);
 
 		// By mocking the factory directly, we test the typical DI constructor with working directory setup
 		using var target = fixture.CreateTarget();
@@ -70,10 +70,5 @@ public partial class GitToolsPowerShellShould : IClassFixture<GitToolsPowerShell
 		var remotes = await target.GitRemote();
 
 		verifyGitRemote.Verify(Times.Once);
-	}
-
-	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitRemote(Mock<IPowerShell> target, IEnumerable<GitRemote>? remotes = null)
-	{
-		return target.Verifiable(ps => ps.InvokeCliAsync("git", "remote", "-v"), s => s.ReturnsAsync(PowerShellInvocationResultStubs.Empty));
 	}
 }

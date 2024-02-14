@@ -26,7 +26,7 @@ module.exports = {
 			extends: [
 				// Recommended typescript changes, which removes some "no-undef" checks that TS handles
 				'plugin:@typescript-eslint/eslint-recommended',
-				'plugin:@typescript-eslint/recommended-requiring-type-checking',
+				'plugin:@typescript-eslint/recommended-type-checked',
 				'plugin:@typescript-eslint/recommended',
 			],
 			rules: {

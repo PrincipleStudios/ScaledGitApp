@@ -2,7 +2,7 @@
 using dotenv.net;
 using PrincipleStudios.ScaledGitApp.Api.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
-using PrincipleStudios.ScaledGitApp.ShellUtililties;
+using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 DotEnv.Load(new DotEnvOptions(envFilePaths: new[] {
 	"../.env",

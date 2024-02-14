@@ -1,7 +1,7 @@
 ﻿using System.Management.Automation.Runspaces;
 using System.Management.Automation;
 
-namespace PrincipleStudios.ScaledGitApp.ShellUtililties;
+namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 public class PowerShellFactory
 {

@@ -1,5 +1,4 @@
-using PrincipleStudios.ScaledGitApp.ShellUtililties;
-using System.Management.Automation;
+using PrincipleStudios.ScaledGitApp.ShellUtilities;
 using System.Text.RegularExpressions;
 
 namespace PrincipleStudios.ScaledGitApp.Git;

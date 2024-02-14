@@ -2,7 +2,7 @@
 using System.Management.Automation;
 using System.Runtime.InteropServices;
 
-namespace PrincipleStudios.ScaledGitApp.ShellUtililties;
+namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 public static class PowerShellSessionStateUtility
 {

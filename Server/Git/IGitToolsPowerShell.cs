@@ -1,6 +1,4 @@
-﻿using PrincipleStudios.ScaledGitApp.ShellUtililties;
-
-namespace PrincipleStudios.ScaledGitApp.Git;
+﻿namespace PrincipleStudios.ScaledGitApp.Git;
 
 public interface IGitToolsPowerShell : IDisposable
 {

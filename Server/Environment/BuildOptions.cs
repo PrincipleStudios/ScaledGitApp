@@ -1,4 +1,4 @@
-﻿namespace PrincipleStudios.ScaledGitApp.Api.Environment;
+﻿namespace PrincipleStudios.ScaledGitApp.Environment;
 
 public record BuildOptions
 {

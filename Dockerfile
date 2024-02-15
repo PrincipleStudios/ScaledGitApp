@@ -30,13 +30,16 @@ WORKDIR /src
 COPY ["./Server/Server.csproj", "./Server/"]
 COPY ["./Directory.Build.*", "./"]
 COPY ["./eng/", "./eng/"]
+# Restores without the flags, which will add more packages. This is a build efficieny step so most items are restored once.
 RUN dotnet build "Server/Server.csproj" -c Release -t:Restore
+ARG DOTNET_BUILD_FLAGS
+RUN dotnet build "Server/Server.csproj" -c Release -t:Restore ${DOTNET_BUILD_FLAGS}
 
 COPY ["./.editorconfig", "./"]
 COPY ["./schemas/", "./schemas/"]
 COPY ["./Server/", "./Server/"]
 
-RUN dotnet publish "Server/Server.csproj" -c Release
+RUN dotnet publish "Server/Server.csproj" -c Release ${DOTNET_BUILD_FLAGS}
 
 FROM ubuntu:focal AS build-ui
 WORKDIR /src

@@ -44,6 +44,8 @@ app.UseEndpoints(endpoints =>
 // Based on a comment in https://github.com/dotnet/aspnetcore/issues/5192
 app.MapWhen(context => context.Request.Method == "GET" || context.Request.Method == "CONNECT", (when) =>
 {
+	// Force lookup so bundle.js doesn't get cached and changes get ignored
+	app.UseCacheControlForSpaPages();
 	app.UseSpaStaticFiles();
 	app.UseSpa(spa =>
 	{

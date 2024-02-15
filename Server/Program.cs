@@ -10,9 +10,18 @@ DotEnv.Load(new DotEnvOptions(envFilePaths: new[] {
 }));
 
 var builder = WebApplication.CreateBuilder(args);
+
+#if IncludeAWS
+builder.Configuration.AddSecretsManager();
+#endif
+
 var services = builder.Services;
 
-services.RegisterEnvironment(builder.Configuration.GetSection("build"));
+services.RegisterEnvironment(
+	isProduction: builder.Environment.IsProduction(),
+	buildConfig: builder.Configuration.GetSection("build"),
+	dataProtectionConfig: builder.Configuration.GetSection("DataProtection")
+);
 services.RegisterGit(builder.Configuration.GetSection("git"));
 services.RegisterShellUtilities();
 

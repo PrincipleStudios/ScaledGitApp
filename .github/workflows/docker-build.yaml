@@ -17,3 +17,5 @@ jobs:
       - name: 'Build image'
         run: |
           docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
+          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAzure=true" -t $registryLoginServer/$imageName:$dockerImageTag-aws --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
+          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAWS=true" -t $registryLoginServer/$imageName:$dockerImageTag-aws --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}

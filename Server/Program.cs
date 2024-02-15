@@ -19,6 +19,7 @@ var services = builder.Services;
 
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
+	environmentName: builder.Environment.EnvironmentName,
 	buildConfig: builder.Configuration.GetSection("build"),
 	dataProtectionConfig: builder.Configuration.GetSection("DataProtection")
 );

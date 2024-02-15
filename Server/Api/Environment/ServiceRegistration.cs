@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection;
-#if IncludeAWS
+﻿#if IncludeAWS
 using Amazon.SimpleSystemsManagement;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
@@ -7,6 +6,9 @@ using Amazon.Runtime;
 #if IncludeAzure
 using Azure.Identity;
 #endif
+using Microsoft.AspNetCore.DataProtection;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Environment;
 
@@ -14,6 +16,7 @@ public static class ServiceRegistration
 {
 	internal static void RegisterEnvironment(this IServiceCollection services,
 		bool isProduction,
+		string environmentName,
 		IConfigurationSection buildConfig,
 		IConfigurationSection dataProtectionConfig)
 	{
@@ -27,6 +30,12 @@ public static class ServiceRegistration
 			configuration.RootPath = "wwwroot";
 		});
 
+		services.RegisterDataProtection(isProduction, dataProtectionConfig);
+		services.RegisterOpenTelemetry(environmentName, buildConfig);
+	}
+
+	private static void RegisterDataProtection(this IServiceCollection services, bool isProduction, IConfigurationSection dataProtectionConfig)
+	{
 		if (isProduction)
 		{
 			var dataProtectionBuilder = services.AddDataProtection();
@@ -47,5 +56,27 @@ public static class ServiceRegistration
 			}
 #endif
 		}
+	}
+
+	private static void RegisterOpenTelemetry(this IServiceCollection services, string environmentName, IConfigurationSection buildConfig)
+	{
+		services
+			.AddOpenTelemetry()
+			.WithTracing(tracerProviderBuilder =>
+			{
+				tracerProviderBuilder.AddOtlpExporter();
+				tracerProviderBuilder
+					.AddSource(TracingHelper.ActivitySource.Name)
+					.ConfigureResource(resource =>
+						resource.AddService(TracingHelper.ActivitySource.Name, serviceVersion: buildConfig["GitHash"] ?? "local")
+						.AddAttributes(new Dictionary<string, object>
+						{
+							{ "deployment.environment", environmentName }
+						}))
+					.AddAspNetCoreInstrumentation(cfg =>
+					{
+						cfg.RecordException = true;
+					});
+			});
 	}
 }

@@ -32,6 +32,7 @@ COPY ["./Directory.Build.*", "./"]
 COPY ["./eng/", "./eng/"]
 RUN dotnet build "Server/Server.csproj" -c Release -t:Restore
 
+COPY ["./.editorconfig", "./"]
 COPY ["./schemas/", "./schemas/"]
 COPY ["./Server/", "./Server/"]
 
@@ -68,6 +69,7 @@ COPY ["./.npmrc", "./"]
 COPY ["./.nvmrc", "./"]
 COPY ["./package.json", "./"]
 COPY ["./pnpm-*", "./"]
+COPY ["./.editorconfig", "./"]
 COPY ["./Directory.Build.*", "./"]
 COPY ["./eng/", "./eng/"]
 COPY ["./ui/Ui.esproj", "./ui/"]

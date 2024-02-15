@@ -21,7 +21,10 @@ public static class ServiceRegistration
 		IConfigurationSection dataProtectionConfig)
 	{
 		services.AddHealthChecks();
-		services.AddControllers();
+		services.AddControllers(config =>
+		{
+			config.Filters.Add(new MvcActionTracing());
+		});
 
 		services.Configure<BuildOptions>(buildConfig);
 

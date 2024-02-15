@@ -2,10 +2,13 @@ import { describe, it, expect, expectTypeOf } from 'vitest';
 import { elementTemplate } from './elementTemplate';
 import { render } from '@testing-library/react';
 import type { PropsOf } from './types';
+import { describeElementTemplate } from './test-utils';
 
 describe('elementTemplate', () => {
 	describe('with a basic HTML element', () => {
 		const Basic = elementTemplate('Basic', 'div', (T) => <T />);
+
+		describeElementTemplate(Basic);
 
 		it(`matches the original element's signature`, () => {
 			expect(Basic).not.toBeNull();

@@ -26,7 +26,7 @@ module.exports = {
 			extends: [
 				// Recommended typescript changes, which removes some "no-undef" checks that TS handles
 				'plugin:@typescript-eslint/eslint-recommended',
-				'plugin:@typescript-eslint/recommended-requiring-type-checking',
+				'plugin:@typescript-eslint/recommended-type-checked',
 				'plugin:@typescript-eslint/recommended',
 			],
 			rules: {
@@ -38,6 +38,44 @@ module.exports = {
 				],
 				// no-unsafe-assignment complains when passing components as variables
 				'@typescript-eslint/no-unsafe-assignment': [0],
+				// Adds naming conventions
+				'@typescript-eslint/naming-convention': [
+					'error',
+					{
+						selector: 'default',
+						// React requires PascalCase for components, which can
+						// be functions, variables, parameters, etc.
+						format: ['camelCase', 'PascalCase'],
+						leadingUnderscore: 'forbid',
+					},
+					{
+						selector: 'class',
+						format: ['PascalCase'],
+					},
+					{
+						selector: 'classProperty',
+						modifiers: ['private'],
+						format: ['camelCase'],
+						leadingUnderscore: 'require',
+					},
+					{
+						selector: 'typeParameter',
+						format: ['PascalCase'],
+						prefix: ['T'],
+					},
+					{
+						selector: 'typeAlias',
+						format: ['PascalCase'],
+					},
+					{
+						selector: 'interface',
+						format: ['PascalCase'],
+					},
+					{
+						selector: ['objectLiteralProperty', 'import'], // This effectively disables the rule for object literal properties and imports, which we do not always control
+						format: null,
+					},
+				],
 			},
 		},
 	],

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.DataProtection;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 
-namespace PrincipleStudios.ScaledGitApp.Api.Environment;
+namespace PrincipleStudios.ScaledGitApp.Environment;
 
 public static class ServiceRegistration
 {

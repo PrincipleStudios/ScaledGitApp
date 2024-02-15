@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace PrincipleStudios.ScaledGitApp.Api.Environment;
+namespace PrincipleStudios.ScaledGitApp.Environment;
 
 public static class TracingHelper
 {

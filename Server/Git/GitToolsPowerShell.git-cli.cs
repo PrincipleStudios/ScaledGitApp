@@ -20,6 +20,12 @@ public sealed partial class GitToolsPowerShell : IGitToolsPowerShell
 		ThrowIfHadErrors(await pwsh.InvokeCliAsync("git", "branch", "-D", currentBranch));
 	}
 
+	public async Task GitFetch()
+	{
+		using var pwsh = await CreateGitToolsPowershell();
+		ThrowIfHadErrors(await pwsh.InvokeCliAsync("git", "fetch", "--porcelain"));
+	}
+
 	private static readonly Regex gitRemoteLine = new Regex(@"^(?<alias>[^\t]+)\t(?<url>[^ ]+) \(fetch\)$");
 	public async Task<GitRemoteResult> GitRemote()
 	{

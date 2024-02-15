@@ -9,6 +9,11 @@ public interface IGitToolsPowerShell : IDisposable
 	Task GitClone(string repository);
 
 	/// <summary>
+	/// Fetches updates in the git working directory.
+	/// </summary>
+	Task GitFetch();
+
+	/// <summary>
 	/// Gets the list of remotes for the git working directory
 	/// </summary>
 	/// <returns>A list of remotes</returns>

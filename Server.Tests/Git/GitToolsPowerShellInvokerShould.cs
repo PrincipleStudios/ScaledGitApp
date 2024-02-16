@@ -2,17 +2,13 @@
 using Microsoft.Extensions.Options;
 using Moq;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
+using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public partial class GitToolsPowerShellShould : IClassFixture<GitToolsPowerShellFixture>
+public partial class GitToolsPowerShellInvokerShould
 {
-	private readonly GitToolsPowerShellFixture fixture;
-
-	public GitToolsPowerShellShould(GitToolsPowerShellFixture fixture)
-	{
-		this.fixture = fixture;
-	}
+	private readonly GitToolsPowerShellInvokerFixture fixture = new GitToolsPowerShellInvokerFixture();
 
 	[Fact]
 	public async Task Instantiate_without_immediately_invoking()
@@ -44,12 +40,12 @@ public partial class GitToolsPowerShellShould : IClassFixture<GitToolsPowerShell
 		fixture.MockPowerShellFactory.Setup(ps => ps.CreateRunspace(null)).Returns(runspace);
 		var createdWithRunspace = fixture.MockPowerShellFactory.Verifiable(ps => ps.Create(runspace), s => s.Returns(mockFinal.Object));
 
-		var verifyGitRemote = ToolsCommands.GitRemoteShould.SetupGitRemote(mockFinal);
+		var verifyGitRemote = GitRemoteShould.SetupGitRemote(mockFinal);
 
 		// By mocking the factory directly, we test the typical DI constructor with working directory setup
 		using var target = fixture.CreateTarget(mockFactoryDirectly: false);
 
-		var remotes = await target.GitRemote();
+		var remotes = await target.RunCommand(new GitRemote());
 
 		Assert.Equal(expectedWorkingDirectory, Path.TrimEndingDirectorySeparator(runspace.SessionStateProxy.Path.CurrentLocation.Path));
 		createdWithRunspace.Verify(Times.Once);
@@ -62,12 +58,12 @@ public partial class GitToolsPowerShellShould : IClassFixture<GitToolsPowerShell
 		var mockFinal = new Mock<IPowerShell>();
 		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
 
-		var verifyGitRemote = ToolsCommands.GitRemoteShould.SetupGitRemote(mockFinal);
+		var verifyGitRemote = GitRemoteShould.SetupGitRemote(mockFinal);
 
 		// By mocking the factory directly, we test the typical DI constructor with working directory setup
 		using var target = fixture.CreateTarget();
 
-		var remotes = await target.GitRemote();
+		var remotes = await target.RunCommand(new GitRemote());
 
 		verifyGitRemote.Verify(Times.Once);
 	}

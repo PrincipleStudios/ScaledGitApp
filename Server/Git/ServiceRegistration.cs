@@ -12,6 +12,6 @@ public static class ServiceRegistration
 		services.Configure<GitOptions>(configurationSection);
 
 		// Services
-		services.AddSingleton<IGitToolsPowerShell, GitToolsPowerShell>();
+		services.AddSingleton<IGitToolsInvoker, GitToolsPowerShellInvoker>();
 	}
 }

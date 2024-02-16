@@ -4,27 +4,22 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class GitRemoteShould : IClassFixture<GitToolsPowerShellFixture>
+public class GitRemoteShould
 {
 	private readonly GitToolsPowerShellFixture fixture;
 
-	public GitRemoteShould(GitToolsPowerShellFixture fixture)
+	public GitRemoteShould()
 	{
-		this.fixture = fixture;
+		this.fixture = new GitToolsPowerShellFixture();
 	}
 
 	[Fact]
 	public async Task Allow_no_remotes()
 	{
-		var mockFinal = new Mock<IPowerShell>();
-		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
+		var verifyGitRemote = SetupGitRemote(fixture.MockPowerShell);
+		var target = new GitRemote();
 
-		var verifyGitRemote = SetupGitRemote(mockFinal);
-
-		// By mocking the factory directly, we test the typical DI constructor with working directory setup
-		using var target = fixture.CreateTarget();
-
-		var remotes = await target.GitRemote();
+		var remotes = await target.RunCommand(fixture.Create());
 
 		Assert.Empty(remotes.Remotes);
 		verifyGitRemote.Verify(Times.Once);
@@ -33,16 +28,11 @@ public class GitRemoteShould : IClassFixture<GitToolsPowerShellFixture>
 	[Fact]
 	public async Task Allow_one_remote()
 	{
-		var expectedRemote = new GitRemote("origin", "https://example.com/.git");
-		var mockFinal = new Mock<IPowerShell>();
-		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
+		var expectedRemote = new GitRemoteEntry("origin", "https://example.com/.git");
+		var verifyGitRemote = SetupGitRemote(fixture.MockPowerShell, [expectedRemote]);
+		var target = new GitRemote();
 
-		var verifyGitRemote = SetupGitRemote(mockFinal, [expectedRemote]);
-
-		// By mocking the factory directly, we test the typical DI constructor with working directory setup
-		using var target = fixture.CreateTarget();
-
-		var remotes = await target.GitRemote();
+		var remotes = await target.RunCommand(fixture.Create());
 
 		var actualRemote = Assert.Single(remotes.Remotes);
 		Assert.Equal(expectedRemote, actualRemote);
@@ -52,17 +42,12 @@ public class GitRemoteShould : IClassFixture<GitToolsPowerShellFixture>
 	[Fact]
 	public async Task Allow_multiple_remotes()
 	{
-		var expectedRemote1 = new GitRemote("github", "https://example.com/1.git");
-		var expectedRemote2 = new GitRemote("azure", "https://example.com/2.git");
-		var mockFinal = new Mock<IPowerShell>();
-		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
+		var expectedRemote1 = new GitRemoteEntry("github", "https://example.com/1.git");
+		var expectedRemote2 = new GitRemoteEntry("azure", "https://example.com/2.git");
+		var verifyGitRemote = SetupGitRemote(fixture.MockPowerShell, [expectedRemote1, expectedRemote2]);
+		var target = new GitRemote();
 
-		var verifyGitRemote = SetupGitRemote(mockFinal, [expectedRemote1, expectedRemote2]);
-
-		// By mocking the factory directly, we test the typical DI constructor with working directory setup
-		using var target = fixture.CreateTarget();
-
-		var remotes = await target.GitRemote();
+		var remotes = await target.RunCommand(fixture.Create());
 
 		Assert.Collection(
 			remotes.Remotes,
@@ -72,7 +57,7 @@ public class GitRemoteShould : IClassFixture<GitToolsPowerShellFixture>
 		verifyGitRemote.Verify(Times.Once);
 	}
 
-	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitRemote(Mock<IPowerShell> target, IEnumerable<GitRemote>? remotes = null)
+	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitRemote(Mock<IPowerShell> target, IEnumerable<GitRemoteEntry>? remotes = null)
 	{
 		return target.Verifiable(
 			ps => ps.InvokeCliAsync("git", "remote", "-v"),

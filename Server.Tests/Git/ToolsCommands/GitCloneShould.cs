@@ -3,28 +3,24 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class GitCloneShould : IClassFixture<GitToolsPowerShellFixture>
+public class GitCloneShould
 {
 	private readonly GitToolsPowerShellFixture fixture;
 
-	public GitCloneShould(GitToolsPowerShellFixture fixture)
+	public GitCloneShould()
 	{
-		this.fixture = fixture;
+		this.fixture = new GitToolsPowerShellFixture();
 	}
 
 	[Fact]
 	public async Task Issue_a_clone()
 	{
 		var expectedRepository = "https://example.com/.git";
-		var mockFinal = new Mock<IPowerShell>();
-		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
 
-		var verifyGitClone = SetupGitClone(mockFinal, expectedRepository);
+		var verifyGitClone = SetupGitClone(fixture.MockPowerShell, expectedRepository);
+		var target = new GitClone(expectedRepository);
 
-		// By mocking the factory directly, we test the typical DI constructor with working directory setup
-		using var target = fixture.CreateTarget();
-
-		await target.GitClone(expectedRepository);
+		await target.RunCommand(fixture.Create());
 
 		verifyGitClone.Verify(Times.Once);
 	}

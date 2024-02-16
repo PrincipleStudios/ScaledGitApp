@@ -49,7 +49,11 @@
 		 -->
 		<NoWarn>$(NoWarn);CS8002</NoWarn>
 	</PropertyGroup>
-		
+
+	<ItemGroup>
+		<EditorConfigFiles Remove="$(SolutionRoot)**/*" />
+		<EditorConfigFiles Include="$(SolutionRoot).editorconfig" Visible="false" />
+	</ItemGroup>
 
 	<Target Name="_FormatSourceFiles"
 	        Condition=" '$(Configuration)' == 'Debug' "

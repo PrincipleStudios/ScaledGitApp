@@ -62,4 +62,8 @@ components:
       items:
         $ref: '#/components/schemas/Branch'
     Branch:
-      type: string
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string

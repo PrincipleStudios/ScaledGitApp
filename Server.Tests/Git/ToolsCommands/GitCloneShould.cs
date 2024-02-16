@@ -36,6 +36,15 @@ public class GitCloneShould
 		);
 	}
 
+	/// <summary>
+	/// This function verifies that a set of args matches a `git clone
+	/// <paramref name="expectedRepository"/>.` command with any other
+	/// switches. At this time, it doesn't support parameterized args, but none
+	/// are passed at this time, either. Tests will fail if this changes.
+	/// </summary>
+	/// <param name="args">The actual args from this command</param>
+	/// <param name="expectedRepository">The repository we expect to clone</param>
+	/// <returns>True if <paramref name="expectedRepository"/> is a `clone` command and it clones to the current directory</returns>
 	static bool VerifyCliArgs(string[] args, string expectedRepository)
 	{
 		var nonSwitchArgs = args.Where(arg => !arg.StartsWith('-')).ToArray();

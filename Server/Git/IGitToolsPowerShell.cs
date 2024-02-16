@@ -1,24 +1,21 @@
-﻿namespace PrincipleStudios.ScaledGitApp.Git;
+﻿using PrincipleStudios.ScaledGitApp.ShellUtilities;
+using System.Management.Automation;
 
-public interface IGitToolsPowerShell : IDisposable
+namespace PrincipleStudios.ScaledGitApp.Git;
+
+public interface IGitToolsInvoker : IDisposable
 {
-	/// <summary>
-	/// Clones a git repository into the git working directory.
-	/// </summary>
-	/// <param name="repository">The Git URL for the repository to clone</param>
-	Task GitClone(string repository);
-
-	/// <summary>
-	/// Fetches updates in the git working directory.
-	/// </summary>
-	Task GitFetch();
-
-	/// <summary>
-	/// Gets the list of remotes for the git working directory
-	/// </summary>
-	/// <returns>A list of remotes</returns>
-	Task<GitRemoteResult> GitRemote();
+	Task RunCommand(IGitToolsCommand<Task> command);
+	Task<T> RunCommand<T>(IGitToolsCommand<Task<T>> command);
 }
 
-public record GitRemoteResult(IReadOnlyList<GitRemote> Remotes);
-public record GitRemote(string Alias, string FetchUrl);
+public interface IGitToolsPowerShell
+{
+	Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments);
+	Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters);
+}
+
+public interface IGitToolsCommand<T> where T : Task
+{
+	T RunCommand(IGitToolsPowerShell pwsh);
+}

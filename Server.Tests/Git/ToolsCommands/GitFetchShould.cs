@@ -4,27 +4,17 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class GitFetchShould : IClassFixture<GitToolsPowerShellFixture>
+public class GitFetchShould
 {
-	private readonly GitToolsPowerShellFixture fixture;
-
-	public GitFetchShould(GitToolsPowerShellFixture fixture)
-	{
-		this.fixture = fixture;
-	}
+	private readonly GitToolsPowerShellFixture fixture = new GitToolsPowerShellFixture();
 
 	[Fact]
 	public async Task Issue_a_fetch_command()
 	{
-		var mockFinal = new Mock<IPowerShell>();
-		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
+		var verifyGitFetch = SetupGitFetch(fixture.MockPowerShell);
+		var target = new GitFetch();
 
-		var verifyGitFetch = SetupGitFetch(mockFinal);
-
-		// By mocking the factory directly, we test the typical DI constructor with working directory setup
-		using var target = fixture.CreateTarget();
-
-		await target.GitFetch();
+		await target.RunCommand(fixture.Create());
 
 		verifyGitFetch.Verify(Times.Once);
 	}

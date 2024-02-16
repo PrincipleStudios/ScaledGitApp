@@ -5,22 +5,22 @@ using System.Management.Automation.Runspaces;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed partial class GitToolsPowerShell : IGitToolsPowerShell
+public sealed class GitToolsPowerShellInvoker : IGitToolsInvoker
 {
 	private readonly GitOptions gitOptions;
 	private readonly Lazy<Task<Func<IPowerShell>>> powerShellFactory;
-	private readonly ILogger<GitToolsPowerShell> logger;
+	private readonly ILogger<GitToolsPowerShellInvoker> logger;
 	private Runspace? runspace;
 	private bool disposedValue;
 
-	public GitToolsPowerShell(IOptions<GitOptions> options, PowerShellFactory psFactory, ILogger<GitToolsPowerShell> logger)
+	public GitToolsPowerShellInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, ILogger<GitToolsPowerShellInvoker> logger)
 	{
 		gitOptions = options.Value;
 		powerShellFactory = new(() => CreatePowerShellWithGitDirectory(psFactory));
 		this.logger = logger;
 	}
 
-	public GitToolsPowerShell(IOptions<GitOptions> options, Func<IPowerShell> psFactory, ILogger<GitToolsPowerShell> logger)
+	public GitToolsPowerShellInvoker(IOptions<GitOptions> options, Func<IPowerShell> psFactory, ILogger<GitToolsPowerShellInvoker> logger)
 	{
 		gitOptions = options.Value;
 		powerShellFactory = new(Task.FromResult(psFactory));
@@ -57,12 +57,15 @@ public sealed partial class GitToolsPowerShell : IGitToolsPowerShell
 		return (await powerShellFactory.Value)();
 	}
 
-	private async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
+	public async Task RunCommand(IGitToolsCommand<Task> command)
 	{
-		using var ps = await CreateGitToolsPowershell();
-		var scriptPath = Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
-
-		return await ps.InvokeExternalScriptAsync(scriptPath, addParameters);
+		using var pwsh = new GitToolsPowerShell(await CreateGitToolsPowershell(), gitOptions);
+		await command.RunCommand(pwsh);
+	}
+	public async Task<T> RunCommand<T>(IGitToolsCommand<Task<T>> command)
+	{
+		using var pwsh = new GitToolsPowerShell(await CreateGitToolsPowershell(), gitOptions);
+		return await command.RunCommand(pwsh);
 	}
 
 	#region Dispose Pattern
@@ -88,4 +91,34 @@ public sealed partial class GitToolsPowerShell : IGitToolsPowerShell
 	}
 
 	#endregion Dispose Pattern
+}
+
+public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
+{
+	private readonly IPowerShell pwsh;
+	private readonly GitOptions gitOptions;
+
+	public GitToolsPowerShell(IPowerShell pwsh, GitOptions gitOptions)
+	{
+		this.pwsh = pwsh;
+		this.gitOptions = gitOptions;
+	}
+
+	public void Dispose()
+	{
+		pwsh.Dispose();
+	}
+
+	public async Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments)
+	{
+		return await pwsh.InvokeCliAsync($"{command}", arguments);
+	}
+
+	public async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
+	{
+		var scriptPath = Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
+
+		return await pwsh.InvokeExternalScriptAsync(scriptPath, addParameters);
+	}
+
 }

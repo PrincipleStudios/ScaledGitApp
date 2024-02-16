@@ -13,7 +13,7 @@ internal sealed class PowerShellWrapperImplementation : IPowerShell
 		this.powerShell = powerShell;
 	}
 
-	public async Task<PowerShellInvocationResult> InvokeCliAsync(string command, IEnumerable<string> arguments)
+	public async Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments)
 	{
 		using Activity? activity = TracingHelper.StartActivity(nameof(InvokeCliAsync));
 		activity?.AddTag("cmd", command);

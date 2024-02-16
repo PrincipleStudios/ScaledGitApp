@@ -3,28 +3,24 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class GitCloneShould : IClassFixture<GitToolsPowerShellFixture>
+public class GitCloneShould
 {
 	private readonly GitToolsPowerShellFixture fixture;
 
-	public GitCloneShould(GitToolsPowerShellFixture fixture)
+	public GitCloneShould()
 	{
-		this.fixture = fixture;
+		this.fixture = new GitToolsPowerShellFixture();
 	}
 
 	[Fact]
 	public async Task Issue_a_clone()
 	{
 		var expectedRepository = "https://example.com/.git";
-		var mockFinal = new Mock<IPowerShell>();
-		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
 
-		var verifyGitClone = SetupGitClone(mockFinal, expectedRepository);
+		var verifyGitClone = SetupGitClone(fixture.MockPowerShell, expectedRepository);
+		var target = new GitClone(expectedRepository);
 
-		// By mocking the factory directly, we test the typical DI constructor with working directory setup
-		using var target = fixture.CreateTarget();
-
-		await target.GitClone(expectedRepository);
+		await target.RunCommand(fixture.Create());
 
 		verifyGitClone.Verify(Times.Once);
 	}
@@ -40,6 +36,15 @@ public class GitCloneShould : IClassFixture<GitToolsPowerShellFixture>
 		);
 	}
 
+	/// <summary>
+	/// This function verifies that a set of args matches a `git clone
+	/// <paramref name="expectedRepository"/>.` command with any other
+	/// switches. At this time, it doesn't support parameterized args, but none
+	/// are passed at this time, either. Tests will fail if this changes.
+	/// </summary>
+	/// <param name="args">The actual args from this command</param>
+	/// <param name="expectedRepository">The repository we expect to clone</param>
+	/// <returns>True if <paramref name="expectedRepository"/> is a `clone` command and it clones to the current directory</returns>
 	static bool VerifyCliArgs(string[] args, string expectedRepository)
 	{
 		var nonSwitchArgs = args.Where(arg => !arg.StartsWith('-')).ToArray();

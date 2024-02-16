@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using PrincipleStudios.ScaledGitApp.Environment;
+using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 using System.Diagnostics;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
@@ -7,10 +8,10 @@ namespace PrincipleStudios.ScaledGitApp.Git;
 public class GitCloneService : IHostedService
 {
 	private readonly GitOptions gitOptions;
-	private readonly IGitToolsPowerShell gitToolsPowershell;
+	private readonly IGitToolsInvoker gitToolsPowershell;
 	private readonly ILogger<GitCloneService> logger;
 
-	public GitCloneService(IOptions<GitOptions> options, IGitToolsPowerShell gitToolsPowershell, ILogger<GitCloneService> logger)
+	public GitCloneService(IOptions<GitOptions> options, IGitToolsInvoker gitToolsPowershell, ILogger<GitCloneService> logger)
 	{
 		gitOptions = options.Value;
 		this.gitToolsPowershell = gitToolsPowershell;
@@ -41,7 +42,7 @@ public class GitCloneService : IHostedService
 
 		try
 		{
-			var remotes = await gitToolsPowershell.GitRemote();
+			var remotes = await gitToolsPowershell.RunCommand(new GitRemote());
 
 			if (remotes.Remotes.Count == 0)
 			{
@@ -75,7 +76,7 @@ public class GitCloneService : IHostedService
 
 		try
 		{
-			await gitToolsPowershell.GitClone(gitOptions.Repository);
+			await gitToolsPowershell.RunCommand(new GitClone(gitOptions.Repository));
 			logger.GitClonedSuccessfully(gitOptions.Repository, gitOptions.WorkingDirectory);
 			return GitCloneServiceStatus.ClonedSuccessfully;
 		}

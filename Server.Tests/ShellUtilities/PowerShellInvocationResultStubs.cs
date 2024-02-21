@@ -1,4 +1,5 @@
-﻿using PrincipleStudios.ScaledGitApp.ShellUtilities;
+﻿using OpenTelemetry.Trace;
+using PrincipleStudios.ScaledGitApp.ShellUtilities;
 using System.Management.Automation;
 
 namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
@@ -25,5 +26,18 @@ public static class PowerShellInvocationResultStubs
 		Empty with
 		{
 			Results = lines.Select(line => new PSObject(line)).ToArray()
+		};
+
+	public static PowerShellInvocationResult WithCliErrors(params string[] lines) =>
+		Empty with
+		{
+			HadErrors = true,
+			Streams = Empty.Streams with
+			{
+				Error = (
+					from line in lines
+					select new ErrorRecord(new RemoteException(line), "NativeCommandError", ErrorCategory.NotSpecified, line)
+				).ToArray()
+			}
 		};
 }

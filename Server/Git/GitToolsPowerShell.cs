@@ -95,16 +95,23 @@ public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
 		pwsh.Dispose();
 	}
 
-	public async Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments)
+	// TODO: this should not get hard-coded
+	public string UpstreamBranchName => "origin/_upstream";
+
+	public Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments) =>
+		pwsh.InvokeCliAsync(command, arguments);
+
+	public Task<PowerShellInvocationResult> InvokeCliAsync<T>(string command, IEnumerable<string> arguments, PSDataCollection<T> input) =>
+		pwsh.InvokeCliAsync(command, input, arguments);
+
+	public Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters) =>
+		pwsh.InvokeExternalScriptAsync(ToAbsoluteScriptPath(relativeScriptName), addParameters);
+
+	public Task<PowerShellInvocationResult> InvokeGitToolsAsync<T>(string relativeScriptName, Action<PowerShell> addParameters, PSDataCollection<T> input) =>
+		pwsh.InvokeExternalScriptAsync(ToAbsoluteScriptPath(relativeScriptName), input, addParameters);
+
+	private string ToAbsoluteScriptPath(string relativeScriptName)
 	{
-		return await pwsh.InvokeCliAsync($"{command}", arguments);
+		return Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
 	}
-
-	public async Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters)
-	{
-		var scriptPath = Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
-
-		return await pwsh.InvokeExternalScriptAsync(scriptPath, addParameters);
-	}
-
 }

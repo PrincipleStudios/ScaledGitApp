@@ -2,8 +2,10 @@ import { twMerge } from 'tailwind-merge';
 import { elementTemplate } from '../templating';
 import styles from './layout.module.css';
 import { LoadingSection } from './LoadingSection';
+import type { HeaderProps } from './header.presentation';
 
 export type LayoutProps = {
+	header: React.ComponentType<HeaderProps>;
 	children?: React.ReactNode;
 };
 
@@ -21,10 +23,11 @@ const Main = base.extend('Main', () => (
 	/>
 ));
 
-export function LayoutPresentation({ children }: LayoutProps) {
+export function LayoutPresentation({ header: Header, children }: LayoutProps) {
 	return (
 		<LayoutContainer>
 			<LoadingSection>
+				<Header />
 				<Main>{children}</Main>
 			</LoadingSection>
 		</LayoutContainer>

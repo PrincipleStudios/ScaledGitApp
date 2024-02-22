@@ -5,6 +5,10 @@
 	grid-template-areas: 'header' 'subheader' 'main';
 }
 
+.header {
+	grid-area: header;
+}
+
 .main {
 	grid-area: main;
 }

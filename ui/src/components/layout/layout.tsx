@@ -1,6 +1,6 @@
 import { LayoutPresentation } from './layout.presentation';
 import type { LayoutProps } from './layout.presentation';
 
-export function Layout({ children }: LayoutProps) {
-	return <LayoutPresentation>{children}</LayoutPresentation>;
+export function Layout(props: LayoutProps) {
+	return <LayoutPresentation {...props} />;
 }

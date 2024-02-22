@@ -5,15 +5,17 @@ namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
 public record PowerShellInvocationResult(
 	IReadOnlyList<PSObject> Results,
 	PSInvocationState InvocationState,
-	Exception InvocationStateException,
+	Exception? InvocationStateException,
 	bool HadErrors,
 	IReadOnlyList<PSObject>? ErrorContents,
-	PowerShellInvocationStreams Streams)
+	PowerShellInvocationStreams Streams);
+
+public static class PowerShellInvocationResultExtensions
 {
 
-	public static async Task<PowerShellInvocationResult> InvokeAsync(PowerShell ps)
+	public static async Task<PowerShellInvocationResult> ToInvocationResult(this Task<PSDataCollection<PSObject>> resultTask, PowerShell ps)
 	{
-		var results = (await ps.InvokeAsync()).ToArray();
+		var results = (await resultTask).ToArray();
 
 		var debugRecords = ps.Streams.Debug.ToArray();
 		var verboseRecords = ps.Streams.Verbose.ToArray();

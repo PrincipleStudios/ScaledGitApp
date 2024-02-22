@@ -43,6 +43,10 @@ To run locally, use one of the following options:
      pnpm start
      ```
 
+If you have `docker-compose` installed and your container runtime started at the
+time of building, Jaeger will be automatically started at http://localhost:16686/
+for collecting local OpenTelementry data.
+
 ## Hosting
 
 Hosting for these tools will be via a Docker container with environment

@@ -1,6 +1,10 @@
-import { useTranslation } from 'react-i18next';
+import { useGitVersion } from './useGitVersion';
 
 export function OverviewComponent() {
-	const { t } = useTranslation(['generic']);
-	return <>{t('hello-world')}</>;
+	const GitVersion = useGitVersion();
+	return (
+		<>
+			<GitVersion />
+		</>
+	);
 }

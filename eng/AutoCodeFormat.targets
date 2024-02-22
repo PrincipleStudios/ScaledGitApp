@@ -10,8 +10,10 @@
 		<!--
 			CA1852 - seal internal types
 			CA2007 - ConfigureAwait
+			CA1054 - provide overloads with System.Uri
+			CA1056 - prefer System.Uri over string - not using this because System.Uri doesn't do equality the same
 		 -->
-		<NoWarn>$(NoWarn),CA1852,CA2007</NoWarn>
+		<NoWarn>$(NoWarn),CA1852,CA2007,CA1054,CA1056</NoWarn>
 		<!--
 			CA1303 - use resource table (TODO: fix this after refactor for error messages)
 			CA1304 - specify CultureInfo

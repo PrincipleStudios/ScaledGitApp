@@ -5,7 +5,7 @@ namespace PrincipleStudios.ScaledGitApp.ShellUtilities;
 public record PowerShellInvocationResult(
 	IReadOnlyList<PSObject> Results,
 	PSInvocationState InvocationState,
-	Exception InvocationStateException,
+	Exception? InvocationStateException,
 	bool HadErrors,
 	IReadOnlyList<PSObject>? ErrorContents,
 	PowerShellInvocationStreams Streams)

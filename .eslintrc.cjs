@@ -1,7 +1,7 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
 	root: true,
-	plugins: ['@typescript-eslint'],
+	plugins: ['@typescript-eslint', 'import'],
 	extends: [
 		// The order of these matter:
 		// eslint baseline
@@ -74,6 +74,40 @@ module.exports = {
 					{
 						selector: ['objectLiteralProperty', 'import'], // This effectively disables the rule for object literal properties and imports, which we do not always control
 						format: null,
+					},
+				],
+				'import/order': [
+					'error',
+					{
+						pathGroupsExcludedImportTypes: ['react'],
+						'newlines-between': 'never',
+						alphabetize: {
+							order: 'asc',
+							caseInsensitive: true,
+						},
+						groups: [
+							'external',
+							'builtin',
+							'internal',
+							'parent',
+							'sibling',
+							'index',
+							'type',
+							'object',
+							'unknown',
+						],
+						pathGroups: [
+							{
+								pattern: 'react**',
+								group: 'external',
+								position: 'before',
+							},
+							{
+								pattern: '@*/**',
+								group: 'external',
+								position: 'before',
+							},
+						],
 					},
 				],
 			},

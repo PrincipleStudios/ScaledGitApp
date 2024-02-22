@@ -5,6 +5,6 @@ export const getUpstreamData = {
 	queryFn: async () => {
 		const response = await api.getUpstreamData();
 		if (response.statusCode !== 200) return Promise.reject(response);
-		return response;
+		return response.data;
 	},
 };

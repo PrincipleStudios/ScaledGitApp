@@ -87,7 +87,7 @@ ENV VITE_GITHASH=${GITHASH}
 RUN cd ./ui/ && dotnet build -c Release
 
 
-RUN cd ui/src/i18n && find . -type f -regex ".*\.json" | cpio -dumv -p /src/Server/wwwroot/.
+RUN cd ui/src/i18n && find . -type f -regex ".*\.json" | cpio -dumv -p /src/Server/wwwroot/i18n/.
 
 WORKDIR /src/Server/wwwroot
 RUN find . -type f -not -regex ".*\.\(avif\|jpg\|jpeg\|gif\|png\|webp\|mp4\|webm\)" -exec gzip -k "{}" \; -exec brotli -k "{}" \;
@@ -98,8 +98,8 @@ ENV BUILD__GITHASH=${GITHASH}
 ARG BUILDTAG
 ENV BUILD__TAG=${BUILDTAG}
 
-ENV LOCALIZATION__BUNDLEPATH=./config/core/<lang>.json
-ENV LOCALIZATION__STANDARDPATH=./config/core/<namespace>/<lang>.json
+ENV LOCALIZATION__BUNDLEPATH=./wwwroot/i18n/<lang>.json
+ENV LOCALIZATION__STANDARDPATH=./wwwroot/i18n/<namespace>/<lang>.json
 
 COPY --from=build-dotnet /src/artifacts/bin/Server/Release/net8.0/publish .
 COPY --from=build-ui /src/Server/wwwroot ./wwwroot

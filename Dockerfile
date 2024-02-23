@@ -59,6 +59,8 @@ RUN apt-get update \
       dotnet-runtime-7.0 \
       # Add .NET 8 for Build tooling
       dotnet-sdk-8.0 \
+      # Easy copying of i18n files to output
+      cpio \
     && apt-get clean
 
 # install pnpm

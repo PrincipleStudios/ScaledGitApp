@@ -80,9 +80,17 @@ paths:
 components:
   schemas:
     UpstreamBranches:
+      type: array
+      items:
+        $ref: '#/components/schemas/UpstreamBranchConfiguration'
+    UpstreamBranchConfiguration:
       type: object
-      additionalProperties:
-        $ref: '#/components/schemas/BranchList'
+      required:
+        - name
+        - upstream
+      properties:
+        name: { type: string }
+        upstream: { $ref: '#/components/schemas/BranchList' }
     BranchList:
       type: array
       items:

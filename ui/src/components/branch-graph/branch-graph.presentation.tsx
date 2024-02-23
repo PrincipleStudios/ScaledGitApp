@@ -5,6 +5,7 @@ import {
 	forceManyBody,
 	forceSimulation,
 } from 'd3-force';
+import { FullSizeSvg } from '../svg/full-size-svg';
 import type { BranchList, UpstreamBranches } from '../../generated/api/models';
 import type {
 	ForceLink,
@@ -31,39 +32,42 @@ type BranchGraphLinkDatum = {
 export function BranchGraphPresentation({
 	upstreamData,
 }: BranchGraphPresentationProps) {
-	const linkForce = useRef(
+	const linkingForce = useRef(
 		forceLink<BranchGraphSimulationDatum, BranchGraphLinkDatum>([]),
 	);
+	const centeringForce = useRef(forceCenter(150, 75));
 	const simulationRef = useRef(
 		forceSimulation<BranchGraphSimulationDatum, BranchGraphLinkDatum>([])
-			.force('link', linkForce.current)
+			.force('link', linkingForce.current)
 			.force('charge', forceManyBody().distanceMax(80).strength(-100))
-			.force('center', forceCenter(150, 75)),
+			.force('center', centeringForce.current),
 	);
 
 	const { nodes, links } = updateNodes(
 		simulationRef.current,
-		linkForce.current,
+		linkingForce.current,
 		upstreamData,
 	);
 
 	return (
-		<svg>
-			{links.map((link) => (
-				<line
-					key={`${link.downstreamBranchName}-${link.upstreamBranchName}`}
-					x1={link.source.x}
-					y1={link.source.y}
-					x2={link.target.x}
-					y2={link.target.y}
-					strokeWidth={1}
-					className="stroke-black"
-				/>
-			))}
-			{nodes.map((node) => (
-				<circle key={node.id} cx={node.x} cy={node.y} r={5} />
-			))}
-		</svg>
+		<section>
+			<FullSizeSvg>
+				{links.map((link) => (
+					<line
+						key={`${link.downstreamBranchName}-${link.upstreamBranchName}`}
+						x1={link.source.x}
+						y1={link.source.y}
+						x2={link.target.x}
+						y2={link.target.y}
+						strokeWidth={1}
+						className="stroke-black"
+					/>
+				))}
+				{nodes.map((node) => (
+					<circle key={node.id} cx={node.x} cy={node.y} r={5} />
+				))}
+			</FullSizeSvg>
+		</section>
 	);
 }
 

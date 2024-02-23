@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
+using System.Diagnostics;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
@@ -30,6 +32,8 @@ public class GitCloneService : IHostedService
 
 	public async Task<GitCloneServiceStatus> EnsureGitClone()
 	{
+		using Activity? activity = TracingHelper.StartActivity(nameof(EnsureGitClone));
+
 		if (gitOptions.Repository == null)
 		{
 			logger.NoGitRepositoryConfigured();

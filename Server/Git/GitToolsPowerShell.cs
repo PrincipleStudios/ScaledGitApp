@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
+using System.Diagnostics;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
@@ -57,15 +59,22 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsInvoker
 		return (await powerShellFactory.Value)();
 	}
 
-	public async Task RunCommand(IGitToolsCommand<Task> command)
+	// Can't use async if `T` is a generic of type Task, so we need to provide both
+	// implementations. `await await` is theoretically quite efficient:
+	// See https://stackoverflow.com/a/34832315/195653
+	public async Task RunCommand(IGitToolsCommand<Task> command) =>
+		await await RunCommandImplementation(command);
+	public async Task<T> RunCommand<T>(IGitToolsCommand<Task<T>> command) =>
+		await await RunCommandImplementation(command);
+
+	private async Task<T> RunCommandImplementation<T>(IGitToolsCommand<T> command) where T : Task
 	{
 		using var pwsh = new GitToolsPowerShell(await CreateGitToolsPowershell(), gitOptions);
-		await command.RunCommand(pwsh);
-	}
-	public async Task<T> RunCommand<T>(IGitToolsCommand<Task<T>> command)
-	{
-		using var pwsh = new GitToolsPowerShell(await CreateGitToolsPowershell(), gitOptions);
-		return await command.RunCommand(pwsh);
+		using var activity = TracingHelper.StartActivity(command.GetType().Name);
+		var result = command.RunCommand(pwsh);
+		// Ensure the command has been awaited before disposing the activity, but since we can't await something of type T, this has no return type.
+		await result.ConfigureAwait(false);
+		return result;
 	}
 
 	#region Dispose Pattern

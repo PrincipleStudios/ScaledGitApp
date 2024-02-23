@@ -41,6 +41,12 @@ importers:
 
   ui:
     dependencies:
+      '@principlestudios/jotai-react-signals':
+        specifier: ^0.5.1
+        version: 0.5.1(jotai@2.6.5)(react@18.2.0)
+      '@principlestudios/jotai-utilities':
+        specifier: ^0.5.2
+        version: 0.5.2(jotai@2.6.5)
       '@principlestudios/openapi-codegen-typescript':
         specifier: ^0.7.0
         version: 0.7.0
@@ -77,6 +83,9 @@ importers:
       i18next-multiload-backend-adapter:
         specifier: ^2.3.0
         version: 2.3.0
+      jotai:
+        specifier: ^2.6.5
+        version: 2.6.5(@types/react@18.2.55)(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -2102,6 +2111,25 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@principlestudios/jotai-react-signals@0.5.1(jotai@2.6.5)(react@18.2.0):
+    resolution: {integrity: sha512-W3a5fwnLWeyE+LEADWbL+OSYUwuLWHM4+GoygOLuyfXXlD3Ldf5nw3/40NpnT0+tqxX4MSRmP0YE34bA1AHBEQ==}
+    peerDependencies:
+      jotai: '>=2.0.0'
+      react: '>=17.0.0'
+    dependencies:
+      '@principlestudios/jotai-utilities': 0.5.2(jotai@2.6.5)
+      jotai: 2.6.5(@types/react@18.2.55)(react@18.2.0)
+      react: 18.2.0
+    dev: false
+
+  /@principlestudios/jotai-utilities@0.5.2(jotai@2.6.5):
+    resolution: {integrity: sha512-AVWz0QE4jGGOVwwX1IaXsHlq8RR4uXkgyO3iOCQkoSoOD/EMXqaEk813nyVRSMWrIKoHL7OguC8yxDPe7vtpSQ==}
+    peerDependencies:
+      jotai: '>=2.0.0'
+    dependencies:
+      jotai: 2.6.5(@types/react@18.2.55)(react@18.2.0)
+    dev: false
 
   /@principlestudios/openapi-codegen-typescript-fetch@0.7.1(@principlestudios/openapi-codegen-typescript@0.7.0):
     resolution: {integrity: sha512-095d54wEeFobm1du7YwlPQ016xCBZhaNSsKzna9IJNv0dWeq0tvchTrSMaHNTJvAW6/Y2bD7G59I3wYlxy8SRw==}
@@ -6827,6 +6855,22 @@ packages:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
     hasBin: true
     dev: true
+
+  /jotai@2.6.5(@types/react@18.2.55)(react@18.2.0):
+    resolution: {integrity: sha512-T+yvY42GXKomvJYqs+NeTH0da9Z1tQ3Qk3zppPHIWnvmOBKpN6Qd4j8h/oo9dwxs3w/Z5r6Kk0I8h6z5orQ/HQ==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      '@types/react': 18.2.55
+      react: 18.2.0
+    dev: false
 
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}

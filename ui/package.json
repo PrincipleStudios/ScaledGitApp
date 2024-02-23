@@ -14,6 +14,8 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
+		"@principlestudios/jotai-react-signals": "^0.5.1",
+		"@principlestudios/jotai-utilities": "^0.5.2",
 		"@principlestudios/openapi-codegen-typescript": "^0.7.0",
 		"@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
 		"@tanstack/react-query": "^5.22.2",
@@ -26,6 +28,7 @@
 		"i18next-browser-languagedetector": "^7.2.0",
 		"i18next-http-backend": "^2.5.0",
 		"i18next-multiload-backend-adapter": "^2.3.0",
+		"jotai": "^2.6.5",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-i18next": "^14.0.5",

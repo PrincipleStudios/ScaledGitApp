@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
 	forceCenter,
 	forceLink,
@@ -69,12 +69,22 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	}, []);
 
 	const store = useStore();
-	return updateNodes(
+	const { nodes, links } = updateNodes(
 		store,
 		simulationRef.current,
 		linkingForce.current,
 		upstreamData,
 	);
+	return {
+		nodes,
+		links,
+		svgRefCallback: useCallback((svg: SVGSVGElement | null) => {
+			if (svg) {
+				centeringForce.current.x(svg.clientWidth / 2);
+				centeringForce.current.y(svg.clientHeight / 2);
+			}
+		}, []),
+	};
 }
 
 function updateNodes(

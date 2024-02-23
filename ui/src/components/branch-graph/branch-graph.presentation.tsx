@@ -16,11 +16,11 @@ export type BranchGraphPresentationProps = {
 export function BranchGraphPresentation({
 	upstreamData,
 }: BranchGraphPresentationProps) {
-	const { nodes, links } = useBranchSimulation(upstreamData);
+	const { nodes, links, svgRefCallback } = useBranchSimulation(upstreamData);
 
 	return (
 		<section>
-			<FullSizeSvg>
+			<FullSizeSvg ref={svgRefCallback}>
 				{links.map((link) => (
 					<BranchLink key={link.id} link={link} />
 				))}

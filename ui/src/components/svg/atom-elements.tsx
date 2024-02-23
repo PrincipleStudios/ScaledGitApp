@@ -1,18 +1,22 @@
 import { withSignal, mapProperty } from '@principlestudios/jotai-react-signals';
 
+export const JotaiG = withSignal('g', {
+	className: mapProperty('className'),
+});
+
 export const JotaiCircle = withSignal('circle', {
-	cx: (el) => (cx: number) => el.setAttribute('cx', cx.toFixed(5)),
-	cy: (el) => (cy: number) => el.setAttribute('cy', cy.toFixed(5)),
-	r: (el) => (r: number) => el.setAttribute('r', r.toFixed(5)),
+	cx: (el) => (cx: string) => el.setAttribute('cx', cx),
+	cy: (el) => (cy: string) => el.setAttribute('cy', cy),
+	r: (el) => (r: string) => el.setAttribute('r', r),
 	className: mapProperty('className'),
 });
 
 export const JotaiLine = withSignal('line', {
-	x1: (el) => (x1: number) => el.setAttribute('x1', x1.toFixed(5)),
-	y1: (el) => (y1: number) => el.setAttribute('y1', y1.toFixed(5)),
-	x2: (el) => (x2: number) => el.setAttribute('x2', x2.toFixed(5)),
-	y2: (el) => (y2: number) => el.setAttribute('y2', y2.toFixed(5)),
-	strokeWidth: (el) => (strokeWidth: number) =>
-		el.setAttribute('strokeWidth', strokeWidth.toFixed(5)),
+	x1: (el) => (x1: string) => el.setAttribute('x1', x1),
+	y1: (el) => (y1: string) => el.setAttribute('y1', y1),
+	x2: (el) => (x2: string) => el.setAttribute('x2', x2),
+	y2: (el) => (y2: string) => el.setAttribute('y2', y2),
+	strokeWidth: (el) => (strokeWidth: string) =>
+		el.setAttribute('strokeWidth', strokeWidth),
 	className: mapProperty('className'),
 });

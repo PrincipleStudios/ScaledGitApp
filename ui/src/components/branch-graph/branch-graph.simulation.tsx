@@ -4,6 +4,7 @@ import {
 	forceLink,
 	forceManyBody,
 	forceSimulation,
+	forceX,
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
@@ -22,6 +23,7 @@ export type WithAtom<T> = T & {
 export type BranchGraphNodeDatum = {
 	id: string;
 	upstreamBranches: BranchList;
+	depth: number;
 } & SimulationNodeDatum;
 export type BranchGraphLinkDatum = {
 	id: string;
@@ -46,21 +48,28 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 		),
 	);
 	const centeringForce = useRef(forceCenter(150, 75));
-	const simulationRef = useRef(
-		forceSimulation<
+	const simulationRef = useRef<BranchSimulation>();
+	if (simulationRef.current === undefined) {
+		simulationRef.current = forceSimulation<
 			WithAtom<BranchGraphNodeDatum>,
 			WithAtom<BranchGraphLinkDatum>
 		>([])
 			.force('link', linkingForce.current)
 			.force('charge', forceManyBody().distanceMax(80).strength(-100))
-			.force('center', centeringForce.current),
-	);
+			.force(
+				'x',
+				forceX<WithAtom<BranchGraphNodeDatum>>(
+					(node) => node.depth * 100,
+				).strength(1),
+			)
+			.force('center', centeringForce.current);
+	}
 
 	useEffect(function runSimulation() {
 		let cancelToken: null | number = null;
 		function animate() {
 			cancelToken = requestAnimationFrame(animate);
-			simulationRef.current.tick();
+			simulationRef.current?.tick();
 		}
 		animate();
 		return () => {
@@ -93,6 +102,7 @@ function updateNodes(
 	linkForce: BranchLinkForce,
 	upstreamData: UpstreamBranches,
 ) {
+	// Updates nodes while creating atom proxy for animation
 	const oldNodes = simulation.nodes();
 	const newNodes = upstreamData.map((entry) =>
 		findOrCreate(
@@ -103,17 +113,21 @@ function updateNodes(
 			{
 				id: entry.name,
 				upstreamBranches: entry.upstream,
+				depth: 0,
 			},
 		),
 	);
-	simulation.nodes(newNodes);
+	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum>>(
+		newNodes.map((e) => [e.id, e] as const),
+	);
 
+	// Updates links while creating atom proxy for animation
 	const oldLinks = linkForce.links();
 	const newLinks = upstreamData.flatMap((entry) => {
-		const target = newNodes.find((n) => n.id === entry.name);
+		const target = nodeLookup.get(entry.name);
 		if (!target) throw new Error(`Unknown branch name: ${entry.name}`);
 		return entry.upstream.map((upstreamBranch) => {
-			const source = newNodes.find((n) => n.id === upstreamBranch.name);
+			const source = nodeLookup.get(upstreamBranch.name);
 			if (!source)
 				throw new Error(`Unknown branch name: ${upstreamBranch.name}`);
 			const id = `${entry.name}-${upstreamBranch.name}`;
@@ -133,11 +147,34 @@ function updateNodes(
 			);
 		});
 	});
+
+	// Sets the node depth. TODO: double-check my algorithm, this is inefficient
+	const depth: Record<string, number> = Object.fromEntries(
+		upstreamData.map((e) => [e.name, 0] as const),
+	);
+	for (let i = 0; i < newNodes.length; i++) {
+		for (let j = 0; j < newNodes.length; j++) {
+			for (let k = 0; k < newNodes[j].upstreamBranches.length; k++) {
+				depth[newNodes[j].id] = Math.max(
+					depth[newNodes[j].upstreamBranches[k].name] + 1,
+					depth[newNodes[j].id],
+				);
+			}
+		}
+	}
+	for (let i = 0; i < newNodes.length - 1; i++) {
+		if (newNodes[i].depth !== depth[newNodes[i].id])
+			newNodes[i].depth = depth[newNodes[i].id];
+	}
+
+	// Updates the simulation and link force
+	simulation.nodes(newNodes);
 	linkForce.links(newLinks);
 
 	return { nodes: newNodes, links: newLinks };
 }
 
+// Finds or creates an item in the list with an atom produced by a proxy
 function findOrCreate<TPartial, T extends TPartial>(
 	store: JotaiStore,
 	previous: WithAtom<T>[],

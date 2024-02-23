@@ -10,8 +10,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/parts/cache/
       - name: 'Prepare UI for linting'
+        # Runs pnpm install, generates APIs, etc.
         run: |
-          pnpm install
+          dotnet build -t:PrepareForBuild
       - name: 'Run full lint'
         run: |
           pnpm lint

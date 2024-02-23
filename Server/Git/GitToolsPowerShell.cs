@@ -12,8 +12,6 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsInvoker
 	private readonly GitOptions gitOptions;
 	private readonly Lazy<Task<Func<IPowerShell>>> powerShellFactory;
 	private readonly ILogger<GitToolsPowerShellInvoker> logger;
-	private Runspace? runspace;
-	private bool disposedValue;
 
 	public GitToolsPowerShellInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, ILogger<GitToolsPowerShellInvoker> logger)
 	{
@@ -49,9 +47,12 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsInvoker
 			_ => throw new InvalidOperationException("Unknown result from `git rev-parse --show-toplevel`")
 		};
 
-		runspace = psFactory.CreateRunspace();
-		runspace.SetCurrentWorkingDirectory(gitTopLevel);
-		return () => psFactory.Create(runspace);
+		return () =>
+		{
+			var result = psFactory.Create();
+			result.SetCurrentWorkingDirectory(gitTopLevel);
+			return result;
+		};
 	}
 
 	private async Task<IPowerShell> CreateGitToolsPowershell()
@@ -76,30 +77,6 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsInvoker
 		await result.ConfigureAwait(false);
 		return result;
 	}
-
-	#region Dispose Pattern
-	private void Dispose(bool disposing)
-	{
-		if (!disposedValue)
-		{
-			if (disposing)
-			{
-				runspace?.Dispose();
-			}
-
-			runspace = null;
-			disposedValue = true;
-		}
-	}
-
-	public void Dispose()
-	{
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
-
-	#endregion Dispose Pattern
 }
 
 public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable

@@ -22,6 +22,7 @@ export type WithAtom<T> = T & {
 };
 export type BranchGraphNodeDatum = {
 	id: string;
+	color: string;
 	upstreamBranches: BranchList;
 	depth: number;
 } & SimulationNodeDatum;
@@ -120,6 +121,7 @@ function updateNodes(
 			{},
 			{
 				id: entry.name,
+				color: entry.color,
 				upstreamBranches: entry.upstream,
 				depth: 0,
 			},

@@ -82,14 +82,16 @@ components:
     UpstreamBranches:
       type: array
       items:
-        $ref: '#/components/schemas/UpstreamBranchConfiguration'
-    UpstreamBranchConfiguration:
+        $ref: '#/components/schemas/BranchConfiguration'
+    BranchConfiguration:
       type: object
       required:
         - name
+        - color
         - upstream
       properties:
         name: { type: string }
+        color: { type: string }
         upstream: { $ref: '#/components/schemas/BranchList' }
     BranchList:
       type: array

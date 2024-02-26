@@ -12,7 +12,7 @@ export function BranchNode({ node }: { node: WithAtom<BranchGraphNodeDatum> }) {
 		<span className="text-nowrap">{node.id}</span>
 	));
 	return (
-		<JotaiG style={{ transform: transform }} {...tooltip()}>
+		<JotaiG style={{ transform: transform, fill: node.color }} {...tooltip()}>
 			<circle cx={0} cy={0} r={5} />
 		</JotaiG>
 	);

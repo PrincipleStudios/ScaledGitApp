@@ -1,5 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { forceLink, forceManyBody, forceSimulation } from 'd3-force';
+import {
+	forceCollide,
+	forceLink,
+	forceManyBody,
+	forceSimulation,
+} from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
 import type { BranchList, UpstreamBranches } from '../../generated/api/models';
@@ -46,7 +51,7 @@ function forceHierarchy(
 		const maxDepth = Math.max(Number.NEGATIVE_INFINITY, ...allDepth);
 		const avgDepth = (minDepth + maxDepth) / 2;
 		for (const node of currentNodes) {
-			node.x = depthDistance * (node.depth - avgDepth);
+			node.fx = depthDistance * (node.depth - avgDepth);
 		}
 	}
 	return Object.assign(update, {
@@ -60,7 +65,7 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
 			[],
-		),
+		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 100),
 	);
 	const simulationRef = useRef<BranchSimulation>();
 	if (simulationRef.current === undefined) {
@@ -69,7 +74,8 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 			WithAtom<BranchGraphLinkDatum>
 		>([])
 			.force('link', linkingForce.current)
-			.force('charge', forceManyBody().distanceMax(80).strength(-200))
+			.force('collide', forceCollide(6))
+			.force('charge', forceManyBody().distanceMax(80))
 			.force('hierarchy', forceHierarchy(100));
 	}
 

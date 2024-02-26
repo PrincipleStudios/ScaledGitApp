@@ -15,12 +15,12 @@ export function useTooltipReference<TParams extends unknown[]>(
 		onMouseEnter(ev) {
 			store.set(tooltipState, {
 				contents: elemFactory(...params),
-				target: ev.target as HTMLElement | SVGElement,
+				target: ev.currentTarget,
 			});
 		},
 		onMouseLeave(ev) {
 			store.set(tooltipState, (prev) =>
-				prev?.target === ev.target ? null : prev,
+				prev?.target === ev.currentTarget ? null : prev,
 			);
 		},
 	});

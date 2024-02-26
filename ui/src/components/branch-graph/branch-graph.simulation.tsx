@@ -4,13 +4,13 @@ import {
 	forceLink,
 	forceManyBody,
 	forceSimulation,
-	forceX,
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
 import type { BranchList, UpstreamBranches } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
 import type {
+	Force,
 	ForceLink,
 	Simulation,
 	SimulationLinkDatum,
@@ -41,6 +41,23 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphLinkDatum>
 >;
 
+function forceHierarchy<TNode extends SimulationNodeDatum>(
+	getX: (node: TNode) => number,
+): Force<TNode, never> {
+	let currentNodes: TNode[] = [];
+	function update() {
+		for (const node of currentNodes) {
+			// node.fx = 0;
+			node.x = getX(node);
+		}
+	}
+	return Object.assign(update, {
+		initialize(nodes: TNode[]) {
+			currentNodes = nodes;
+		},
+	});
+}
+
 export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
@@ -55,12 +72,12 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 			WithAtom<BranchGraphLinkDatum>
 		>([])
 			.force('link', linkingForce.current)
-			.force('charge', forceManyBody().distanceMax(80).strength(-100))
+			.force('charge', forceManyBody().distanceMax(80).strength(-200))
 			.force(
-				'x',
-				forceX<WithAtom<BranchGraphNodeDatum>>(
+				'hierarchy',
+				forceHierarchy<WithAtom<BranchGraphNodeDatum>>(
 					(node) => node.depth * 100,
-				).strength(1),
+				),
 			)
 			.force('center', centeringForce.current);
 	}

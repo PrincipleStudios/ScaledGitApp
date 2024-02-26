@@ -1,10 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
-import {
-	forceCenter,
-	forceLink,
-	forceManyBody,
-	forceSimulation,
-} from 'd3-force';
+import { useEffect, useRef } from 'react';
+import { forceLink, forceManyBody, forceSimulation } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
 import type { BranchList, UpstreamBranches } from '../../generated/api/models';
@@ -41,18 +36,21 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphLinkDatum>
 >;
 
-function forceHierarchy<TNode extends SimulationNodeDatum>(
-	getX: (node: TNode) => number,
-): Force<TNode, never> {
-	let currentNodes: TNode[] = [];
+function forceHierarchy(
+	depthDistance: number,
+): Force<WithAtom<BranchGraphNodeDatum>, never> {
+	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
 	function update() {
+		const allDepth = currentNodes.map((n) => n.depth);
+		const minDepth = Math.min(Number.POSITIVE_INFINITY, ...allDepth);
+		const maxDepth = Math.max(Number.NEGATIVE_INFINITY, ...allDepth);
+		const avgDepth = (minDepth + maxDepth) / 2;
 		for (const node of currentNodes) {
-			// node.fx = 0;
-			node.x = getX(node);
+			node.x = depthDistance * (node.depth - avgDepth);
 		}
 	}
 	return Object.assign(update, {
-		initialize(nodes: TNode[]) {
+		initialize(nodes: WithAtom<BranchGraphNodeDatum>[]) {
 			currentNodes = nodes;
 		},
 	});
@@ -64,7 +62,6 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 			[],
 		),
 	);
-	const centeringForce = useRef(forceCenter(150, 75));
 	const simulationRef = useRef<BranchSimulation>();
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
@@ -73,13 +70,7 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 		>([])
 			.force('link', linkingForce.current)
 			.force('charge', forceManyBody().distanceMax(80).strength(-200))
-			.force(
-				'hierarchy',
-				forceHierarchy<WithAtom<BranchGraphNodeDatum>>(
-					(node) => node.depth * 100,
-				),
-			)
-			.force('center', centeringForce.current);
+			.force('hierarchy', forceHierarchy(100));
 	}
 
 	useEffect(function runSimulation() {
@@ -104,12 +95,6 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	return {
 		nodes,
 		links,
-		svgRefCallback: useCallback((svg: SVGSVGElement | null) => {
-			if (svg) {
-				centeringForce.current.x(svg.clientWidth / 2);
-				centeringForce.current.y(svg.clientHeight / 2);
-			}
-		}, []),
 	};
 }
 

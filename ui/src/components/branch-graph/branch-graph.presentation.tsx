@@ -14,7 +14,7 @@ export function BranchGraphPresentation({
 	upstreamData,
 }: BranchGraphPresentationProps) {
 	const [sizeDetection, size] = useResizeDetector<SVGSVGElement>();
-	const { nodes, links } = useBranchSimulation(upstreamData);
+	const { nodes, links, restartSimulation } = useBranchSimulation(upstreamData);
 
 	return (
 		<section>
@@ -24,7 +24,7 @@ export function BranchGraphPresentation({
 						<BranchLink key={link.id} link={link} />
 					))}
 					{nodes.map((node) => (
-						<BranchNode key={node.id} node={node} />
+						<BranchNode key={node.id} node={node} onMove={restartSimulation} />
 					))}
 				</CenterG>
 			</FullSizeSvg>

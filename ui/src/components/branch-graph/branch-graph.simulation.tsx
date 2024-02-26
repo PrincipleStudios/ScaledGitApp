@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import {
+	forceCenter,
 	forceCollide,
 	forceLink,
 	forceManyBody,
@@ -46,13 +47,18 @@ function forceHierarchy(
 	depthDistance: number,
 ): Force<WithAtom<BranchGraphNodeDatum>, never> {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
-	function update() {
+	function update(alpha: number) {
 		const allDepth = currentNodes.map((n) => n.depth);
 		const minDepth = Math.min(Number.POSITIVE_INFINITY, ...allDepth);
 		const maxDepth = Math.max(Number.NEGATIVE_INFINITY, ...allDepth);
 		const avgDepth = (minDepth + maxDepth) / 2;
 		for (const node of currentNodes) {
-			node.fx = depthDistance * (node.depth - avgDepth);
+			if (node.fx) continue;
+			node.vx =
+				(node.vx ?? 0) +
+				(depthDistance * (node.depth - avgDepth) - (node.x ?? 0)) *
+					alpha *
+					alpha;
 		}
 	}
 	return Object.assign(update, {
@@ -66,7 +72,7 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
 			[],
-		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 100),
+		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
 	);
 	const simulationRef = useRef<BranchSimulation>();
 	if (simulationRef.current === undefined) {
@@ -76,7 +82,9 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 		>([])
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
-			.force('charge', forceManyBody().distanceMax(80))
+			.force('charge', forceManyBody().strength(0.001))
+			.force('spaceAround', forceManyBody().distanceMax(80))
+			.force('center', forceCenter())
 			.force('hierarchy', forceHierarchy(100));
 	}
 
@@ -102,6 +110,10 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	return {
 		nodes,
 		links,
+		restartSimulation() {
+			simulationRef.current?.alpha(0.5);
+			simulationRef.current?.restart();
+		},
 	};
 }
 

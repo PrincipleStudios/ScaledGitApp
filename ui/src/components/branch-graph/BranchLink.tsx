@@ -1,9 +1,9 @@
 import { JotaiG, JotaiLine } from '../svg/atom-elements';
-import { useComputedValues } from './useComputedValues';
+import { useComputedLinkValues } from './useComputedLinkValues';
 import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
 
 export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
-	const { transform, negativeLen } = useComputedValues(link);
+	const { transform, negativeLen } = useComputedLinkValues(link);
 	return (
 		<JotaiG style={{ transform: transform }}>
 			<JotaiLine

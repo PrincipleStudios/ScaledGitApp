@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useMemo } from 'react';
-import { useSetAtom, atom } from 'jotai';
+import { atom, useStore } from 'jotai';
+import { subscribeToDimensionChanges } from './subscribeToDimensionChanges';
 import type { PrimitiveAtom } from 'jotai';
 
 export interface ElementDimensions {
@@ -39,28 +40,18 @@ export function useResizeDetector<
 ] {
 	const localAtom = useMemo(() => atom<ElementDimensions>({}), []);
 	const resultAtom = targetAtom ?? localAtom;
-	const setDimensions = useSetAtom(resultAtom);
+	const store = useStore();
 
 	const localRef = useRef<T | null>(null);
 	const ref = targetRef ?? localRef;
 
 	useEnhancedEffect(() => {
-		const resizeCallback = () => {
-			const rect = ref.current?.getBoundingClientRect();
-			if (!rect) return;
-			setDimensions(rect);
-		};
-
-		const resizeObserver = new window.ResizeObserver(resizeCallback);
-
-		if (ref.current) {
-			resizeObserver.observe(ref.current, observerOptions);
-		}
-		resizeCallback();
-
-		return () => {
-			resizeObserver.disconnect();
-		};
+		return subscribeToDimensionChanges<T>(
+			ref.current ?? null,
+			store,
+			resultAtom,
+			observerOptions,
+		);
 	}, [observerOptions, ref.current]);
 
 	return [ref as React.LegacyRef<T>, resultAtom];

@@ -55,3 +55,41 @@ paths:
                   type: object
                   # each additional property at this level is a namespace
                   additionalProperties: { type: object, format: any }
+  /api/git/fetch:
+    post:
+      x-dotnet-mvc-server-controller: GitFetch
+      operationId: requestGitFetch
+      summary: Request that the git clone is immediately refreshed
+      responses:
+        200:
+          description: The git repo was refreshed successfully
+        500:
+          description: An unknown error occurred
+  /api/git/upstreams:
+    get:
+      x-dotnet-mvc-server-controller: GitUpstreamData
+      operationId: getUpstreamData
+      summary: Gets the upstream data for all branches
+      responses:
+        200:
+          description: Upstream branch configuration data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpstreamBranches'
+components:
+  schemas:
+    UpstreamBranches:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/BranchList'
+    BranchList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Branch'
+    Branch:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string

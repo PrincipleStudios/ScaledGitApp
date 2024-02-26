@@ -12,22 +12,7 @@ public class PowerShellFactory
 		initialSessionState = PowerShellSessionStateUtility.BuildStandardSessionState();
 	}
 
-	public Runspace CreateRunspace(Action<InitialSessionState>? configure = null)
-	{
-		var iss = initialSessionState;
-
-		if (configure != null)
-		{
-			iss = initialSessionState.Clone();
-			configure.Invoke(iss);
-		}
-
-		var result = RunspaceFactory.CreateRunspace(iss);
-		result.Open();
-		return result;
-	}
-
-	public IPowerShell Create(Runspace? runspace = null)
+	public virtual IPowerShell Create(Runspace? runspace = null)
 	{
 		return new PowerShellWrapperImplementation(runspace != null
 			? PowerShell.Create(runspace)

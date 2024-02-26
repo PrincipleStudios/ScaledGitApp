@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.Options;
+using PrincipleStudios.ScaledGitApp.Environment;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Environment
 {

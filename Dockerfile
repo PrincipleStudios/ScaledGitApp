@@ -59,6 +59,8 @@ RUN apt-get update \
       dotnet-runtime-7.0 \
       # Add .NET 8 for Build tooling
       dotnet-sdk-8.0 \
+      # Easy copying of i18n files to output
+      cpio \
     && apt-get clean
 
 # install pnpm
@@ -87,15 +89,21 @@ ARG GITHASH
 ENV VITE_GITHASH=${GITHASH}
 RUN cd ./ui/ && dotnet build -c Release
 
+
+RUN cd ui/src/i18n && find . -type f -regex ".*\.json" | cpio -dumv -p /src/Server/wwwroot/i18n/.
+
 WORKDIR /src/Server/wwwroot
 RUN find . -type f -not -regex ".*\.\(avif\|jpg\|jpeg\|gif\|png\|webp\|mp4\|webm\)" -exec gzip -k "{}" \; -exec brotli -k "{}" \;
-
 
 FROM base as final
 ARG GITHASH
 ENV BUILD__GITHASH=${GITHASH}
 ARG BUILDTAG
 ENV BUILD__TAG=${BUILDTAG}
+
+ENV LOCALIZATION__BUNDLEPATH=./wwwroot/i18n/<lang>.json
+ENV LOCALIZATION__STANDARDPATH=./wwwroot/i18n/<namespace>/<lang>.json
+
 COPY --from=build-dotnet /src/artifacts/bin/Server/Release/net8.0/publish .
 COPY --from=build-ui /src/Server/wwwroot ./wwwroot
 

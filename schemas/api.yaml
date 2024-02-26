@@ -29,6 +29,32 @@ paths:
                   tag:
                     description: Build tag id
                     type: string
+  /api/locales:
+    summary: Gets translations based on a language
+    get:
+      operationId: getTranslationData
+      summary: Gets translations based on a language
+      parameters:
+        - name: lng
+          schema: { type: string }
+          required: true
+          in: query
+        - name: ns
+          schema: { type: string }
+          required: true
+          in: query
+      responses:
+        200:
+          description: An i18next compatible json document containing the translation data
+          content:
+            application/json:
+              schema:
+                type: object
+                # each additional property at this level is a language
+                additionalProperties:
+                  type: object
+                  # each additional property at this level is a namespace
+                  additionalProperties: { type: object, format: any }
   /api/git/fetch:
     post:
       x-dotnet-mvc-server-controller: GitFetch

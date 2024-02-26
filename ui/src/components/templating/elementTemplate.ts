@@ -1,6 +1,7 @@
 import type React from 'react';
 import { createElement, forwardRef } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { identity } from './identity';
 import type {
 	AllowedTypes,
 	ElementTemplate,
@@ -10,7 +11,6 @@ import type {
 	PropsOf,
 	TemplateResolver,
 } from './types';
-import { identity } from './identity';
 
 export function elementTemplate<TType extends AllowedTypes>(
 	name: string,

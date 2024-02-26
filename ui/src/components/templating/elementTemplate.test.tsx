@@ -1,8 +1,8 @@
+import { render } from '@testing-library/react';
 import { describe, it, expect, expectTypeOf } from 'vitest';
 import { elementTemplate } from './elementTemplate';
-import { render } from '@testing-library/react';
-import type { PropsOf } from './types';
 import { describeElementTemplate } from './test-utils';
+import type { PropsOf } from './types';
 
 describe('elementTemplate', () => {
 	describe('with a basic HTML element', () => {

@@ -11,3 +11,11 @@ export const HintText = elementTemplate('HintText', 'p', (T) => (
 export const Code = elementTemplate('Code', 'pre', (T) => (
 	<T className="font-mono bg-zinc-300 dark:bg-zinc-700 text-black dark:text-white p-4 border-zinc-500 rounded my-4" />
 ));
+
+export const LargeInstructions = elementTemplate(
+	'LargeInstructions',
+	'p',
+	(T) => (
+		<T className="text-2xl text-slate-900 dark:text-slate-100 font-serif" />
+	),
+);

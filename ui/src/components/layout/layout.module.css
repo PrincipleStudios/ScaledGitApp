@@ -1,0 +1,14 @@
+.layout {
+	@apply w-full h-full grid;
+	grid-template-rows: auto auto 1fr;
+	grid-template-columns: 1fr;
+	grid-template-areas: 'header' 'subheader' 'main';
+}
+
+.header {
+	grid-area: header;
+}
+
+.main {
+	grid-area: main;
+}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import tailwindConfig from '../../../tailwind.config';
-import resolveConfig from 'tailwindcss/resolveConfig';
 import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette';
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '../../../tailwind.config';
 
 const fullConfig = resolveConfig(tailwindConfig);
 

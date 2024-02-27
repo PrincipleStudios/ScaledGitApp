@@ -107,7 +107,7 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	return {
 		nodes,
 		links,
-		restartSimulation() {
+		restartSimulation(this: void) {
 			simulationRef.current?.alpha(0.5);
 			simulationRef.current?.restart();
 		},

@@ -82,7 +82,6 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 		>([])
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
-			.force('charge', forceManyBody().strength(0.001))
 			.force('spaceAround', forceManyBody().distanceMax(80))
 			.force('center', forceCenter())
 			.force('hierarchy', forceHierarchy(100));

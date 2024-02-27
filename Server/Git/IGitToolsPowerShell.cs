@@ -11,8 +11,12 @@ public interface IGitToolsInvoker
 
 public interface IGitToolsPowerShell
 {
+	string UpstreamBranchName { get; }
+
 	Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments);
+	Task<PowerShellInvocationResult> InvokeCliAsync<T>(string command, IEnumerable<string> arguments, PSDataCollection<T> input);
 	Task<PowerShellInvocationResult> InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell> addParameters);
+	Task<PowerShellInvocationResult> InvokeGitToolsAsync<T>(string relativeScriptName, Action<PowerShell> addParameters, PSDataCollection<T> input);
 }
 
 public interface IGitToolsCommand<T> where T : Task

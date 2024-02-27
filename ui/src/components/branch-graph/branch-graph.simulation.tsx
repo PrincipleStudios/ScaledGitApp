@@ -47,7 +47,7 @@ function forceHierarchy(
 	depthDistance: number,
 ): Force<WithAtom<BranchGraphNodeDatum>, never> {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
-	function update(alpha: number) {
+	function update() {
 		const allDepth = currentNodes.map((n) => n.depth);
 		const minDepth = Math.min(Number.POSITIVE_INFINITY, ...allDepth);
 		const maxDepth = Math.max(Number.NEGATIVE_INFINITY, ...allDepth);
@@ -56,9 +56,7 @@ function forceHierarchy(
 			if (node.fx) continue;
 			node.vx =
 				(node.vx ?? 0) +
-				(depthDistance * (node.depth - avgDepth) - (node.x ?? 0)) *
-					alpha *
-					alpha;
+				(depthDistance * (node.depth - avgDepth) - (node.x ?? 0));
 		}
 	}
 	return Object.assign(update, {

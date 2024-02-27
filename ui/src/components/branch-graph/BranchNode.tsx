@@ -1,4 +1,5 @@
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
+import { setupDragHandler } from '../../utils/dragging';
 import { JotaiG } from '../svg/atom-elements';
 import { useTooltipReference } from '../tooltips';
 import type { BranchGraphNodeDatum, WithAtom } from './branch-graph.simulation';
@@ -28,40 +29,28 @@ export function BranchNode({
 	);
 }
 
-function drag(
-	node: WithAtom<BranchGraphNodeDatum>,
-	onMove?: () => void,
-): Pick<
-	JSX.IntrinsicElements['g'],
-	'onMouseDown' | 'onMouseMove' | 'onMouseUp'
-> {
-	let yOffset: number | null = null;
-	let xOffset: number | null = null;
-	return {
+function drag(node: WithAtom<BranchGraphNodeDatum>, onMove?: () => void) {
+	// Updates the node's position based on mouse movements.
+	// `fx`/`fy` are fixed positions - use them while moving them
+	// `x`/`y` are positions that can be moved by the simulation
+	return setupDragHandler({
 		onMouseDown(ev) {
-			yOffset = (node.fy ?? node.y ?? 0) - ev.clientY;
-			xOffset = (node.fx ?? node.x ?? 0) - ev.clientX;
-			document.addEventListener('mousemove', onMouseMove, true);
-			document.addEventListener('mouseup', onMouseUp, true);
+			return {
+				xOffset: (node.fx ?? node.x ?? 0) - ev.clientX,
+				yOffset: (node.fy ?? node.y ?? 0) - ev.clientY,
+			};
 		},
-	};
-
-	function onMouseMove(ev: MouseEvent) {
-		if (yOffset === null || xOffset === null) return;
-		node.fy = yOffset + ev.clientY;
-		node.fx = xOffset + ev.clientX;
-		onMove?.();
-	}
-
-	function onMouseUp(ev: MouseEvent) {
-		document.removeEventListener('mousemove', onMouseMove, true);
-		document.removeEventListener('mouseup', onMouseUp, true);
-		if (yOffset === null || xOffset === null) return;
-		node.y = yOffset + ev.clientY;
-		node.fy = null;
-		node.fx = null;
-		yOffset = null;
-		xOffset = null;
-		onMove?.();
-	}
+		onMouseMove(ev, { xOffset, yOffset }) {
+			node.fx = xOffset + ev.clientX;
+			node.fy = yOffset + ev.clientY;
+			onMove?.();
+		},
+		onMouseUp(ev, { xOffset, yOffset }) {
+			node.y = yOffset + ev.clientY;
+			node.x = xOffset + ev.clientX;
+			node.fy = null;
+			node.fx = null;
+			onMove?.();
+		},
+	});
 }

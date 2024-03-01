@@ -5,15 +5,18 @@ using System.Management.Automation.Runspaces;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
+public record GitCloneConfiguration(string GitRootDirectory);
+
 public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
 {
 	private readonly IPowerShell pwsh;
 	private readonly GitOptions gitOptions;
 
-	public GitToolsPowerShell(IPowerShell pwsh, GitOptions gitOptions)
+	public GitToolsPowerShell(IPowerShell pwsh, GitOptions gitOptions, GitCloneConfiguration gitCloneConfiguration)
 	{
 		this.pwsh = pwsh;
 		this.gitOptions = gitOptions;
+		this.pwsh.SetCurrentWorkingDirectory(gitCloneConfiguration.GitRootDirectory);
 	}
 
 	public void Dispose()

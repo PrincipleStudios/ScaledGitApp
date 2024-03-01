@@ -8,6 +8,9 @@ public static partial class GitLogging
 	[LoggerMessage(LogLevel.Information, "Using {Directory} for git working directory.")]
 	public static partial void UsingGitWorkingDirectory(this ILogger logger, string directory);
 
+	[LoggerMessage(LogLevel.Information, "Running {CommandType}.")]
+	public static partial void RunningGitToolsPowerShellCommand(this ILogger logger, string commandType);
+
 
 	[LoggerMessage(LogLevel.Information, "Git was already cloned in {Directory} for {Remote}")]
 	public static partial void GitAlreadyCloned(this ILogger logger, string remote, string directory);

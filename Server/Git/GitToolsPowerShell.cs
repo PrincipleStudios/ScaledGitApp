@@ -14,7 +14,6 @@ public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
 		this.pwsh = pwsh;
 		this.gitOptions = gitOptions;
 		this.gitCloneConfiguration = gitCloneConfiguration;
-		this.pwsh.SetCurrentWorkingDirectory(gitCloneConfiguration.GitRootDirectory);
 	}
 
 	public void Dispose()

@@ -7,10 +7,10 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 /// Clones a git repository into the git working directory.
 /// </summary>
 /// <param name="Repository">The Git URL for the repository to clone</param>
-public record GitRemote() : IGitToolsCommand<Task<GitRemoteResult>>
+public record GitRemote() : IPowerShellCommand<Task<GitRemoteResult>>
 {
 	private static readonly Regex gitRemoteLine = new Regex(@"^(?<alias>[^\t]+)\t(?<url>[^ ]+) \(fetch\)$");
-	public async Task<GitRemoteResult> RunCommand(IGitToolsPowerShell pwsh)
+	public async Task<GitRemoteResult> RunCommand(IPowerShell pwsh)
 	{
 		var result = (await pwsh.InvokeCliAsync("git", "remote", "-v")).ToResultStrings();
 

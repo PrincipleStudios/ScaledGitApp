@@ -5,9 +5,6 @@ public static partial class GitLogging
 	[LoggerMessage(LogLevel.Information, "No git repository configured; skipping clone.")]
 	public static partial void NoGitRepositoryConfigured(this ILogger logger);
 
-	[LoggerMessage(LogLevel.Information, "Using {Directory} for git working directory.")]
-	public static partial void UsingGitWorkingDirectory(this ILogger logger, string directory);
-
 	[LoggerMessage(LogLevel.Information, "Running {CommandType}.")]
 	public static partial void RunningGitToolsPowerShellCommand(this ILogger logger, string commandType);
 

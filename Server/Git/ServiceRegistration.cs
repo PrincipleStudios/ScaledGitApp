@@ -8,16 +8,17 @@ public static class ServiceRegistration
 	internal static void RegisterGit(this IServiceCollection services, IConfigurationSection configurationSection)
 	{
 		// Apps that will run on their own
-		services.AddHostedService<GitCloneService>();
+		// AddHostedService doesn't check for a configured service for the hosted service
+		services.AddHostedService(sp => sp.GetRequiredService<GitCloneService>());
 
 		// Configuration
 		services.Configure<GitOptions>(configurationSection);
 
 		// Services
-		services.AddTransient<GitCloneConfigurationFactory>();
+		services.AddSingleton<GitCloneService>();
 		services.AddSingleton<IGitToolsInvoker>(sp =>
 		{
-			Func<Task<GitCloneConfiguration>> factory = sp.GetRequiredService<GitCloneConfigurationFactory>().DetectGitCloneConfiguration;
+			var factory = () => sp.GetRequiredService<GitCloneService>().DetectedConfigurationTask;
 			return ActivatorUtilities.CreateInstance<GitToolsPowerShellInvoker>(sp, factory);
 		});
 	}

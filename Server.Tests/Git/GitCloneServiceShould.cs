@@ -9,6 +9,7 @@ public class GitCloneServiceShould
 {
 	private const string expectedRepository = "https://example.com/.git";
 	private const string unexpectedRepository = "https://example.com/2.git";
+	private static readonly string expectedTopLevelDirectory = Path.TrimEndingDirectorySeparator(Path.GetTempPath());
 	private static readonly InvalidOperationException stubUnknownException = new("Unknown exception");
 	private static readonly GitException stubException = new();
 
@@ -27,9 +28,10 @@ public class GitCloneServiceShould
 	{
 		var (service, mockPwsh) = CreateService(new GitOptions { Repository = null });
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.NoRepository, actual);
+		// May be null or not, does not need to be enforced here
 	}
 
 	[Fact]
@@ -38,9 +40,11 @@ public class GitCloneServiceShould
 		var (service, mockPwsh) = CreateService();
 		SetupGitRemotes(mockPwsh, []);
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.NoRemotes, actual);
+		Assert.NotNull(remotes);
+		Assert.Empty(remotes.Remotes);
 	}
 
 	[Fact]
@@ -53,9 +57,14 @@ public class GitCloneServiceShould
 				new GitRemoteEntry("azdo", unexpectedRepository),
 			]);
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.MultipleRemotes, actual);
+		Assert.NotNull(remotes);
+		Assert.Collection(remotes.Remotes,
+			e => Assert.Equal(new GitRemoteEntry("github", expectedRepository), e),
+			e => Assert.Equal(new GitRemoteEntry("azdo", unexpectedRepository), e)
+		);
 	}
 
 	[Fact]
@@ -64,9 +73,13 @@ public class GitCloneServiceShould
 		var (service, mockPwsh) = CreateService();
 		SetupGitRemotes(mockPwsh, [new GitRemoteEntry("github", unexpectedRepository)]);
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.RepositoryMismatch, actual);
+		Assert.NotNull(remotes);
+		Assert.Collection(remotes.Remotes,
+			e => Assert.Equal(new GitRemoteEntry("github", unexpectedRepository), e)
+		);
 	}
 
 	[Fact]
@@ -75,9 +88,13 @@ public class GitCloneServiceShould
 		var (service, mockPwsh) = CreateService();
 		SetupGitRemotes(mockPwsh, [new GitRemoteEntry("github", expectedRepository)]);
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.AlreadyCloned, actual);
+		Assert.NotNull(remotes);
+		Assert.Collection(remotes.Remotes,
+			e => Assert.Equal(new GitRemoteEntry("github", expectedRepository), e)
+		);
 	}
 
 	[Fact]
@@ -98,9 +115,10 @@ public class GitCloneServiceShould
 		SetupNoGitDirectory(mockPwsh);
 		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).Returns(Task.CompletedTask);
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.ClonedSuccessfully, actual);
+		// remotes may or may not be null here; probably null, but is not needed to be enforced
 	}
 
 	[Fact]
@@ -110,9 +128,10 @@ public class GitCloneServiceShould
 		SetupNoGitDirectory(mockPwsh);
 		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).ThrowsAsync(stubException);
 
-		var actual = await service.EnsureGitClone();
+		var (actual, remotes) = await service.EnsureGitClone();
 
 		Assert.Equal(GitCloneServiceStatus.CloneFailed, actual);
+		Assert.Null(remotes);
 	}
 
 	[Fact]
@@ -127,6 +146,78 @@ public class GitCloneServiceShould
 		Assert.Equal(stubUnknownException, actualException);
 	}
 
+	[Fact]
+	public async Task Loads_default_configuration_values_for_new_clone()
+	{
+		var (service, mockPwsh) = CreateService();
+		mockPwsh
+			.SetupSequence(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
+			.ThrowsAsync(stubException)
+			.ReturnsAsync(new GitRemoteResult([new GitRemoteEntry("origin", expectedRepository)]));
+		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).Returns(Task.CompletedTask);
+		SetupResolveTopLevelDirectory(mockPwsh);
+		SetupStandardConfiguration(mockPwsh);
+
+		await service.DetectCloneConfiguration();
+
+		Assert.True(service.DetectedConfigurationTask.IsCompleted);
+		var actualConfig = await service.DetectedConfigurationTask;
+		Assert.Equal(expectedTopLevelDirectory, actualConfig.GitRootDirectory);
+		Assert.Equal("_upstream", actualConfig.UpstreamBranchName);
+		Assert.Collection(actualConfig.FetchMapping,
+			refspec =>
+			{
+				Assert.True(refspec.TryApply("refs/heads/_upstream", out var output));
+				Assert.Equal("refs/remotes/origin/_upstream", output);
+			});
+	}
+
+	[Fact]
+	public async Task Loads_custom_configuration_values_for_unknown_repository()
+	{
+		const string expectedUpstream = "my-upstream";
+		const string expectedRemote = "github";
+		var (service, mockPwsh) = CreateService(new GitOptions { Repository = null });
+		SetupGitRemotes(mockPwsh, [
+			new GitRemoteEntry("azdo", expectedRepository),
+			new GitRemoteEntry(expectedRemote, expectedRepository),
+		]);
+		SetupResolveTopLevelDirectory(mockPwsh);
+		SetupCustomConfiguration(mockPwsh, [
+			new($"remote.{expectedRemote}.fetch", [$"+refs/heads/*:refs/remotes/{expectedRemote}/*", $"+refs/pull/*/head:refs/remotes/prs/*"]),
+			new("remote.azdo.fetch", ["+refs/heads/*:refs/remotes/azdo/*"]),
+			new("scaled-git.remote", [expectedRemote]),
+			new("scaled-git.upstreambranch", [expectedUpstream]),
+		]);
+
+		await service.DetectCloneConfiguration();
+
+		Assert.True(service.DetectedConfigurationTask.IsCompleted);
+		var actualConfig = await service.DetectedConfigurationTask;
+		Assert.Equal(expectedTopLevelDirectory, actualConfig.GitRootDirectory);
+		Assert.Equal(expectedRemote, actualConfig.RemoteName);
+		Assert.Equal(expectedUpstream, actualConfig.UpstreamBranchName);
+		Assert.Collection(actualConfig.FetchMapping,
+			refspec =>
+			{
+				Assert.True(refspec.TryApply("refs/heads/_upstream", out var output));
+				Assert.Equal($"refs/remotes/{expectedRemote}/_upstream", output);
+			},
+			refspec =>
+			{
+				Assert.True(refspec.TryApply("refs/pull/100/head", out var output));
+				Assert.Equal($"refs/remotes/prs/100", output);
+			});
+	}
+
+	[Fact]
+	public void Provides_a_pending_task_for_configuration()
+	{
+		var (service, mockPwsh) = CreateService();
+
+		Assert.False(service.DetectedConfigurationTask.IsCompleted);
+	}
+
 	private static void SetupGitRemotes(Mock<IGitToolsInvoker> mockPwsh, GitRemoteEntry[] remotes)
 	{
 		mockPwsh
@@ -139,4 +230,29 @@ public class GitCloneServiceShould
 			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
 			.ThrowsAsync(stubException);
 	}
+
+	private static void SetupResolveTopLevelDirectory(Mock<IGitToolsInvoker> mockPwsh)
+	{
+		mockPwsh
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<ResolveTopLevelDirectory>()))
+			.ReturnsAsync(expectedTopLevelDirectory);
+	}
+
+	private static void SetupStandardConfiguration(Mock<IGitToolsInvoker> mockPwsh)
+	{
+		mockPwsh
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitConfigurationList>()))
+			.ReturnsAsync(new Dictionary<string, IReadOnlyList<string>>
+			{
+				{ "remote.origin.fetch", ["+refs/heads/*:refs/remotes/origin/*"] },
+			});
+	}
+
+	private static void SetupCustomConfiguration(Mock<IGitToolsInvoker> mockPwsh, params KeyValuePair<string, IReadOnlyList<string>>[] items)
+	{
+		mockPwsh
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitConfigurationList>()))
+			.ReturnsAsync(new Dictionary<string, IReadOnlyList<string>>(items));
+	}
+
 }

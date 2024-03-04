@@ -33,16 +33,40 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsInvoker
 	// implementations. `await await` is theoretically quite efficient:
 	// See https://stackoverflow.com/a/34832315/195653
 	public async Task RunCommand(IGitToolsCommand<Task> command) =>
-		await await RunCommandImplementation(command);
+		await await GitToolsCommandImplementation(command);
 	public async Task<T> RunCommand<T>(IGitToolsCommand<Task<T>> command) =>
-		await await RunCommandImplementation(command);
+		await await GitToolsCommandImplementation(command);
+	public async Task RunCommand(IPowerShellCommand<Task> command) =>
+		await await PowerShellCommandImplementation(command);
+	public async Task<T> RunCommand<T>(IPowerShellCommand<Task<T>> command) =>
+		await await PowerShellCommandImplementation(command);
 
-	private async Task<T> RunCommandImplementation<T>(IGitToolsCommand<T> command) where T : Task
+	private async Task<T> GitToolsCommandImplementation<T>(IGitToolsCommand<T> command) where T : Task
 	{
-		using var pwsh = new GitToolsPowerShell(psFactory.Create(), gitOptions, await GetGitCloneConfiguration());
+		var config = await GetGitCloneConfiguration();
+		var pwsh = psFactory.Create();
+		pwsh.SetCurrentWorkingDirectory(config.GitRootDirectory);
+		using var gitToolsPwsh = new GitToolsPowerShell(pwsh, gitOptions, config);
+		return await RunCommandImplementation(command, () => command.RunCommand(gitToolsPwsh));
+	}
+
+	private async Task<T> PowerShellCommandImplementation<T>(IPowerShellCommand<T> command) where T : Task
+	{
+		using var pwsh = psFactory.Create();
+		pwsh.SetCurrentWorkingDirectory(gitOptions.WorkingDirectory);
+		return await RunCommandImplementation(command, () => command.RunCommand(pwsh));
+	}
+
+	private async Task<T> RunCommandImplementation<T>(object command, Func<T> runCommand) where T : Task
+	{
 		using var activity = TracingHelper.StartActivity(command.GetType().Name);
 		logger.RunningGitToolsPowerShellCommand(command.GetType().Name);
-		var result = command.RunCommand(pwsh);
+		return await EnsureComplete(runCommand);
+	}
+
+	private static async Task<T> EnsureComplete<T>(Func<T> target) where T : Task
+	{
+		var result = target();
 		// Ensure the command has been awaited before disposing the activity, but since we can't await something of type T, this has no return type.
 		await result.ConfigureAwait(false);
 		return result;

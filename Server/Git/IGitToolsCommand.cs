@@ -4,10 +4,10 @@ namespace PrincipleStudios.ScaledGitApp.Git;
 
 public interface IGitToolsCommand<T> where T : Task
 {
-	T RunCommand(IGitToolsPowerShell pwsh);
+	T RunCommand(IGitToolsPowerShellCommandContext pwsh);
 }
 
 public interface IPowerShellCommand<T> where T : Task
 {
-	T RunCommand(IPowerShell pwsh);
+	T RunCommand(IPowerShellCommandContext pwsh);
 }

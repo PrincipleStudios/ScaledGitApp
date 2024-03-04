@@ -16,7 +16,7 @@ public static class ServiceRegistration
 
 		// Services
 		services.AddSingleton<GitCloneService>();
-		services.AddSingleton<IGitToolsInvoker>(sp =>
+		services.AddSingleton<IGitToolsCommandInvoker>(sp =>
 		{
 			var factory = () => sp.GetRequiredService<GitCloneService>().DetectedConfigurationTask;
 			return ActivatorUtilities.CreateInstance<GitToolsPowerShellInvoker>(sp, factory);

@@ -22,6 +22,8 @@ public record GitUpstreamData() : IGitToolsCommand<Task<IReadOnlyDictionary<stri
 		).ToDictionary(e => e.Name, e => e.Hash);
 
 		using var hashes = new PSDataCollection<string>(branches.Values.Distinct());
+		if (hashes.Count == 0)
+			return ImmutableDictionary<string, UpstreamBranchConfiguration>.Empty;
 		var hashEntries = await pwsh.InvokeCliAsync("git", ["cat-file", "--batch=\t%(objectname)"], input: hashes);
 		var actualEntries = (
 			from e in string.Join('\n', hashEntries.Results.Select(r => r.ToString())).Split('\t')

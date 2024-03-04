@@ -86,9 +86,9 @@ public class GitUpstreamDataShould
 	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitUpstreamDataFailure(Mock<IPowerShell> target)
 	{
 		return target.Verifiable(
-			ps => ps.InvokeCliAsync("git", "ls-tree", "-r", "origin/_upstream", "--format=%(objectname) %(path)"),
+			ps => ps.InvokeCliAsync("git", "ls-tree", "-r", "refs/remotes/origin/_upstream", "--format=%(objectname) %(path)"),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.WithCliErrors(
-				"fatal: Not a valid object name origin/_upstream"
+				"fatal: Not a valid object name refs/remotes/origin/_upstream"
 			))
 		);
 	}
@@ -105,7 +105,7 @@ public class GitUpstreamDataShould
 			));
 
 		return target.Verifiable(
-			ps => ps.InvokeCliAsync("git", "ls-tree", "-r", "origin/_upstream", "--format=%(objectname) %(path)"),
+			ps => ps.InvokeCliAsync("git", "ls-tree", "-r", "refs/remotes/origin/_upstream", "--format=%(objectname) %(path)"),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.WithResults(
 				entries.Select(e => $"{e.Hash} {e.Path}").ToArray()
 			))

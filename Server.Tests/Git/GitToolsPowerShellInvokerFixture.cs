@@ -18,9 +18,7 @@ public class GitToolsPowerShellInvokerFixture
 		GitToolsDirectory = "",
 	};
 	public Mock<PowerShellFactory> MockPowerShellFactory { get; } = new Mock<PowerShellFactory>(MockBehavior.Strict);
-	public GitCloneConfiguration CloneConfiguration { get; set; } = new GitCloneConfiguration(
-		GitRootDirectory: "./"
-	);
+	public GitCloneConfiguration CloneConfiguration { get; set; } = Defaults.DefaultCloneConfiguration;
 
 	/// <param name="options">Uses `gitOptions` above if not provided</param>
 	/// <param name="mockFactoryDirectly">Prevents detecting git directory or runspace setup if true</param>

@@ -1,11 +1,7 @@
 ﻿using PrincipleStudios.ScaledGitApp.ShellUtilities;
-using System.Diagnostics;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
-
-public record GitCloneConfiguration(string GitRootDirectory);
 
 public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
 {

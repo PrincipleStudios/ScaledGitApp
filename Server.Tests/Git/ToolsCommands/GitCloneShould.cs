@@ -20,7 +20,7 @@ public class GitCloneShould
 		verifyGitClone.Verify(Times.Once);
 	}
 
-	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitClone(Mock<IPowerShell> target, string expectedRepository)
+	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupGitClone(Mock<IPowerShellCommandContext> target, string expectedRepository)
 	{
 		// This is very permissive right now; clone should be bare, and then we don't need the other setups
 		target.Setup(ps => ps.InvokeCliAsync("git", It.IsAny<string[]>())).ReturnsAsync(PowerShellInvocationResultStubs.Empty);

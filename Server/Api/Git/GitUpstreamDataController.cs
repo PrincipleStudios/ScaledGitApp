@@ -5,7 +5,7 @@ using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitUpstreamDataController(IGitToolsInvoker GitToolsPowerShell, IColorConfiguration ColorConfiguration) : GitUpstreamDataControllerBase
+public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShell, IColorConfiguration ColorConfiguration) : GitUpstreamDataControllerBase
 {
 
 	protected override async Task<GetUpstreamDataActionResult> GetUpstreamData()

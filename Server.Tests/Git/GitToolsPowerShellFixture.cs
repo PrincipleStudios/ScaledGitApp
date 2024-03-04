@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
@@ -15,13 +16,13 @@ public class GitToolsPowerShellFixture
 
 	/// <param name="options">Uses `gitOptions` above if not provided</param>
 	/// <returns>A GitToolsPowerShell instance</returns>
-	public IGitToolsPowerShell Create(GitOptions? options = null, GitCloneConfiguration? cloneConfiguration = null)
+	public IGitToolsPowerShellCommandContext Create(GitOptions? options = null, GitCloneConfiguration? cloneConfiguration = null)
 	{
 		GitOptions = options ?? GitOptions;
 		CloneConfiguration = cloneConfiguration ?? CloneConfiguration;
 		MockPowerShell.Setup(pwsh => pwsh.SetCurrentWorkingDirectory(CloneConfiguration.GitRootDirectory));
 
-		return new GitToolsPowerShell(MockPowerShell.Object, GitOptions, CloneConfiguration);
+		return new GitToolsPowerShellCommandContext(MockPowerShell.Object, GitOptions, CloneConfiguration, Mock.Of<ILogger>());
 	}
 
 }

@@ -5,10 +5,10 @@ namespace PrincipleStudios.ScaledGitApp.Git;
 
 public class PowerShellFixture
 {
-	public Mock<IPowerShell> MockPowerShell { get; } = new Mock<IPowerShell>(MockBehavior.Strict);
+	public Mock<IPowerShellCommandContext> MockPowerShell { get; } = new Mock<IPowerShellCommandContext>(MockBehavior.Strict);
 
 	/// <returns>A IPowerShell instance</returns>
-	public IPowerShell Create()
+	public IPowerShellCommandContext Create()
 	{
 		return MockPowerShell.Object;
 	}

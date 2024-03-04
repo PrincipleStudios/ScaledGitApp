@@ -6,7 +6,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class ResolveTopLevelDirectory(string absoluteWorkingDirectory) : IPowerShellCommand<Task<string>>
 {
-	public async Task<string> RunCommand(IPowerShell pwsh)
+	public async Task<string> RunCommand(IPowerShellCommandContext pwsh)
 	{
 		pwsh.SetCurrentWorkingDirectory(absoluteWorkingDirectory);
 		// Gets the _actual_ top level of the working directory, in case 

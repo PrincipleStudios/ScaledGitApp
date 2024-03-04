@@ -2,7 +2,6 @@
 using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 using System.Collections.Immutable;
-using System.Configuration;
 using System.Diagnostics;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
@@ -10,13 +9,13 @@ namespace PrincipleStudios.ScaledGitApp.Git;
 public class GitCloneService : IHostedService
 {
 	private readonly GitOptions gitOptions;
-	private readonly IGitToolsInvoker gitToolsPowershell;
+	private readonly IGitToolsCommandInvoker gitToolsPowershell;
 	private readonly ILogger<GitCloneService> logger;
 	private readonly TaskCompletionSource<GitCloneConfiguration> detectedConfigurationTask = new();
 
 	public Task<GitCloneConfiguration> DetectedConfigurationTask => detectedConfigurationTask.Task;
 
-	public GitCloneService(IOptions<GitOptions> options, IGitToolsInvoker gitToolsPowershell, ILogger<GitCloneService> logger)
+	public GitCloneService(IOptions<GitOptions> options, IGitToolsCommandInvoker gitToolsPowershell, ILogger<GitCloneService> logger)
 	{
 		gitOptions = options.Value;
 		this.gitToolsPowershell = gitToolsPowershell;

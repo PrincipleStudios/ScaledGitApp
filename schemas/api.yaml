@@ -140,9 +140,13 @@ components:
       type: object
       required:
         - name
+        - color
+        - exists
         - behindCount
         - hasConflict
       properties:
         name: { type: string }
+        color: { type: string }
+        exists: { type: boolean }
         behindCount: { type: integer }
         hasConflict: { type: boolean }

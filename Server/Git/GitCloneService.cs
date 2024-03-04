@@ -96,12 +96,12 @@ public class GitCloneService : IHostedService
 			return (GitCloneServiceStatus.NoRepository, null);
 		}
 
-		var result = await LoadRemotes(gitOptions.Repository);
+		var result = await LoadRemotes();
 		if (result is (GitCloneServiceStatus Status, GitRemoteResult Remotes) tuple) return tuple;
 		return (await RunNewClone(gitOptions.Repository), null);
 	}
 
-	private async Task<(GitCloneServiceStatus Status, GitRemoteResult Remotes)?> LoadRemotes(string repository)
+	private async Task<(GitCloneServiceStatus Status, GitRemoteResult Remotes)?> LoadRemotes()
 	{
 		try
 		{
@@ -120,7 +120,7 @@ public class GitCloneService : IHostedService
 
 			if (remotes.Remotes[0].FetchUrl != gitOptions.Repository)
 			{
-				logger.GitRepositoryMismatch(expected: repository, actual: remotes.Remotes[0].FetchUrl);
+				logger.GitRepositoryMismatch(expected: gitOptions.Repository, actual: remotes.Remotes[0].FetchUrl);
 				return (GitCloneServiceStatus.RepositoryMismatch, remotes);
 			}
 

@@ -22,7 +22,7 @@ public static partial class GitLogging
 	public static partial void MultipleGitRepositoriesConfigured(this ILogger logger, IEnumerable<string> gitRepositories);
 
 	[LoggerMessage(LogLevel.Warning, "Expected git repository ({Expected}) did not match the already-configured remote ({Actual})")]
-	public static partial void GitRepositoryMismatch(this ILogger logger, string expected, string actual);
+	public static partial void GitRepositoryMismatch(this ILogger logger, string? expected, string actual);
 
 	[LoggerMessage(LogLevel.Error, "Git encountered an error while cloning the repository.")]
 	public static partial void GitFailedToClone(this ILogger logger, GitException exception);

@@ -7,11 +7,13 @@ public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
 {
 	private readonly IPowerShell pwsh;
 	private readonly GitOptions gitOptions;
+	private readonly GitCloneConfiguration gitCloneConfiguration;
 
 	public GitToolsPowerShell(IPowerShell pwsh, GitOptions gitOptions, GitCloneConfiguration gitCloneConfiguration)
 	{
 		this.pwsh = pwsh;
 		this.gitOptions = gitOptions;
+		this.gitCloneConfiguration = gitCloneConfiguration;
 		this.pwsh.SetCurrentWorkingDirectory(gitCloneConfiguration.GitRootDirectory);
 	}
 
@@ -20,8 +22,17 @@ public sealed class GitToolsPowerShell : IGitToolsPowerShell, IDisposable
 		pwsh.Dispose();
 	}
 
-	// TODO: this should not get hard-coded
-	public string UpstreamBranchName => "origin/_upstream";
+	public string UpstreamBranchName => ToLocalTrackingBranchName(gitCloneConfiguration.UpstreamBranchName)
+		?? throw new InvalidOperationException($"Upstream branch {gitCloneConfiguration.UpstreamBranchName} is not tracked. Ensure it is covered by the fetch refspec.");
+
+	public string? ToLocalTrackingBranchName(string remoteBranchName)
+	{
+		var rawMapping = gitCloneConfiguration.FetchMapping.Select(m => m.TryApply(remoteBranchName, out var result) ? result : null).Where(v => v != null).FirstOrDefault();
+		if (rawMapping != null) return rawMapping;
+
+		var fullyQualified = GitConventions.ToFullyQualifiedBranchName(remoteBranchName);
+		return gitCloneConfiguration.FetchMapping.Select(m => m.TryApply(fullyQualified, out var result) ? result : null).Where(v => v != null).FirstOrDefault();
+	}
 
 	public Task<PowerShellInvocationResult> InvokeCliAsync(string command, params string[] arguments) =>
 		pwsh.InvokeCliAsync(command, arguments);

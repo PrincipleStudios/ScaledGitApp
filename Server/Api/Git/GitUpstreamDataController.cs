@@ -1,10 +1,11 @@
 ﻿
+using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitUpstreamDataController(IGitToolsInvoker GitToolsPowerShell) : GitUpstreamDataControllerBase
+public class GitUpstreamDataController(IGitToolsInvoker GitToolsPowerShell, IColorConfiguration ColorConfiguration) : GitUpstreamDataControllerBase
 {
 
 	protected override async Task<GetUpstreamDataActionResult> GetUpstreamData()
@@ -15,25 +16,16 @@ public class GitUpstreamDataController(IGitToolsInvoker GitToolsPowerShell) : Gi
 			from kvp in results
 			select new BranchConfiguration(
 				Name: kvp.Key,
-				Color: DetermineColor(kvp.Key),
+				Color: ColorConfiguration.DetermineColor(kvp.Key),
 				Upstream: kvp.Value.UpstreamBranchNames.Select(n => new Branch(Name: n))
 			)
 		).Concat(
 			from branchName in noUpstreams
 			select new BranchConfiguration(
 				Name: branchName,
-				Color: DetermineColor(branchName),
+				Color: ColorConfiguration.DetermineColor(branchName),
 				Upstream: Enumerable.Empty<Branch>()
 			)
 		));
-	}
-
-	private static string DetermineColor(string branchName)
-	{
-		// TODO: move to somewhere with configuration
-		if (branchName.StartsWith("rc/")) return "rgb(111, 37, 111)";
-		if (branchName.StartsWith("line/") || branchName == "main" || branchName == "master") return "rgb(111, 206, 31)";
-		if (branchName.StartsWith("integ/") || branchName.StartsWith("integrate/") || branchName.StartsWith("integration/")) return "rgb(98, 98, 98)";
-		return "rgb(55, 127, 192)";
 	}
 }

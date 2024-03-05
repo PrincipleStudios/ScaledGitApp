@@ -78,22 +78,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpstreamBranches'
   /api/git/branch-details:
-    get:
+    post:
       x-dotnet-mvc-server-controller: GitBranchDetails
       operationId: getBranchDetails
       summary: Gets the upstream data for a specific branch
-      parameters:
-        - name: branch
-          in: query
-          required: true
-          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branches:
+                  type: array
+                  items: { type: string }
+                includeDownstream:
+                  type: boolean
+                includeUpstream:
+                  type: boolean
+                recurse:
+                  type: boolean
+              required:
+                - branches
+                - includeDownstream
+                - includeUpstream
+                - recurse
       responses:
         200:
           description: Upstream branch configuration data
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BranchDetails'
+                type: array
+                items: { $ref: '#/components/schemas/BranchDetails' }
 components:
   schemas:
     UpstreamBranches:

@@ -4,7 +4,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public record GetConflictingFiles(string LeftBranch, string RightBranch) : IGitToolsCommand<Task<bool>>
 {
-	public async Task<bool> RunCommand(IGitToolsPowerShellCommandContext pwsh)
+	public async Task<bool> RunCommand(IGitToolsCommandContext pwsh)
 	{
 		var cliResults = await pwsh.InvokeCliAsync("git", "merge-tree", "--name-only", "--no-messages", LeftBranch, RightBranch);
 		return cliResults.HadErrors;

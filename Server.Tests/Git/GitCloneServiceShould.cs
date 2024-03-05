@@ -13,11 +13,11 @@ public class GitCloneServiceShould
 	private static readonly InvalidOperationException stubUnknownException = new("Unknown exception");
 	private static readonly GitException stubException = new();
 
-	static (GitCloneService Service, Mock<IGitToolsCommandInvoker> PowerShellMock) CreateService(GitOptions? options = null)
+	static (GitCloneService Service, Mock<IPowerShellCommandInvoker> PowerShellMock) CreateService(GitOptions? options = null)
 	{
 		options ??= new GitOptions { Repository = expectedRepository };
 
-		var mockPowerShell = new Mock<IGitToolsCommandInvoker>(MockBehavior.Strict);
+		var mockPowerShell = new Mock<IPowerShellCommandInvoker>(MockBehavior.Strict);
 		var gitCloneService = new GitCloneService(Options.Create(options), mockPowerShell.Object, Mock.Of<ILogger<GitCloneService>>());
 
 		return (gitCloneService, mockPowerShell);
@@ -149,6 +149,7 @@ public class GitCloneServiceShould
 	[Fact]
 	public async Task Loads_default_configuration_values_for_new_clone()
 	{
+		string expectedUpstream = $"refs/remotes/{Defaults.DefaultCloneConfiguration.RemoteName}/{Defaults.DefaultCloneConfiguration.BaseUpstreamBranchName}";
 		var (service, mockPwsh) = CreateService();
 		mockPwsh
 			.SetupSequence(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
@@ -163,7 +164,7 @@ public class GitCloneServiceShould
 		Assert.True(service.DetectedConfigurationTask.IsCompleted);
 		var actualConfig = await service.DetectedConfigurationTask;
 		Assert.Equal(expectedTopLevelDirectory, actualConfig.GitRootDirectory);
-		Assert.Equal("_upstream", actualConfig.UpstreamBranchName);
+		Assert.Equal(expectedUpstream, actualConfig.UpstreamBranchName);
 		Assert.Collection(actualConfig.FetchMapping,
 			refspec =>
 			{
@@ -175,8 +176,9 @@ public class GitCloneServiceShould
 	[Fact]
 	public async Task Loads_custom_configuration_values_for_unknown_repository()
 	{
-		const string expectedUpstream = "my-upstream";
+		const string configuredUpstream = "my-upstream";
 		const string expectedRemote = "github";
+		string expectedUpstream = $"refs/remotes/{expectedRemote}/{configuredUpstream}";
 		var (service, mockPwsh) = CreateService(new GitOptions { Repository = null });
 		SetupGitRemotes(mockPwsh, [
 			new GitRemoteEntry("azdo", expectedRepository),
@@ -187,7 +189,7 @@ public class GitCloneServiceShould
 			new($"remote.{expectedRemote}.fetch", [$"+refs/heads/*:refs/remotes/{expectedRemote}/*", $"+refs/pull/*/head:refs/remotes/prs/*"]),
 			new("remote.azdo.fetch", ["+refs/heads/*:refs/remotes/azdo/*"]),
 			new("scaled-git.remote", [expectedRemote]),
-			new("scaled-git.upstreambranch", [expectedUpstream]),
+			new("scaled-git.upstreambranch", [configuredUpstream]),
 		]);
 
 		await service.DetectCloneConfiguration();
@@ -218,27 +220,27 @@ public class GitCloneServiceShould
 		Assert.False(service.DetectedConfigurationTask.IsCompleted);
 	}
 
-	private static void SetupGitRemotes(Mock<IGitToolsCommandInvoker> mockPwsh, GitRemoteEntry[] remotes)
+	private static void SetupGitRemotes(Mock<IPowerShellCommandInvoker> mockPwsh, GitRemoteEntry[] remotes)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
 			.ReturnsAsync(new GitRemoteResult(remotes));
 	}
-	private static void SetupNoGitDirectory(Mock<IGitToolsCommandInvoker> mockPwsh)
+	private static void SetupNoGitDirectory(Mock<IPowerShellCommandInvoker> mockPwsh)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
 			.ThrowsAsync(stubException);
 	}
 
-	private static void SetupResolveTopLevelDirectory(Mock<IGitToolsCommandInvoker> mockPwsh)
+	private static void SetupResolveTopLevelDirectory(Mock<IPowerShellCommandInvoker> mockPwsh)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.RunCommand(It.IsAny<ResolveTopLevelDirectory>()))
 			.ReturnsAsync(expectedTopLevelDirectory);
 	}
 
-	private static void SetupStandardConfiguration(Mock<IGitToolsCommandInvoker> mockPwsh)
+	private static void SetupStandardConfiguration(Mock<IPowerShellCommandInvoker> mockPwsh)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitConfigurationList>()))
@@ -248,7 +250,7 @@ public class GitCloneServiceShould
 			});
 	}
 
-	private static void SetupCustomConfiguration(Mock<IGitToolsCommandInvoker> mockPwsh, params KeyValuePair<string, IReadOnlyList<string>>[] items)
+	private static void SetupCustomConfiguration(Mock<IPowerShellCommandInvoker> mockPwsh, params KeyValuePair<string, IReadOnlyList<string>>[] items)
 	{
 		mockPwsh
 			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitConfigurationList>()))

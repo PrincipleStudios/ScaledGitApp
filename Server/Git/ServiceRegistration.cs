@@ -1,7 +1,4 @@
-﻿
-using Microsoft.Extensions.Options;
-
-namespace PrincipleStudios.ScaledGitApp.Git;
+﻿namespace PrincipleStudios.ScaledGitApp.Git;
 
 public static class ServiceRegistration
 {
@@ -16,10 +13,12 @@ public static class ServiceRegistration
 
 		// Services
 		services.AddSingleton<GitCloneService>();
-		services.AddSingleton<IGitToolsCommandInvoker>(sp =>
+		services.AddSingleton(sp =>
 		{
 			var factory = () => sp.GetRequiredService<GitCloneService>().DetectedConfigurationTask;
 			return ActivatorUtilities.CreateInstance<GitToolsPowerShellInvoker>(sp, factory);
 		});
+		services.AddSingleton(sp => sp.GetRequiredService<GitToolsPowerShellInvoker>().GitToolsCommandInvoker);
+		services.AddSingleton(sp => sp.GetRequiredService<GitToolsPowerShellInvoker>().PowerShellCommandInvoker);
 	}
 }

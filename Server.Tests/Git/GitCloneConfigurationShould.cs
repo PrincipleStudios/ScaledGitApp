@@ -1,13 +1,11 @@
 ﻿namespace PrincipleStudios.ScaledGitApp.Git;
 
-public class GitToolsPowerShellShould
+public class GitCloneConfigurationShould
 {
-	readonly GitToolsPowerShellFixture fixture = new GitToolsPowerShellFixture();
-
 	[Fact]
 	public void Have_the_default_Upstream_branch()
 	{
-		var target = fixture.Create();
+		var target = Defaults.DefaultCloneConfiguration;
 
 		var upstreamBranchName = target.UpstreamBranchName;
 
@@ -22,7 +20,7 @@ public class GitToolsPowerShellShould
 	[Theory]
 	public void Map_remote_branches_to_local_tracking_name(string nameOnRemote, string? localTrackingName)
 	{
-		var target = fixture.Create();
+		var target = Defaults.DefaultCloneConfiguration;
 
 		var actual = target.ToLocalTrackingBranchName(nameOnRemote);
 
@@ -34,13 +32,13 @@ public class GitToolsPowerShellShould
 	[Theory]
 	public void Map_remote_branches_with_alternate_mapping(string nameOnRemote, string? localTrackingName)
 	{
-		var target = fixture.Create(cloneConfiguration: Defaults.DefaultCloneConfiguration with
+		var target = Defaults.DefaultCloneConfiguration with
 		{
 			FetchMapping = [
 				FetchMapping.Parse("+refs/heads/*:refs/remotes/github/*"),
 				FetchMapping.Parse("+refs/pull/*/head:refs/remotes/github-pr/*")
 			]
-		});
+		};
 
 		var actual = target.ToLocalTrackingBranchName(nameOnRemote);
 

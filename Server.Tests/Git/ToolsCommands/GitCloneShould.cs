@@ -23,10 +23,10 @@ public class GitCloneShould
 	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupGitClone(Mock<IPowerShellCommandContext> target, string expectedRepository)
 	{
 		// This is very permissive right now; clone should be bare, and then we don't need the other setups
-		target.Setup(ps => ps.InvokeCliAsync("git", It.IsAny<string[]>())).ReturnsAsync(PowerShellInvocationResultStubs.Empty);
-		target.Setup(ps => ps.InvokeCliAsync("git", "rev-parse", "--abbrev-ref", "HEAD")).ReturnsAsync(PowerShellInvocationResultStubs.WithResults("main"));
+		target.Setup(ps => ps.PowerShellInvoker.InvokeCliAsync("git", It.IsAny<string[]>())).ReturnsAsync(PowerShellInvocationResultStubs.Empty);
+		target.Setup(ps => ps.PowerShellInvoker.InvokeCliAsync("git", "rev-parse", "--abbrev-ref", "HEAD")).ReturnsAsync(PowerShellInvocationResultStubs.WithResults("main"));
 		return target.Verifiable(
-			ps => ps.InvokeCliAsync("git", It.Is<string[]>(args => VerifyCliArgs(args, expectedRepository))),
+			ps => ps.PowerShellInvoker.InvokeCliAsync("git", It.Is<string[]>(args => VerifyCliArgs(args, expectedRepository))),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.Empty)
 		);
 	}

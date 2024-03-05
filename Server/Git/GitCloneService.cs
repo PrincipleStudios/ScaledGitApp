@@ -9,16 +9,16 @@ namespace PrincipleStudios.ScaledGitApp.Git;
 public class GitCloneService : IHostedService
 {
 	private readonly GitOptions gitOptions;
-	private readonly IGitToolsCommandInvoker gitToolsPowershell;
+	private readonly IPowerShellCommandInvoker invoker;
 	private readonly ILogger<GitCloneService> logger;
 	private readonly TaskCompletionSource<GitCloneConfiguration> detectedConfigurationTask = new();
 
 	public Task<GitCloneConfiguration> DetectedConfigurationTask => detectedConfigurationTask.Task;
 
-	public GitCloneService(IOptions<GitOptions> options, IGitToolsCommandInvoker gitToolsPowershell, ILogger<GitCloneService> logger)
+	public GitCloneService(IOptions<GitOptions> options, IPowerShellCommandInvoker invoker, ILogger<GitCloneService> logger)
 	{
 		gitOptions = options.Value;
-		this.gitToolsPowershell = gitToolsPowershell;
+		this.invoker = invoker;
 		this.logger = logger;
 #pragma warning disable CA1848 // Use the LoggerMessage delegates
 		logger.LogCritical("Constructed");
@@ -63,10 +63,10 @@ public class GitCloneService : IHostedService
 		if (status == GitCloneServiceStatus.CloneFailed)
 			throw new InvalidOperationException("Could not clone repository");
 
-		remotes ??= await gitToolsPowershell.RunCommand(new GitRemote());
-		var gitTopLevel = await gitToolsPowershell.RunCommand(new ResolveTopLevelDirectory(absoluteInitialDirectory));
+		remotes ??= await invoker.RunCommand(new GitRemote());
+		var gitTopLevel = await invoker.RunCommand(new ResolveTopLevelDirectory());
 
-		var configuration = await gitToolsPowershell.RunCommand(new GitConfigurationList());
+		var configuration = await invoker.RunCommand(new GitConfigurationList());
 		var scaledGitRemote = SafeGetConfiguration("scaled-git.remote").SingleOrDefault()
 			?? remotes.Remotes[0].Alias;
 		var upstreamBranchName = SafeGetConfiguration("scaled-git.upstreamBranch").DefaultIfEmpty("_upstream").Single();
@@ -75,7 +75,7 @@ public class GitCloneService : IHostedService
 		return new GitCloneConfiguration(
 			GitRootDirectory: gitTopLevel,
 			RemoteName: scaledGitRemote,
-			UpstreamBranchName: upstreamBranchName,
+			BaseUpstreamBranchName: upstreamBranchName,
 			FetchMapping: fetchMapping
 		);
 
@@ -104,7 +104,7 @@ public class GitCloneService : IHostedService
 	{
 		try
 		{
-			var remotes = await gitToolsPowershell.RunCommand(new GitRemote());
+			var remotes = await invoker.RunCommand(new GitRemote());
 
 			if (remotes.Remotes.Count == 0)
 			{
@@ -142,7 +142,7 @@ public class GitCloneService : IHostedService
 	{
 		try
 		{
-			await gitToolsPowershell.RunCommand(new GitClone(repository));
+			await invoker.RunCommand(new GitClone(repository));
 			logger.GitClonedSuccessfully(repository, gitOptions.WorkingDirectory);
 			return GitCloneServiceStatus.ClonedSuccessfully;
 		}

@@ -4,27 +4,27 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public record GitBranchUpstreamDetails(string BranchName) : IGitToolsCommand<Task<UpstreamBranchDetailedState>>
 {
-	public async Task<UpstreamBranchDetailedState> RunCommand(IGitToolsPowerShellCommandContext pwsh)
+	public async Task<UpstreamBranchDetailedState> RunCommand(IGitToolsCommandContext pwsh)
 	{
-		var upstreamResults = await pwsh.InvokeCliAsync("git", ["cat-file", "-p", $"{pwsh.UpstreamBranchName}:{BranchName}"]);
+		var upstreamResults = await pwsh.InvokeCliAsync("git", ["cat-file", "-p", $"{pwsh.GitCloneConfiguration.UpstreamBranchName}:{BranchName}"]);
 		var upstreamBranches = upstreamResults.HadErrors
 			? Array.Empty<string>()
 			: upstreamResults.ToResultStrings().ToArray();
 
-		var fullBranchName = pwsh.ToLocalTrackingBranchName(BranchName)
+		var fullBranchName = pwsh.GitCloneConfiguration.ToLocalTrackingBranchName(BranchName)
 			?? throw new InvalidOperationException($"{BranchName} is not mapped locally");
 		var branchExistenceCheck = await pwsh.InvokeCliAsync("git", ["rev-parse", "--verify", fullBranchName]);
 		var branchExists = !branchExistenceCheck.HadErrors;
 
 		var fullUpstreamBranchNames = upstreamBranches
-			.Select(abbreviated => (ShortName: abbreviated, FullName: pwsh.ToLocalTrackingBranchName(abbreviated)
+			.Select(abbreviated => (ShortName: abbreviated, FullName: pwsh.GitCloneConfiguration.ToLocalTrackingBranchName(abbreviated)
 				?? throw new InvalidOperationException($"{abbreviated} is not mapped locally")))
 			.ToArray();
 
 		var entries = new List<UpstreamBranchMergeInfo>();
 		foreach (var upstream in fullUpstreamBranchNames)
 		{
-			var behind = await pwsh.RunCommand(new GetCommitCount(Included: [upstream.FullName], Excluded: (IEnumerable<string>)([fullBranchName])));
+			var behind = await pwsh.RunCommand(new GetCommitCount(Included: [upstream.FullName], Excluded: [fullBranchName]));
 			entries.Add(new UpstreamBranchMergeInfo(
 				Name: upstream.ShortName,
 				Exists: !behind.HasValue,

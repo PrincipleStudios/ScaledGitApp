@@ -6,7 +6,7 @@ public record GetCommitCount(IEnumerable<string> Included, IEnumerable<string> E
 {
 	private static readonly IReadOnlyList<string> countArgs = ["rev-list", "--count", "--no-merges"];
 
-	public async Task<int?> RunCommand(IGitToolsPowerShellCommandContext pwsh)
+	public async Task<int?> RunCommand(IGitToolsCommandContext pwsh)
 	{
 		var cliResults = await pwsh.InvokeCliAsync("git", countArgs.Concat(Included).Concat(Excluded.Select(b => $"^{b}")).ToArray());
 		if (cliResults.HadErrors) return null;

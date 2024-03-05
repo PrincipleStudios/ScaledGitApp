@@ -31,7 +31,7 @@
 	</PropertyGroup>
 
 	<!-- The following are test assembly supressions -->
-	<PropertyGroup Condition=" $(AssemblyName.EndsWith('.Test')) ">
+	<PropertyGroup Condition=" $(AssemblyName.EndsWith('.Tests')) ">
 		<!--
 			CA1033 - mark as sealed
 			CA1052 - tests cannot be static types
@@ -44,10 +44,12 @@
 			CA1816 - finalizer suppression
 			CA2234 - call with Uri instead of string
 			CA1003 - use EventHandler instead of Action-based `event`
+			CS1998 - tests may be implemented with `async Task` return types as stubs
 		 -->
-		<NoWarn >$(NoWarn),CA1033,CA1052,CA1063,CA1711,CA2016,CA1806,CA1822,CA1031,CA1816,CA2234,CA1003</NoWarn>
+		<NoWarn >$(NoWarn),CA1033,CA1052,CA1063,CA1711,CA2016,CA1806,CA1822,CA1031,CA1816,CA2234,CA1003,CS1998</NoWarn>
 		<!--
 			CS8002 - allow test assemblies to reference assemblies without strong names
+			
 		 -->
 		<NoWarn>$(NoWarn);CS8002</NoWarn>
 	</PropertyGroup>

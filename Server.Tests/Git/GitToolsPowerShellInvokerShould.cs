@@ -1,6 +1,7 @@
 ﻿using Moq;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
-using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
@@ -11,49 +12,24 @@ public partial class GitToolsPowerShellInvokerShould
 	[Fact]
 	public async Task Instantiate_without_immediately_invoking()
 	{
+		var calledFactory = false;
 		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns((IPowerShell)null!);
 
-		// By not mocking the factory, we test the typical DI constructor with working directory setup
-		var target = fixture.CreateTarget(mockFactoryDirectly: false);
+		var target = new GitToolsPowerShellInvoker(
+			Options.Create(fixture.GitOptions),
+			fixture.MockPowerShellFactory.Object,
+			() =>
+			{
+				calledFactory = true;
+				return Task.FromResult(fixture.CloneConfiguration);
+			},
+			Mock.Of<ILogger<GitToolsPowerShellInvoker>>()
+		);
 
 		await Task.Yield();
 
 		fixture.MockPowerShellFactory.Verify(ps => ps.Create(null), Times.Never());
-	}
-
-	/// <summary>
-	/// Verifies that the working directory is detected correctly and is assigned to the final powershell instance
-	/// </summary>
-	[Fact]
-	public async Task Adjusts_the_working_directory_to_the_git_root()
-	{
-		// These "real" directories are used to ensure file path separators, etc. do not break the test
-		var baseWorkingDirectory = Directory.GetCurrentDirectory();
-		var expectedWorkingDirectory = Path.TrimEndingDirectorySeparator(Path.GetTempPath());
-		var mockFindGitRoot = new Mock<IPowerShell>();
-		var mockFinal = new Mock<IPowerShell>();
-
-		// The first time `.Create` is called, it returns the instance that will find the root.
-		// The second time, it is the instance used to run the command
-		var createPowershell = fixture.MockPowerShellFactory.VerifiableSequence(
-			ps => ps.Create(null),
-			s => s.Returns(mockFindGitRoot.Object).Returns(mockFinal.Object)
-		);
-		// The following setups are how we find the expected working directory
-		mockFindGitRoot.Setup(ps => ps.SetCurrentWorkingDirectory(baseWorkingDirectory));
-		mockFindGitRoot.Setup(ps => ps.InvokeCliAsync("git", "rev-parse", "--show-toplevel"))
-			.ReturnsAsync(PowerShellInvocationResultStubs.WithResults(expectedWorkingDirectory));
-		// Set up so we can verify that the expected working directory is set
-		var workingDirectorySet = mockFinal.Verifiable(ps => ps.SetCurrentWorkingDirectory(expectedWorkingDirectory));
-
-		// By not mocking the factory, we test the typical DI constructor with working directory setup
-		var target = fixture.CreateTarget(mockFactoryDirectly: false);
-
-		await target.RunCommand(Mock.Of<IGitToolsCommand<Task>>());
-
-		// Runs once to get the toplevel 
-		createPowershell.Verify(Times.Exactly(2));
-		workingDirectorySet.Verify(Times.Once);
+		Assert.False(calledFactory);
 	}
 
 	/// <summary>

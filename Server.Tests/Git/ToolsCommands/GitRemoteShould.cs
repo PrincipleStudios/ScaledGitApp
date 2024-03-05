@@ -6,12 +6,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GitRemoteShould
 {
-	private readonly GitToolsPowerShellFixture fixture;
-
-	public GitRemoteShould()
-	{
-		this.fixture = new GitToolsPowerShellFixture();
-	}
+	private readonly PowerShellFixture fixture = new();
 
 	[Fact]
 	public async Task Allow_no_remotes()

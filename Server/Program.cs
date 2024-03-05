@@ -1,5 +1,6 @@
 #pragma warning disable CA1861 // Avoid constant arrays as arguments - the envfile list belongs here, and static arrays cannot be created in Program.cs
 using dotenv.net;
+using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Locales;
@@ -18,6 +19,7 @@ builder.Configuration.AddSecretsManager();
 
 var services = builder.Services;
 
+services.RegisterBranchingStrategy();
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
 	environmentName: builder.Environment.EnvironmentName,

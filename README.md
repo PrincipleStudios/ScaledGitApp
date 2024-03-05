@@ -24,11 +24,11 @@ To run locally, use one of the following options:
 
 - Using Visual Studio:
   1. Open `./PrincipleStudios.ScaledGitApp.sln`.
-  2. Set up local configuration (TODO)
+  2. Set up local configuration (see below)
   3. Debug or run the `Server` project.
 
 - Using the `dotnet` CLI:
-  1. Set up local configuration (TODO)
+  1. Set up local configuration (see below)
   2. Run the following commands in your terminal:
      ```sh
      cd Server
@@ -36,16 +36,28 @@ To run locally, use one of the following options:
      ```
 
 - Within the `ui` folder:
-  1. Set up local configuration (TODO)
+  1. Set up local configuration (see below)
   2. Run the following commands in your terminal:
      ```sh
      cd ui
      pnpm start
      ```
 
-If you have `docker-compose` installed and your container runtime started at the
-time of building, Jaeger will be automatically started at http://localhost:16686/
-for collecting local OpenTelementry data.
+### Local Configuration (Optional)
+
+The project may run locally without any local configuration with limited
+functionality. To configure the application for local development:
+
+1. Create a `.env` file in the root of the repository
+2. Set up [desired environment variables][docs-env-variables]
+
+### Other components
+
+- **Jaeger**
+
+    If you have `docker-compose` installed and your container runtime started at
+    the time of building, Jaeger will be automatically started at
+    http://localhost:16686/ for collecting local OpenTelementry data.
 
 ## Hosting
 
@@ -62,3 +74,4 @@ support for GitHub and AzureDevOps is planned.
 [codegen-dotnet-version]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
 [ps-openapi-codegen]: https://github.com/PrincipleStudios/principle-studios-openapi-generators
 [pnpm-setup]: https://pnpm.io/cli/install
+[docs-env-variables]: docs/env.md

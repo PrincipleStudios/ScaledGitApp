@@ -15,5 +15,4 @@ public interface IPowerShellCommandContext
 {
 	IPowerShellCommandInvoker PowerShellCommandInvoker { get; }
 	IPowerShellInvoker PowerShellInvoker { get; }
-
 }

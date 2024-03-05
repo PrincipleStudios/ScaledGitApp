@@ -21,8 +21,6 @@ internal static class UsabilityExtensions
 	public static Task<T> RunCommand<T>(this IPowerShellCommandContext target, IPowerShellCommand<Task<T>> command) =>
 		target.PowerShellCommandInvoker.RunCommand(command);
 
-	public static void SetCurrentWorkingDirectory(this IPowerShellCommandContext target, string workingDirectory) =>
-		target.PowerShellInvoker.SetCurrentWorkingDirectory(workingDirectory);
 	public static Task<PowerShellInvocationResult> InvokeExternalScriptAsync(this IPowerShellCommandContext target, string externalScriptPath, Action<PowerShell>? addParameters = null) =>
 		target.PowerShellInvoker.InvokeExternalScriptAsync(externalScriptPath, addParameters);
 	public static Task<PowerShellInvocationResult> InvokeExternalScriptAsync<T>(this IPowerShellCommandContext target, string externalScriptPath, PSDataCollection<T> input, Action<PowerShell>? addParameters = null) =>

@@ -9,7 +9,7 @@ public record GitUpstreamData() : IGitToolsCommand<Task<IReadOnlyDictionary<stri
 {
 	private static readonly Regex gitLsTreeRecursiveLine = new Regex(@"^(?<hash>[A-Za-z0-9]{40}) (?<name>[^\t]+)$");
 
-	public async Task<IReadOnlyDictionary<string, UpstreamBranchConfiguration>> RunCommand(IGitToolsPowerShellCommandContext pwsh)
+	public async Task<IReadOnlyDictionary<string, UpstreamBranchConfiguration>> RunCommand(IGitToolsCommandContext pwsh)
 	{
 		var result = await pwsh.InvokeCliAsync("git", "ls-tree", "-r", pwsh.UpstreamBranchName, "--format=%(objectname) %(path)");
 		if (result.HadErrors) return ImmutableDictionary<string, UpstreamBranchConfiguration>.Empty;

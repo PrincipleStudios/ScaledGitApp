@@ -1,6 +1,5 @@
 ﻿
 using PrincipleStudios.ScaledGitApp.BranchingStrategy;
-using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;

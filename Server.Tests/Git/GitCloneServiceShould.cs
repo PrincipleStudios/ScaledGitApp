@@ -101,7 +101,7 @@ public class GitCloneServiceShould
 	public async Task Throws_if_remote_has_other_errors()
 	{
 		var (service, mockPwsh) = CreateService();
-		mockPwsh.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<GitRemote>())).ThrowsAsync(stubUnknownException);
+		mockPwsh.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>())).ThrowsAsync(stubUnknownException);
 
 		var actualException = await Assert.ThrowsAsync<InvalidOperationException>(service.EnsureGitClone);
 
@@ -113,7 +113,7 @@ public class GitCloneServiceShould
 	{
 		var (service, mockPwsh) = CreateService();
 		SetupNoGitDirectory(mockPwsh);
-		mockPwsh.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(new GitClone(expectedRepository))).Returns(Task.CompletedTask);
+		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).Returns(Task.CompletedTask);
 
 		var (actual, remotes) = await service.EnsureGitClone();
 
@@ -126,7 +126,7 @@ public class GitCloneServiceShould
 	{
 		var (service, mockPwsh) = CreateService();
 		SetupNoGitDirectory(mockPwsh);
-		mockPwsh.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(new GitClone(expectedRepository))).ThrowsAsync(stubException);
+		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).ThrowsAsync(stubException);
 
 		var (actual, remotes) = await service.EnsureGitClone();
 
@@ -139,7 +139,7 @@ public class GitCloneServiceShould
 	{
 		var (service, mockPwsh) = CreateService();
 		SetupNoGitDirectory(mockPwsh);
-		mockPwsh.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(new GitClone(expectedRepository))).ThrowsAsync(stubUnknownException);
+		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).ThrowsAsync(stubUnknownException);
 
 		var actualException = await Assert.ThrowsAsync<InvalidOperationException>(service.EnsureGitClone);
 
@@ -151,10 +151,10 @@ public class GitCloneServiceShould
 	{
 		var (service, mockPwsh) = CreateService();
 		mockPwsh
-			.SetupSequence(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<GitRemote>()))
+			.SetupSequence(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
 			.ThrowsAsync(stubException)
 			.ReturnsAsync(new GitRemoteResult([new GitRemoteEntry("origin", expectedRepository)]));
-		mockPwsh.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(new GitClone(expectedRepository))).Returns(Task.CompletedTask);
+		mockPwsh.Setup(pwsh => pwsh.RunCommand(new GitClone(expectedRepository))).Returns(Task.CompletedTask);
 		SetupResolveTopLevelDirectory(mockPwsh);
 		SetupStandardConfiguration(mockPwsh);
 
@@ -221,27 +221,27 @@ public class GitCloneServiceShould
 	private static void SetupGitRemotes(Mock<IGitToolsCommandInvoker> mockPwsh, GitRemoteEntry[] remotes)
 	{
 		mockPwsh
-			.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<GitRemote>()))
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
 			.ReturnsAsync(new GitRemoteResult(remotes));
 	}
 	private static void SetupNoGitDirectory(Mock<IGitToolsCommandInvoker> mockPwsh)
 	{
 		mockPwsh
-			.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<GitRemote>()))
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitRemote>()))
 			.ThrowsAsync(stubException);
 	}
 
 	private static void SetupResolveTopLevelDirectory(Mock<IGitToolsCommandInvoker> mockPwsh)
 	{
 		mockPwsh
-			.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<ResolveTopLevelDirectory>()))
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<ResolveTopLevelDirectory>()))
 			.ReturnsAsync(expectedTopLevelDirectory);
 	}
 
 	private static void SetupStandardConfiguration(Mock<IGitToolsCommandInvoker> mockPwsh)
 	{
 		mockPwsh
-			.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<GitConfigurationList>()))
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitConfigurationList>()))
 			.ReturnsAsync(new Dictionary<string, IReadOnlyList<string>>
 			{
 				{ "remote.origin.fetch", ["+refs/heads/*:refs/remotes/origin/*"] },
@@ -251,7 +251,7 @@ public class GitCloneServiceShould
 	private static void SetupCustomConfiguration(Mock<IGitToolsCommandInvoker> mockPwsh, params KeyValuePair<string, IReadOnlyList<string>>[] items)
 	{
 		mockPwsh
-			.Setup(pwsh => pwsh.PowerShellCommandInvoker.RunCommand(It.IsAny<GitConfigurationList>()))
+			.Setup(pwsh => pwsh.RunCommand(It.IsAny<GitConfigurationList>()))
 			.ReturnsAsync(new Dictionary<string, IReadOnlyList<string>>(items));
 	}
 

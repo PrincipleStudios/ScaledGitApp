@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
+using PrincipleStudios.ScaledGitApp.Commands;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsPowerShellInvoker : IGitToolsCommandInvoker, IPowerShellCommandInvoker
+public sealed class GitToolsPowerShellInvoker
 {
 	private readonly GitOptions gitOptions;
 	private readonly Lazy<Task<GitCloneConfiguration>> gitCloneConfigurationAccessor;
@@ -16,6 +17,9 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsCommandInvoker, IPowerS
 		gitCloneConfigurationAccessor = new(gitCloneConfiguration);
 		this.psFactory = psFactory;
 		this.logger = logger;
+
+		GitToolsCommandInvoker = new DisposableContextCommandInvoker<IGitToolsCommandContext>(BuildGitToolsPowerShellContext, logger);
+		PowerShellCommandInvoker = new DisposableContextCommandInvoker<IPowerShellCommandContext>(BuildPowerShellContext, logger);
 	}
 
 	public GitToolsPowerShellInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, GitCloneConfiguration gitCloneConfiguration, ILogger<GitToolsPowerShellInvoker> logger)
@@ -23,48 +27,28 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsCommandInvoker, IPowerS
 	{
 	}
 
-	IPowerShellCommandInvoker IGitToolsCommandInvoker.PowerShellCommandInvoker => this;
+	public IGitToolsCommandInvoker GitToolsCommandInvoker { get; }
+	public IPowerShellCommandInvoker PowerShellCommandInvoker { get; }
 
 	private async Task<GitCloneConfiguration> GetGitCloneConfiguration()
 	{
 		return await gitCloneConfigurationAccessor.Value;
 	}
 
-	public async Task RunCommand(IGitToolsCommand<Task> command)
+	private async Task<DisposableContext<IGitToolsCommandContext>> BuildGitToolsPowerShellContext()
 	{
-		using var pwsh = psFactory.Create();
-		var gitToolsPwsh = await BuildGitToolsPowerShellContext(pwsh);
-		await gitToolsPwsh.RunCommand(command);
-	}
-	public async Task<T> RunCommand<T>(IGitToolsCommand<Task<T>> command)
-	{
-		using var pwsh = psFactory.Create();
-		var gitToolsPwsh = await BuildGitToolsPowerShellContext(pwsh);
-		return await gitToolsPwsh.RunCommand(command);
-	}
-	public async Task RunCommand(IPowerShellCommand<Task> command)
-	{
-		using var pwsh = psFactory.Create();
-		await BuildPowerShellContext(pwsh).RunCommand(command);
-	}
-	public async Task<T> RunCommand<T>(IPowerShellCommand<Task<T>> command)
-	{
-		using var pwsh = psFactory.Create();
-		return await BuildPowerShellContext(pwsh).RunCommand(command);
-	}
-
-	private async Task<GitToolsPowerShellCommandContext> BuildGitToolsPowerShellContext(IPowerShellInvoker pwsh)
-	{
+		var pwsh = psFactory.Create();
 		var config = await GetGitCloneConfiguration();
 		pwsh.SetCurrentWorkingDirectory(config.GitRootDirectory);
-		var gitToolsPwsh = new GitToolsPowerShellCommandContext(pwsh, gitOptions, config, logger);
-		return gitToolsPwsh;
+		var gitToolsPwsh = new GitToolsCommandContext(pwsh, gitOptions, config, logger);
+		return new(gitToolsPwsh, pwsh);
 	}
 
-	private PowerShellCommandContext BuildPowerShellContext(IPowerShellInvoker pwsh)
+	private Task<DisposableContext<IPowerShellCommandContext>> BuildPowerShellContext()
 	{
+		var pwsh = psFactory.Create();
 		pwsh.SetCurrentWorkingDirectory(gitOptions.WorkingDirectory);
 		var gitToolsPwsh = new PowerShellCommandContext(pwsh, logger);
-		return gitToolsPwsh;
+		return Task.FromResult(new DisposableContext<IPowerShellCommandContext>(gitToolsPwsh, pwsh));
 	}
 }

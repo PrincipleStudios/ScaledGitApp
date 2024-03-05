@@ -19,8 +19,9 @@ public class GetCommitCountShould
 		var verifyGitClone = SetupGetCommitCount(fixture.MockPowerShell, included, [], 15);
 		var target = new GetCommitCount(included, []);
 
-		await target.RunCommand(fixture.Create());
+		var actual = await target.RunCommand(fixture.Create());
 
+		Assert.Equal(15, actual);
 		verifyGitClone.Verify(Times.Once);
 	}
 
@@ -31,8 +32,9 @@ public class GetCommitCountShould
 		var verifyGitClone = SetupGetCommitCount(fixture.MockPowerShell, included, [], 15);
 		var target = new GetCommitCount(included, []);
 
-		await target.RunCommand(fixture.Create());
+		var actual = await target.RunCommand(fixture.Create());
 
+		Assert.Equal(15, actual);
 		verifyGitClone.Verify(Times.Once);
 	}
 
@@ -44,8 +46,9 @@ public class GetCommitCountShould
 		var verifyGitClone = SetupGetCommitCount(fixture.MockPowerShell, included, excluded, 1);
 		var target = new GetCommitCount(included, excluded);
 
-		await target.RunCommand(fixture.Create());
+		var actual = await target.RunCommand(fixture.Create());
 
+		Assert.Equal(1, actual);
 		verifyGitClone.Verify(Times.Once);
 	}
 

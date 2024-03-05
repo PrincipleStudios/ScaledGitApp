@@ -5,7 +5,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GetConflictingFilesShould
 {
-	private readonly PowerShellFixture fixture = new PowerShellFixture();
+	private readonly PowerShellFixture fixture = new();
 
 	[Fact]
 	public async Task Return_new_hash_if_no_conflicts()

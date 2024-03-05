@@ -10,7 +10,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GetCommitCountShould
 {
-	private readonly PowerShellFixture fixture = new PowerShellFixture();
+	private readonly PowerShellFixture fixture = new();
 
 	[Fact]
 	public async Task Get_commit_count_of_a_branch()

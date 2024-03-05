@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge';
 import { elementTemplate } from '../templating';
+import { Tooltips } from '../tooltips';
 import styles from './layout.module.css';
 import { LoadingSection } from './LoadingSection';
 import type { HeaderProps } from './header.presentation';
@@ -30,6 +31,7 @@ export function LayoutPresentation({ header: Header, children }: LayoutProps) {
 				<Header />
 				<Main>{children}</Main>
 			</LoadingSection>
+			<Tooltips />
 		</LayoutContainer>
 	);
 }

@@ -1,5 +1,5 @@
 .layout {
-	@apply w-full h-full grid;
+	composes: w-full h-full grid from global;
 	grid-template-rows: auto auto 1fr;
 	grid-template-columns: 1fr;
 	grid-template-areas: 'header' 'subheader' 'main';

@@ -4,7 +4,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public record GetCommitCount(IEnumerable<string> Included, IEnumerable<string> Excluded) : IGitToolsCommand<Task<int?>>
 {
-	private static readonly IReadOnlyList<string> countArgs = ["rev-list", "--count"];
+	private static readonly IReadOnlyList<string> countArgs = ["rev-list", "--count", "--no-merges"];
 
 	public async Task<int?> RunCommand(IGitToolsPowerShellCommandContext pwsh)
 	{

@@ -75,7 +75,7 @@ public class GitCloneService : IHostedService
 		return new GitCloneConfiguration(
 			GitRootDirectory: gitTopLevel,
 			RemoteName: scaledGitRemote,
-			UpstreamBranchName: upstreamBranchName,
+			BaseUpstreamBranchName: upstreamBranchName,
 			FetchMapping: fetchMapping
 		);
 

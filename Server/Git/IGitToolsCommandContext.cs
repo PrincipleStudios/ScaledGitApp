@@ -6,9 +6,7 @@ public interface IGitToolsCommandContext : IPowerShellCommandContext
 {
 	IGitToolsCommandInvoker GitToolsCommandInvoker { get; }
 	IGitToolsInvoker GitToolsInvoker { get; }
-
-	string UpstreamBranchName { get; }
-	string? ToLocalTrackingBranchName(string remoteBranchName);
+	IGitCloneConfiguration GitCloneConfiguration { get; }
 }
 
 public interface IPowerShellCommandContext

@@ -11,7 +11,7 @@ public record GitUpstreamData() : IGitToolsCommand<Task<IReadOnlyDictionary<stri
 
 	public async Task<IReadOnlyDictionary<string, UpstreamBranchConfiguration>> RunCommand(IGitToolsCommandContext pwsh)
 	{
-		var result = await pwsh.InvokeCliAsync("git", "ls-tree", "-r", pwsh.UpstreamBranchName, "--format=%(objectname) %(path)");
+		var result = await pwsh.InvokeCliAsync("git", "ls-tree", "-r", pwsh.GitCloneConfiguration.UpstreamBranchName, "--format=%(objectname) %(path)");
 		if (result.HadErrors) return ImmutableDictionary<string, UpstreamBranchConfiguration>.Empty;
 
 		var branches = (

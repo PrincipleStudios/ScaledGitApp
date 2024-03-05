@@ -62,7 +62,7 @@
 	        BeforeTargets="BeforeBuild"
 	        Inputs="@(Compile)"
 	        Outputs="@(IntermediateAssembly)">
-		<Exec WorkingDirectory="$(ProjectDir)" Command="dotnet format $(ProjectPath)" />
+		<Exec WorkingDirectory="$(ProjectDir)" Command="dotnet format &quot;$(ProjectPath)&quot;" />
 	</Target>
 
 </Project>

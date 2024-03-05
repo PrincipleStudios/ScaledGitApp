@@ -3,7 +3,7 @@ using System.Management.Automation;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsPowerShellCommandContext : IGitToolsPowerShellCommandContext
+public sealed class GitToolsPowerShellCommandContext : IGitToolsPowerShellCommandContext, IPowerShellCommandInvoker
 {
 	private readonly IPowerShellInvoker pwsh;
 	private readonly GitOptions gitOptions;
@@ -47,6 +47,8 @@ public sealed class GitToolsPowerShellCommandContext : IGitToolsPowerShellComman
 		await await RunGenericCommand(command);
 	private async Task<T> RunGenericCommand<T>(IGitToolsCommand<T> command) where T : Task =>
 		await CommandContextInvoker.RunCommand(command.RunCommand, this, logger);
+
+	IPowerShellCommandInvoker IGitToolsCommandInvoker.PowerShellCommandInvoker => this;
 
 	public async Task RunCommand(IPowerShellCommand<Task> command) =>
 		await await RunGenericCommand(command);

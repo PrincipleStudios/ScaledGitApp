@@ -3,7 +3,7 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsPowerShellInvoker : IGitToolsCommandInvoker
+public sealed class GitToolsPowerShellInvoker : IGitToolsCommandInvoker, IPowerShellCommandInvoker
 {
 	private readonly GitOptions gitOptions;
 	private readonly Lazy<Task<GitCloneConfiguration>> gitCloneConfigurationAccessor;
@@ -22,6 +22,8 @@ public sealed class GitToolsPowerShellInvoker : IGitToolsCommandInvoker
 		: this(options, psFactory, () => Task.FromResult(gitCloneConfiguration), logger)
 	{
 	}
+
+	IPowerShellCommandInvoker IGitToolsCommandInvoker.PowerShellCommandInvoker => this;
 
 	private async Task<GitCloneConfiguration> GetGitCloneConfiguration()
 	{

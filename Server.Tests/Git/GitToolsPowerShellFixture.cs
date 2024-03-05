@@ -11,14 +11,17 @@ public class GitToolsPowerShellFixture
 		GitToolsDirectory = "",
 	};
 	public Mock<IPowerShell> MockPowerShell { get; } = new Mock<IPowerShell>(MockBehavior.Strict);
+	public GitCloneConfiguration CloneConfiguration { get; set; } = Defaults.DefaultCloneConfiguration;
 
 	/// <param name="options">Uses `gitOptions` above if not provided</param>
 	/// <returns>A GitToolsPowerShell instance</returns>
-	public IGitToolsPowerShell Create(GitOptions? options = null)
+	public IGitToolsPowerShell Create(GitOptions? options = null, GitCloneConfiguration? cloneConfiguration = null)
 	{
 		GitOptions = options ?? GitOptions;
+		CloneConfiguration = cloneConfiguration ?? CloneConfiguration;
+		MockPowerShell.Setup(pwsh => pwsh.SetCurrentWorkingDirectory(CloneConfiguration.GitRootDirectory));
 
-		return new GitToolsPowerShell(MockPowerShell.Object, GitOptions);
+		return new GitToolsPowerShell(MockPowerShell.Object, GitOptions, CloneConfiguration);
 	}
 
 }

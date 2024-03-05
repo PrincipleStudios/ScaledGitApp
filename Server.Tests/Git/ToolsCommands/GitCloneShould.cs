@@ -5,12 +5,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GitCloneShould
 {
-	private readonly GitToolsPowerShellFixture fixture;
-
-	public GitCloneShould()
-	{
-		this.fixture = new GitToolsPowerShellFixture();
-	}
+	private readonly PowerShellFixture fixture = new PowerShellFixture();
 
 	[Fact]
 	public async Task Issue_a_clone()

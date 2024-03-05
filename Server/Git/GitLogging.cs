@@ -5,8 +5,8 @@ public static partial class GitLogging
 	[LoggerMessage(LogLevel.Information, "No git repository configured; skipping clone.")]
 	public static partial void NoGitRepositoryConfigured(this ILogger logger);
 
-	[LoggerMessage(LogLevel.Information, "Using {Directory} for git working directory.")]
-	public static partial void UsingGitWorkingDirectory(this ILogger logger, string directory);
+	[LoggerMessage(LogLevel.Information, "Running {CommandType}.")]
+	public static partial void RunningGitToolsPowerShellCommand(this ILogger logger, string commandType);
 
 
 	[LoggerMessage(LogLevel.Information, "Git was already cloned in {Directory} for {Remote}")]
@@ -22,7 +22,7 @@ public static partial class GitLogging
 	public static partial void MultipleGitRepositoriesConfigured(this ILogger logger, IEnumerable<string> gitRepositories);
 
 	[LoggerMessage(LogLevel.Warning, "Expected git repository ({Expected}) did not match the already-configured remote ({Actual})")]
-	public static partial void GitRepositoryMismatch(this ILogger logger, string expected, string actual);
+	public static partial void GitRepositoryMismatch(this ILogger logger, string? expected, string actual);
 
 	[LoggerMessage(LogLevel.Error, "Git encountered an error while cloning the repository.")]
 	public static partial void GitFailedToClone(this ILogger logger, GitException exception);

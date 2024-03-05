@@ -6,9 +6,9 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 /// Clones a git repository into the git working directory.
 /// </summary>
 /// <param name="Repository">The Git URL for the repository to clone</param>
-public record GitClone(string Repository) : IGitToolsCommand<Task>
+public record GitClone(string Repository) : IPowerShellCommand<Task>
 {
-	public async Task RunCommand(IGitToolsPowerShell pwsh)
+	public async Task RunCommand(IPowerShell pwsh)
 	{
 		// TODO: git tools do not support bare repos, otherwise this should be a bare repo
 		(await pwsh.InvokeCliAsync("git", "clone", Repository, ".", "--quiet", "--no-checkout")).ThrowIfHadErrors();

@@ -40,7 +40,7 @@ public sealed class GitToolsPowerShellInvoker
 		var pwsh = psFactory.Create();
 		var config = await GetGitCloneConfiguration();
 		pwsh.SetCurrentWorkingDirectory(config.GitRootDirectory);
-		var gitToolsPwsh = new GitToolsCommandContext(pwsh, gitOptions, config, logger);
+		var gitToolsPwsh = new GitToolsCommandContext(pwsh, new GitToolsInvoker(pwsh, gitOptions), config, logger);
 		return new(gitToolsPwsh, pwsh);
 	}
 

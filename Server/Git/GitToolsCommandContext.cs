@@ -1,20 +1,18 @@
 ﻿using PrincipleStudios.ScaledGitApp.Commands;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
-using System.Management.Automation;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsCommandContext : IGitToolsCommandContext, IGitToolsInvoker
+public sealed class GitToolsCommandContext : IGitToolsCommandContext
 {
 	private readonly IPowerShellInvoker pwsh;
-	private readonly GitOptions gitOptions;
 	private readonly GitCloneConfiguration gitCloneConfiguration;
 
-	public GitToolsCommandContext(IPowerShellInvoker pwsh, GitOptions gitOptions, GitCloneConfiguration gitCloneConfiguration, ILogger logger)
+	public GitToolsCommandContext(IPowerShellInvoker pwsh, IGitToolsInvoker gitToolsInvoker, GitCloneConfiguration gitCloneConfiguration, ILogger logger)
 	{
 		this.pwsh = pwsh;
-		this.gitOptions = gitOptions;
 		this.gitCloneConfiguration = gitCloneConfiguration;
+		GitToolsInvoker = gitToolsInvoker;
 		PowerShellCommandInvoker = new InstanceCommandInvoker<IPowerShellCommandContext>(this, logger);
 		GitToolsCommandInvoker = new InstanceCommandInvoker<IGitToolsCommandContext>(this, logger);
 	}
@@ -31,22 +29,11 @@ public sealed class GitToolsCommandContext : IGitToolsCommandContext, IGitToolsI
 		return gitCloneConfiguration.FetchMapping.Select(m => m.TryApply(fullyQualified, out var result) ? result : null).Where(v => v != null).FirstOrDefault();
 	}
 
-	Task<PowerShellInvocationResult> IGitToolsInvoker.InvokeGitToolsAsync(string relativeScriptName, Action<PowerShell>? addParameters) =>
-		pwsh.InvokeExternalScriptAsync(ToAbsoluteScriptPath(relativeScriptName), addParameters);
-
-	Task<PowerShellInvocationResult> IGitToolsInvoker.InvokeGitToolsAsync<T>(string relativeScriptName, PSDataCollection<T> input, Action<PowerShell>? addParameters) =>
-		pwsh.InvokeExternalScriptAsync(ToAbsoluteScriptPath(relativeScriptName), input, addParameters);
-
-	private string ToAbsoluteScriptPath(string relativeScriptName)
-	{
-		return Path.Join(gitOptions.GitToolsDirectory, relativeScriptName);
-	}
-
 	public IPowerShellCommandInvoker PowerShellCommandInvoker { get; }
 
 	public IGitToolsCommandInvoker GitToolsCommandInvoker { get; }
 
-	IGitToolsInvoker IGitToolsCommandContext.GitToolsInvoker => this;
+	public IGitToolsInvoker GitToolsInvoker { get; }
 
 	IPowerShellInvoker IPowerShellCommandContext.PowerShellInvoker => pwsh;
 }

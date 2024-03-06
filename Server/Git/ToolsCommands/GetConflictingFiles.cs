@@ -8,6 +8,8 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 	{
 		var cliResults = await pwsh.InvokeCliAsync("git", "merge-tree", "--name-only", "--no-messages", LeftBranch, RightBranch);
 		var entries = cliResults.ToResultStrings(allowErrors: true).ToList();
+		if (entries.Count == 0) throw GitException.From(cliResults);
+
 		var treeHash = entries[0];
 		entries.RemoveAt(0);
 

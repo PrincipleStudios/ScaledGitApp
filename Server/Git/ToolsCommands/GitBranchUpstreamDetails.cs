@@ -34,7 +34,7 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 					Name: shortUpstream,
 					Exists: behind.HasValue,
 					BehindCount: behind ?? 0,
-					HasConflict: (await pwsh.RunCommand(new GetConflictingFiles(fullUpstream, fullBranchName))).HasConflict
+					HasConflict: behind.HasValue && (await pwsh.RunCommand(new GetConflictingFiles(fullUpstream, fullBranchName))).HasConflict
 				));
 			}
 

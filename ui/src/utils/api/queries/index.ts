@@ -10,4 +10,6 @@ export const queries = {
 
 	requestGitFetch,
 	getUpstreamData,
+	// TODO: add with UI visualization
+	getBranchDetails: null,
 } satisfies { [K in keyof typeof operations]: unknown };

@@ -6,7 +6,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GitUpstreamDataShould
 {
-	private readonly GitToolsPowerShellFixture fixture = new();
+	private readonly GitToolsFixture fixture = new();
 
 	[Fact]
 	public async Task Handles_missing_the_upstream_branch()

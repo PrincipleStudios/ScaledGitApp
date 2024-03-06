@@ -1,7 +1,4 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using PrincipleStudios.ScaledGitApp.ShellUtilities;
-
-namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
+﻿namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>

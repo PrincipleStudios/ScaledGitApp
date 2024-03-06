@@ -1,5 +1,3 @@
 .container {
-	composes: grid gap-4 h-full p-4 from global;
-	grid-template-columns: 1fr;
-	grid-template-rows: auto 1fr;
+	composes: h-full from global;
 }

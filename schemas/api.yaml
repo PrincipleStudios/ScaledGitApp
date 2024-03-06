@@ -77,6 +77,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpstreamBranches'
+  /api/git/branch-details:
+    post:
+      x-dotnet-mvc-server-controller: GitBranchDetails
+      operationId: getBranchDetails
+      summary: Gets the upstream data for a specific branch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branches:
+                  type: array
+                  items: { type: string }
+                includeDownstream:
+                  type: boolean
+                includeUpstream:
+                  type: boolean
+                recurse:
+                  type: boolean
+                limit:
+                  type: integer
+              required:
+                - branches
+                - includeDownstream
+                - includeUpstream
+                - recurse
+      responses:
+        200:
+          description: Upstream branch configuration data
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BranchDetails' }
 components:
   schemas:
     UpstreamBranches:
@@ -93,6 +129,22 @@ components:
         name: { type: string }
         color: { type: string }
         upstream: { $ref: '#/components/schemas/BranchList' }
+    BranchDetails:
+      type: object
+      required:
+        - name
+        - color
+        - exists
+        - nonMergeCommitCount
+        - upstream
+      properties:
+        name: { type: string }
+        color: { type: string }
+        exists: { type: boolean }
+        nonMergeCommitCount: { type: integer }
+        upstream:
+          type: array
+          items: { $ref: '#/components/schemas/DetailedUpstreamBranch' }
     BranchList:
       type: array
       items:
@@ -103,3 +155,17 @@ components:
       properties:
         name:
           type: string
+    DetailedUpstreamBranch:
+      type: object
+      required:
+        - name
+        - color
+        - exists
+        - behindCount
+        - hasConflict
+      properties:
+        name: { type: string }
+        color: { type: string }
+        exists: { type: boolean }
+        behindCount: { type: integer }
+        hasConflict: { type: boolean }

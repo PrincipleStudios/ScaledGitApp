@@ -10,9 +10,9 @@ public static class PowerShellExtensions
 
 	public static Task<PowerShellInvocationResult> InvokeCliAsync(this IPowerShell pwsh, string command, IEnumerable<string> arguments) =>
 		pwsh.InvokeCliAsync(command, arguments.ToArray());
-	public static IEnumerable<string> ToResultStrings(this PowerShellInvocationResult pwshResult)
+	public static IEnumerable<string> ToResultStrings(this PowerShellInvocationResult pwshResult, bool allowErrors = false)
 	{
-		ThrowIfHadErrors(pwshResult);
+		if (!allowErrors) ThrowIfHadErrors(pwshResult);
 		return pwshResult.Results.Select(i => i.ToString());
 	}
 

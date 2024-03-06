@@ -1,13 +1,11 @@
-﻿using PrincipleStudios.ScaledGitApp.ShellUtilities;
+﻿using PrincipleStudios.ScaledGitApp.Commands;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public interface IGitToolsCommand<T> where T : Task
+public interface IGitToolsCommand<out T> : ICommand<T, IGitToolsCommandContext> where T : Task
 {
-	T RunCommand(IGitToolsPowerShell pwsh);
 }
 
-public interface IPowerShellCommand<T> where T : Task
+public interface IPowerShellCommand<out T> : ICommand<T, IPowerShellCommandContext> where T : Task
 {
-	T RunCommand(IPowerShell pwsh);
 }

@@ -1,10 +1,8 @@
-﻿
-using PrincipleStudios.ScaledGitApp.Git;
-using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
+﻿using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitFetchController(IGitToolsInvoker GitToolsPowerShell) : GitFetchControllerBase
+public class GitFetchController(IGitToolsCommandInvoker GitToolsPowerShell) : GitFetchControllerBase
 {
 	protected override async Task<RequestGitFetchActionResult> RequestGitFetch()
 	{

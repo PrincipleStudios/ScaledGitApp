@@ -28,7 +28,7 @@ public class GitConfigurationListShould
 	public async Task FindStandardConfigurationFields(string key, string expectedValue)
 	{
 		var verifiable = fixture.MockPowerShell.Verifiable(
-			ps => ps.InvokeCliAsync("git", "config", "--list"),
+			ps => ps.PowerShellInvoker.InvokeCliAsync("git", "config", "--list"),
 			s => s.ReturnsAsync(
 				PowerShellInvocationResultStubs.WithResults(standardConfiguration)
 			)

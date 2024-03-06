@@ -9,9 +9,9 @@ public record GitUpstreamData() : IGitToolsCommand<Task<IReadOnlyDictionary<stri
 {
 	private static readonly Regex gitLsTreeRecursiveLine = new Regex(@"^(?<hash>[A-Za-z0-9]{40}) (?<name>[^\t]+)$");
 
-	public async Task<IReadOnlyDictionary<string, UpstreamBranchConfiguration>> RunCommand(IGitToolsPowerShell pwsh)
+	public async Task<IReadOnlyDictionary<string, UpstreamBranchConfiguration>> RunCommand(IGitToolsCommandContext pwsh)
 	{
-		var result = await pwsh.InvokeCliAsync("git", "ls-tree", "-r", pwsh.UpstreamBranchName, "--format=%(objectname) %(path)");
+		var result = await pwsh.InvokeCliAsync("git", "ls-tree", "-r", pwsh.GitCloneConfiguration.UpstreamBranchName, "--format=%(objectname) %(path)");
 		if (result.HadErrors) return ImmutableDictionary<string, UpstreamBranchConfiguration>.Empty;
 
 		var branches = (
@@ -24,7 +24,7 @@ public record GitUpstreamData() : IGitToolsCommand<Task<IReadOnlyDictionary<stri
 		using var hashes = new PSDataCollection<string>(branches.Values.Distinct());
 		if (hashes.Count == 0)
 			return ImmutableDictionary<string, UpstreamBranchConfiguration>.Empty;
-		var hashEntries = await pwsh.InvokeCliAsync("git", ["cat-file", "--batch=\t%(objectname)"], input: hashes);
+		var hashEntries = await pwsh.InvokeCliAsync("git", arguments: ["cat-file", "--batch=\t%(objectname)"], input: hashes);
 		var actualEntries = (
 			from e in string.Join('\n', hashEntries.Results.Select(r => r.ToString())).Split('\t')
 			where !string.IsNullOrWhiteSpace(e)

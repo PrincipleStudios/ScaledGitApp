@@ -52,10 +52,10 @@ public class GitRemoteShould
 		verifyGitRemote.Verify(Times.Once);
 	}
 
-	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitRemote(Mock<IPowerShell> target, IEnumerable<GitRemoteEntry>? remotes = null)
+	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupGitRemote(Mock<IPowerShellCommandContext> target, IEnumerable<GitRemoteEntry>? remotes = null)
 	{
 		return target.Verifiable(
-			ps => ps.InvokeCliAsync("git", "remote", "-v"),
+			ps => ps.PowerShellInvoker.InvokeCliAsync("git", "remote", "-v"),
 			s => s.ReturnsAsync(
 				remotes == null
 					? PowerShellInvocationResultStubs.Empty

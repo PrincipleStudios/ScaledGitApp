@@ -37,7 +37,7 @@ public class GitBranchUpstreamDetailsShould
 	public async Task Indicate_the_number_of_commits_the_current_branch_has_beyond_upstreams()
 	{
 		var target = defaultValue;
-        SetupBranchExists(baseBranchName);
+		SetupBranchExists(baseBranchName);
 		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
 		SetupNoConflict(infraBranchName, baseBranchName);
 		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
@@ -55,7 +55,7 @@ public class GitBranchUpstreamDetailsShould
 	public async Task Report_number_of_commits_missing_from_upstreams()
 	{
 		var target = defaultValue;
-        SetupBranchExists(baseBranchName);
+		SetupBranchExists(baseBranchName);
 		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(2);
 		SetupNoConflict(infraBranchName, baseBranchName);
 		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(5);
@@ -76,7 +76,7 @@ public class GitBranchUpstreamDetailsShould
 	public async Task Handle_when_specified_branch_is_missing()
 	{
 		var target = defaultValue;
-        SetupBranchDoesNotExist(baseBranchName);
+		SetupBranchDoesNotExist(baseBranchName);
 		SetupBranchExists(infraBranchName);
 		SetupBranchExists(parentFeatureBranchName);
 
@@ -94,7 +94,7 @@ public class GitBranchUpstreamDetailsShould
 	public async Task Handle_when_an_upstream_is_missing()
 	{
 		var target = defaultValue;
-        SetupBranchExists(baseBranchName);
+		SetupBranchExists(baseBranchName);
 		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync((int?)null);
 		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
 		SetupNoConflict(parentFeatureBranchName, baseBranchName);
@@ -113,7 +113,7 @@ public class GitBranchUpstreamDetailsShould
 	public async Task Reveal_conflicts_with_an_upstream()
 	{
 		var target = defaultValue;
-        SetupBranchExists(baseBranchName);
+		SetupBranchExists(baseBranchName);
 		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
 		SetupConflict(infraBranchName, baseBranchName, ["readme.md"]);
 		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
@@ -134,60 +134,139 @@ public class GitBranchUpstreamDetailsShould
 	public async Task Finds_upstream_branches_and_retrieves_details()
 	{
 		var target = defaultValue with { IncludeUpstream = true };
+		SetupBranchExists(baseBranchName);
+		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, baseBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(parentFeatureBranchName, baseBranchName);
+		SetupGetCommitCount([baseBranchName], [infraBranchName, parentFeatureBranchName]).ReturnsAsync(15);
+		SetupBranchExists(infraBranchName);
+		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupNoConflict(mainBranchName, infraBranchName);
+		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(0);
+		SetupBranchExists(parentFeatureBranchName);
+		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, parentFeatureBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [infraBranchName]).ReturnsAsync(0);
 
 		var branches = await target.RunCommand(fixture.Create());
 
-		Assert.Empty(branches);
+		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == baseBranchName);
 	}
 
 	[Fact]
 	public async Task Finds_upstream_branches_recursively_and_retrieves_details()
 	{
 		var target = defaultValue with { IncludeUpstream = true, Recurse = true };
+		SetupBranchExists(baseBranchName);
+		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, baseBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(parentFeatureBranchName, baseBranchName);
+		SetupGetCommitCount([baseBranchName], [infraBranchName, parentFeatureBranchName]).ReturnsAsync(15);
+		SetupBranchExists(infraBranchName);
+		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupNoConflict(mainBranchName, infraBranchName);
+		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(0);
+		SetupBranchExists(parentFeatureBranchName);
+		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, parentFeatureBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupBranchExists(mainBranchName);
+		SetupGetCommitCount([mainBranchName], []).ReturnsAsync(1500);
 
 		var branches = await target.RunCommand(fixture.Create());
 
-		Assert.Empty(branches);
+		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == baseBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == mainBranchName);
 	}
 
 	[Fact]
 	public async Task Finds_downstream_branches_and_retrieves_details()
 	{
-		var target = defaultValue with { IncludeDownstream = true, Recurse = true };
+		var target = defaultValue with { IncludeDownstream = true, BranchNames = [infraBranchName] };
+		SetupBranchExists(baseBranchName);
+		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, baseBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(parentFeatureBranchName, baseBranchName);
+		SetupGetCommitCount([baseBranchName], [infraBranchName, parentFeatureBranchName]).ReturnsAsync(0);
+		SetupBranchExists(infraBranchName);
+		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupNoConflict(mainBranchName, infraBranchName);
+		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(0);
+		SetupBranchExists(parentFeatureBranchName);
+		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, parentFeatureBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [infraBranchName]).ReturnsAsync(0);
 
 		var branches = await target.RunCommand(fixture.Create());
 
-		Assert.Empty(branches);
+		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == baseBranchName);
 	}
 
 	[Fact]
 	public async Task Finds_downstream_branches_recursively_and_retrieves_details()
 	{
-		var target = defaultValue with { IncludeDownstream = true, Recurse = true };
+		var target = defaultValue with { IncludeDownstream = true, Recurse = true, BranchNames = [mainBranchName] };
+		SetupBranchExists(baseBranchName);
+		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, baseBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(parentFeatureBranchName, baseBranchName);
+		SetupGetCommitCount([baseBranchName], [infraBranchName, parentFeatureBranchName]).ReturnsAsync(0);
+		SetupBranchExists(infraBranchName);
+		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupNoConflict(mainBranchName, infraBranchName);
+		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(0);
+		SetupBranchExists(parentFeatureBranchName);
+		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, parentFeatureBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupBranchExists(mainBranchName);
+		SetupGetCommitCount([mainBranchName], []).ReturnsAsync(1500);
 
 		var branches = await target.RunCommand(fixture.Create());
 
-		Assert.Empty(branches);
+		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == baseBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == mainBranchName);
 	}
 
 	[Fact]
 	public async Task Finds_upstream_and_downstream_branches_and_retrieves_details()
 	{
-		var target = defaultValue with { IncludeUpstream = true, IncludeDownstream = true, Recurse = true };
+		var target = defaultValue with { IncludeUpstream = true, IncludeDownstream = true, Recurse = true, BranchNames = [infraBranchName] };
+		SetupBranchExists(baseBranchName);
+		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, baseBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupNoConflict(parentFeatureBranchName, baseBranchName);
+		SetupGetCommitCount([baseBranchName], [infraBranchName, parentFeatureBranchName]).ReturnsAsync(0);
+		SetupBranchExists(infraBranchName);
+		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupNoConflict(mainBranchName, infraBranchName);
+		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(0);
+		SetupBranchExists(parentFeatureBranchName);
+		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName]).ReturnsAsync(0);
+		SetupNoConflict(infraBranchName, parentFeatureBranchName);
+		SetupGetCommitCount([parentFeatureBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupBranchExists(mainBranchName);
+		SetupGetCommitCount([mainBranchName], []).ReturnsAsync(1500);
 
 		var branches = await target.RunCommand(fixture.Create());
 
-		Assert.Empty(branches);
-	}
-
-	[Fact]
-	public async Task Finds_upstream_and_downstream_branches_recursively_and_retrieves_details()
-	{
-		var target = defaultValue with { IncludeUpstream = true, IncludeDownstream = true, Recurse = true };
-
-		var branches = await target.RunCommand(fixture.Create());
-
-		Assert.Empty(branches);
+		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == baseBranchName);
+		Assert.Contains(branches, (branch) => branch.Name == mainBranchName);
 	}
 
 	private void SetupBranchExists(string branchName)

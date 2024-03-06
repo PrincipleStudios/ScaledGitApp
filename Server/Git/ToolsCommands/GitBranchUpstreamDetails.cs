@@ -29,6 +29,17 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 			{
 				var fullUpstream = FullName(shortUpstream);
 
+				if (!branchExists)
+				{
+					entries.Add(new UpstreamBranchMergeInfo(
+						Name: shortUpstream,
+						Exists: await CheckBranchExists(fullUpstream),
+						BehindCount: 0,
+						HasConflict: false
+					));
+					continue;
+				}
+
 				var behind = await pwsh.RunCommand(new GetCommitCount(Included: [fullUpstream], Excluded: [fullBranchName]));
 				entries.Add(new UpstreamBranchMergeInfo(
 					Name: shortUpstream,
@@ -42,7 +53,12 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 				Name: baseBranch,
 				Exists: branchExists,
 				NonMergeCommitCount: branchExists
-					? await pwsh.RunCommand(new GetCommitCount(Included: [fullBranchName], Excluded: upstreamBranches.Select(FullName))) ?? 0
+					? await pwsh.RunCommand(new GetCommitCount(
+						Included: [fullBranchName],
+						Excluded: from entry in entries
+								  where entry.Exists
+								  select FullName(entry.Name)
+					)) ?? 0
 					: 0,
 				Upstreams: entries.ToArray()
 			));

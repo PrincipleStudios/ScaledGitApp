@@ -62,8 +62,7 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		{
 			if (existence.TryGetValue(branchName, out var result)) return result;
 
-			var branchExistenceCheck = await pwsh.InvokeCliAsync("git", ["rev-parse", "--verify", branchName]);
-			var branchExists = !branchExistenceCheck.HadErrors;
+			var branchExists = await pwsh.RunCommand(new BranchExists(branchName));
 			existence.Add(branchName, branchExists);
 			return branchExists;
 		}

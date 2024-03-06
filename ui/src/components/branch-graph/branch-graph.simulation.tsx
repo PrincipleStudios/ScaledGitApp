@@ -142,30 +142,31 @@ function updateNodes(
 
 	// Updates links while creating atom proxy for animation
 	const oldLinks = linkForce.links();
-	const newLinks = upstreamData.flatMap((entry) => {
-		const target = nodeLookup.get(entry.name);
-		if (!target) throw new Error(`Unknown branch name: ${entry.name}`);
-		return entry.upstream.map((upstreamBranch) => {
-			const source = nodeLookup.get(upstreamBranch.name);
-			if (!source)
-				throw new Error(`Unknown branch name: ${upstreamBranch.name}`);
-			const id = `${entry.name}-${upstreamBranch.name}`;
-			return findOrCreate(
-				store,
-				oldLinks,
-				(n) => n.id === id,
-				{
-					source,
-					target,
-				},
-				{
-					id,
-					downstreamBranchName: entry.name,
-					upstreamBranchName: upstreamBranch.name,
-				},
-			);
-		});
-	});
+	const newLinks = upstreamData
+		.flatMap((entry) => {
+			const target = nodeLookup.get(entry.name);
+			if (!target) return null;
+			return entry.upstream.map((upstreamBranch) => {
+				const source = nodeLookup.get(upstreamBranch.name);
+				if (!source) return null;
+				const id = `${entry.name}-${upstreamBranch.name}`;
+				return findOrCreate(
+					store,
+					oldLinks,
+					(n) => n.id === id,
+					{
+						source,
+						target,
+					},
+					{
+						id,
+						downstreamBranchName: entry.name,
+						upstreamBranchName: upstreamBranch.name,
+					},
+				);
+			});
+		})
+		.filter((v): v is NonNullable<typeof v> => v !== null);
 
 	// Sets the node depth. TODO: double-check my algorithm, this is inefficient
 	const depth: Record<string, number> = Object.fromEntries(
@@ -174,10 +175,11 @@ function updateNodes(
 	for (let i = 0; i < newNodes.length; i++) {
 		for (let j = 0; j < newNodes.length; j++) {
 			for (let k = 0; k < newNodes[j].upstreamBranches.length; k++) {
-				depth[newNodes[j].id] = Math.max(
-					depth[newNodes[j].upstreamBranches[k].name] + 1,
-					depth[newNodes[j].id],
-				);
+				if (newNodes[j].upstreamBranches[k].name in depth)
+					depth[newNodes[j].id] = Math.max(
+						depth[newNodes[j].upstreamBranches[k].name] + 1,
+						depth[newNodes[j].id],
+					);
 			}
 		}
 	}

@@ -16,14 +16,20 @@ public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShel
 			select new BranchConfiguration(
 				Name: kvp.Key,
 				Color: ColorConfiguration.DetermineColor(kvp.Key),
-				Upstream: kvp.Value.UpstreamBranchNames.Select(n => new Branch(Name: n))
+				Upstream: kvp.Value.UpstreamBranchNames.Select(n => new Branch(Name: n)),
+				Downstream: from entry in results
+							where entry.Value.UpstreamBranchNames.Contains(kvp.Key)
+							select entry.Key
 			)
 		).Concat(
 			from branchName in noUpstreams
 			select new BranchConfiguration(
 				Name: branchName,
 				Color: ColorConfiguration.DetermineColor(branchName),
-				Upstream: Enumerable.Empty<Branch>()
+				Upstream: Enumerable.Empty<Branch>(),
+				Downstream: from entry in results
+							where entry.Value.UpstreamBranchNames.Contains(branchName)
+							select entry.Key
 			)
 		));
 	}

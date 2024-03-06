@@ -125,10 +125,14 @@ components:
         - name
         - color
         - upstream
+        - downstream
       properties:
         name: { type: string }
         color: { type: string }
         upstream: { $ref: '#/components/schemas/BranchList' }
+        downstream:
+          type: array
+          items: { type: string }
     BranchDetails:
       type: object
       required:
@@ -151,8 +155,7 @@ components:
           items: { type: string }
     BranchList:
       type: array
-      items:
-        $ref: '#/components/schemas/Branch'
+      items: { $ref: '#/components/schemas/Branch' }
     Branch:
       type: object
       required: [name]

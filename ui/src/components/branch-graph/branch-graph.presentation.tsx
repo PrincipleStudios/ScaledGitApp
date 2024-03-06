@@ -4,10 +4,13 @@ import { useBranchSimulation } from './branch-graph.simulation';
 import { BranchLink } from './BranchLink';
 import { BranchNode } from './BranchNode';
 import { CenterG } from './CenterG';
-import type { UpstreamBranches } from '../../generated/api/models';
+import type {
+	BranchConfiguration,
+	BranchDetails,
+} from '../../generated/api/models';
 
 export type BranchGraphPresentationProps = {
-	upstreamData: UpstreamBranches;
+	upstreamData: BranchConfiguration[] | BranchDetails[];
 };
 
 export function BranchGraphPresentation({

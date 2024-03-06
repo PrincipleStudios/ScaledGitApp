@@ -8,7 +8,7 @@ import {
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
-import type { BranchList, UpstreamBranches } from '../../generated/api/models';
+import type { BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
 import type {
 	Force,
@@ -21,27 +21,32 @@ import type {
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
-export type BranchGraphNodeDatum = {
+export type BranchGraphNodeDatum<
+	T extends BranchConfiguration = BranchConfiguration,
+> = {
 	id: string;
-	color: string;
-	upstreamBranches: BranchList;
 	depth: number;
+	data: T;
 } & SimulationNodeDatum;
-export type BranchGraphLinkDatum = {
+export type BranchGraphLinkDatum<
+	T extends BranchConfiguration = BranchConfiguration,
+> = {
 	id: string;
 	upstreamBranchName: string;
 	downstreamBranchName: string;
-	source: WithAtom<BranchGraphNodeDatum>;
-	target: WithAtom<BranchGraphNodeDatum>;
-} & SimulationLinkDatum<BranchGraphNodeDatum>;
-type BranchSimulation = Simulation<
-	WithAtom<BranchGraphNodeDatum>,
-	WithAtom<BranchGraphLinkDatum>
->;
-type BranchLinkForce = ForceLink<
-	WithAtom<BranchGraphNodeDatum>,
-	WithAtom<BranchGraphLinkDatum>
->;
+	source: WithAtom<BranchGraphNodeDatum<T>>;
+	target: WithAtom<BranchGraphNodeDatum<T>>;
+} & SimulationLinkDatum<BranchGraphNodeDatum<T>>;
+type BranchSimulation<T extends BranchConfiguration = BranchConfiguration> =
+	Simulation<
+		WithAtom<BranchGraphNodeDatum<T>>,
+		WithAtom<BranchGraphLinkDatum<T>>
+	>;
+type BranchLinkForce<T extends BranchConfiguration = BranchConfiguration> =
+	ForceLink<
+		WithAtom<BranchGraphNodeDatum<T>>,
+		WithAtom<BranchGraphLinkDatum<T>>
+	>;
 
 function forceHierarchy(
 	depthDistance: number,
@@ -66,17 +71,20 @@ function forceHierarchy(
 	});
 }
 
-export function useBranchSimulation(upstreamData: UpstreamBranches) {
+export function useBranchSimulation<T extends BranchConfiguration>(
+	upstreamData: T[],
+) {
 	const linkingForce = useRef(
-		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
-			[],
-		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
+		forceLink<
+			WithAtom<BranchGraphNodeDatum<T>>,
+			WithAtom<BranchGraphLinkDatum<T>>
+		>([]).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
 	);
-	const simulationRef = useRef<BranchSimulation>();
+	const simulationRef = useRef<BranchSimulation<T>>();
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
-			WithAtom<BranchGraphNodeDatum>,
-			WithAtom<BranchGraphLinkDatum>
+			WithAtom<BranchGraphNodeDatum<T>>,
+			WithAtom<BranchGraphLinkDatum<T>>
 		>([])
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
@@ -114,11 +122,11 @@ export function useBranchSimulation(upstreamData: UpstreamBranches) {
 	};
 }
 
-function updateNodes(
+function updateNodes<T extends BranchConfiguration>(
 	store: JotaiStore,
-	simulation: BranchSimulation,
-	linkForce: BranchLinkForce,
-	upstreamData: UpstreamBranches,
+	simulation: BranchSimulation<T>,
+	linkForce: BranchLinkForce<T>,
+	upstreamData: T[],
 ) {
 	// Updates nodes while creating atom proxy for animation
 	const oldNodes = simulation.nodes();
@@ -130,13 +138,12 @@ function updateNodes(
 			{},
 			{
 				id: entry.name,
-				color: entry.color,
-				upstreamBranches: entry.upstream,
+				data: entry,
 				depth: 0,
 			},
 		),
 	);
-	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum>>(
+	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum<T>>>(
 		newNodes.map((e) => [e.id, e] as const),
 	);
 
@@ -174,16 +181,16 @@ function updateNodes(
 	);
 	for (let i = 0; i < newNodes.length; i++) {
 		for (let j = 0; j < newNodes.length; j++) {
-			for (let k = 0; k < newNodes[j].upstreamBranches.length; k++) {
-				if (newNodes[j].upstreamBranches[k].name in depth)
+			for (let k = 0; k < newNodes[j].data.upstream.length; k++) {
+				if (newNodes[j].data.upstream[k].name in depth)
 					depth[newNodes[j].id] = Math.max(
-						depth[newNodes[j].upstreamBranches[k].name] + 1,
+						depth[newNodes[j].data.upstream[k].name] + 1,
 						depth[newNodes[j].id],
 					);
 			}
 		}
 	}
-	for (let i = 0; i < newNodes.length - 1; i++) {
+	for (let i = 0; i < newNodes.length; i++) {
 		if (newNodes[i].depth !== depth[newNodes[i].id])
 			newNodes[i].depth = depth[newNodes[i].id];
 	}

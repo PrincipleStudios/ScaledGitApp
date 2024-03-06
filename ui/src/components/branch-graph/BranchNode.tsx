@@ -3,12 +3,16 @@ import { setupDragHandler } from '../../utils/dragging';
 import { JotaiG } from '../svg/atom-elements';
 import { useTooltipReference } from '../tooltips';
 import type { BranchGraphNodeDatum, WithAtom } from './branch-graph.simulation';
+import type {
+	BranchConfiguration,
+	BranchDetails,
+} from '../../generated/api/models';
 
 export function BranchNode({
 	node,
 	onMove,
 }: {
-	node: WithAtom<BranchGraphNodeDatum>;
+	node: WithAtom<BranchGraphNodeDatum<BranchConfiguration | BranchDetails>>;
 	onMove?: () => void;
 }) {
 	const transform = useComputedAtom((get) => {
@@ -20,7 +24,7 @@ export function BranchNode({
 	));
 	return (
 		<JotaiG
-			style={{ transform: transform, fill: node.color }}
+			style={{ transform: transform, fill: node.data.color }}
 			{...tooltip()}
 			{...drag(node, onMove)}
 		>
@@ -29,7 +33,10 @@ export function BranchNode({
 	);
 }
 
-function drag(node: WithAtom<BranchGraphNodeDatum>, onMove?: () => void) {
+function drag(
+	node: WithAtom<BranchGraphNodeDatum<BranchConfiguration | BranchDetails>>,
+	onMove?: () => void,
+) {
 	// Updates the node's position based on mouse movements.
 	// `fx`/`fy` are fixed positions - use them while moving them
 	// `x`/`y` are positions that can be moved by the simulation

@@ -73,6 +73,23 @@ public class GitBranchUpstreamDetailsShould
 	}
 
 	[Fact]
+	public async Task Report_downstreams_of_target_branch()
+	{
+		var target = defaultValue with { BranchNames = [infraBranchName] };
+		SetupBranchExists(infraBranchName);
+		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(0);
+		SetupNoConflict(mainBranchName, infraBranchName);
+		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(0);
+
+		var branches = await target.RunCommand(fixture.Create());
+
+		var actual = Assert.Single(branches);
+		Assert.Equal(infraBranchName, actual.Name);
+		Assert.Contains(baseBranchName, actual.DownstreamNames);
+		Assert.Contains(parentFeatureBranchName, actual.DownstreamNames);
+	}
+
+	[Fact]
 	public async Task Handle_when_specified_branch_is_missing()
 	{
 		var target = defaultValue;

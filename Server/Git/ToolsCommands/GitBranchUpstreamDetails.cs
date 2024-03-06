@@ -57,7 +57,8 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 								  select FullName(entry.Name)
 					)) ?? 0
 					: 0,
-				Upstreams: entries.ToArray()
+				Upstreams: entries.ToArray(),
+				DownstreamNames: GetDownstreamBranchNames(upstreams, baseBranch).ToArray()
 			));
 		}
 
@@ -86,9 +87,7 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		IEnumerable<string> result = branchNames;
 		if (IncludeDownstream)
 			result = result.Concat(ExpandBaseBranches(branchNames, (current) =>
-					from kvp in upstreams
-					where kvp.Value.UpstreamBranchNames.Contains(current)
-					select kvp.Key));
+					GetDownstreamBranchNames(upstreams, current)));
 		if (IncludeUpstream)
 			result = result.Concat(ExpandBaseBranches(branchNames, (current) =>
 					upstreams.TryGetValue(current, out var configuredUpstreams)
@@ -98,6 +97,13 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		if (Limit is int limit)
 			result = result.Take(limit);
 		return result.ToArray();
+	}
+
+	private static IEnumerable<string> GetDownstreamBranchNames(IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams, string current)
+	{
+		return from kvp in upstreams
+			   where kvp.Value.UpstreamBranchNames.Contains(current)
+			   select kvp.Key;
 	}
 
 	private string[] ExpandBaseBranches(IReadOnlyList<string> branchNames, Func<string, IEnumerable<string>> getMore)
@@ -122,5 +128,5 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 
 }
 
-public record UpstreamBranchDetailedState(string Name, bool Exists, int NonMergeCommitCount, IEnumerable<UpstreamBranchMergeInfo> Upstreams);
+public record UpstreamBranchDetailedState(string Name, bool Exists, int NonMergeCommitCount, IEnumerable<UpstreamBranchMergeInfo> Upstreams, IReadOnlyList<string> DownstreamNames);
 public record UpstreamBranchMergeInfo(string Name, bool Exists, int BehindCount, bool HasConflict);

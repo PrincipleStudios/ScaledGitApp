@@ -137,6 +137,7 @@ components:
         - exists
         - nonMergeCommitCount
         - upstream
+        - downstream
       properties:
         name: { type: string }
         color: { type: string }
@@ -145,6 +146,9 @@ components:
         upstream:
           type: array
           items: { $ref: '#/components/schemas/DetailedUpstreamBranch' }
+        downstream:
+          type: array
+          items: { type: string }
     BranchList:
       type: array
       items:

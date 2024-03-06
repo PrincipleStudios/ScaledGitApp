@@ -148,6 +148,29 @@ public class PowershellScriptingShould
 		Assert.Equal(2, parameters.Count);
 	}
 
+	[Fact]
+	public async Task Returns_errors_if_exit_code_is_non_zero()
+	{
+		// When types are left off of the parameter, ensures the same types are passed back to the calling app, at least within JSON.
+		using var ps = psFactory.Create();
+
+		var invocationResult = await InvokeInvalidCliCommand(ps);
+
+		Assert.True(invocationResult.HadErrors);
+	}
+
+	[Fact]
+	public async Task Returns_no_error_if_exit_code_is_later_zero_again()
+	{
+		// When types are left off of the parameter, ensures the same types are passed back to the calling app, at least within JSON.
+		using var ps = psFactory.Create();
+
+		await InvokeInvalidCliCommand(ps);
+		var invocationResult = await InvokeValidCliCommand(ps);
+
+		Assert.False(invocationResult.HadErrors);
+	}
+
 	private static JsonObject GetReturnedPSBoundParameters(PowerShellInvocationResult result)
 	{
 		var writeHostResult = Assert.IsType<HostInformationMessage>(result.Streams.Information.SingleOrDefault()?.MessageData).Message;
@@ -165,4 +188,15 @@ public class PowershellScriptingShould
 	{
 		shell.AddParameter("required", defaultRequiredValue);
 	}
+
+	private static Task<PowerShellInvocationResult> InvokeInvalidCliCommand(IPowerShell ps)
+	{
+		return ps.InvokeCliAsync("git", "--not-a-valid-option");
+	}
+
+	private static Task<PowerShellInvocationResult> InvokeValidCliCommand(IPowerShell ps)
+	{
+		return ps.InvokeCliAsync("git", "--version");
+	}
+
 }

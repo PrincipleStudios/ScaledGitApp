@@ -21,9 +21,11 @@ type NodeDetails = BranchConfiguration | BranchDetails;
 export function BranchNode({
 	node,
 	onMove,
+	onClick,
 }: {
 	node: WithAtom<BranchGraphNodeDatum<NodeDetails>>;
 	onMove?: () => void;
+	onClick?: () => void;
 }) {
 	const transform = useComputedAtom((get) => {
 		const { x, y } = get(node.atom);
@@ -44,7 +46,7 @@ export function BranchNode({
 				stroke: node.data.color,
 			}}
 			{...tooltip()}
-			{...drag(node, onMove)}
+			{...drag(node, onMove, onClick)}
 		>
 			<circle cx={0} cy={0} r={5} />
 		</JotaiG>
@@ -71,6 +73,7 @@ function BranchNodeTooltip({ details }: { details: NodeDetails }) {
 function drag(
 	node: WithAtom<BranchGraphNodeDatum<BranchConfiguration | BranchDetails>>,
 	onMove?: () => void,
+	onClick?: () => void,
 ) {
 	// Updates the node's position based on mouse movements.
 	// `fx`/`fy` are fixed positions - use them while moving them
@@ -82,17 +85,23 @@ function drag(
 				yOffset: (node.fy ?? node.y ?? 0) - ev.clientY,
 			};
 		},
-		onMouseMove(ev, { xOffset, yOffset }) {
-			node.fx = xOffset + ev.clientX;
-			node.fy = yOffset + ev.clientY;
-			onMove?.();
+		onMouseMove(ev, { xOffset, yOffset }, { totalMovement }) {
+			if (totalMovement > 5) {
+				node.fx = xOffset + ev.clientX;
+				node.fy = yOffset + ev.clientY;
+				onMove?.();
+			}
 		},
-		onMouseUp(ev, { xOffset, yOffset }) {
-			node.y = yOffset + ev.clientY;
-			node.x = xOffset + ev.clientX;
-			node.fy = null;
-			node.fx = null;
-			onMove?.();
+		onMouseUp(ev, { xOffset, yOffset }, { totalMovement }) {
+			if (totalMovement <= 5) {
+				onClick?.();
+			} else {
+				node.y = yOffset + ev.clientY;
+				node.x = xOffset + ev.clientX;
+				node.fy = null;
+				node.fx = null;
+				onMove?.();
+			}
 		},
 	});
 }

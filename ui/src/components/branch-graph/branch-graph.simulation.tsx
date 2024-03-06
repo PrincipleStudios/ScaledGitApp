@@ -52,16 +52,16 @@ function forceHierarchy(
 	depthDistance: number,
 ): Force<WithAtom<BranchGraphNodeDatum>, never> {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
-	function update() {
+	function update(alpha: number) {
 		const allDepth = currentNodes.map((n) => n.depth);
 		const minDepth = Math.min(Number.POSITIVE_INFINITY, ...allDepth);
 		const maxDepth = Math.max(Number.NEGATIVE_INFINITY, ...allDepth);
 		const avgDepth = (minDepth + maxDepth) / 2;
 		for (const node of currentNodes) {
 			if (node.fx) continue;
-			node.vx =
-				(node.vx ?? 0) +
-				(depthDistance * (node.depth - avgDepth) - (node.x ?? 0));
+			const targetX = depthDistance * (node.depth - avgDepth);
+			const currentX = node.x ?? 0;
+			node.vx = (node.vx ?? 0) + (targetX - currentX) * alpha;
 		}
 	}
 	return Object.assign(update, {
@@ -112,14 +112,19 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 		linkingForce.current,
 		upstreamData,
 	);
+
+	restartSimulation();
+
 	return {
 		nodes,
 		links,
-		restartSimulation(this: void) {
-			simulationRef.current?.alpha(0.5);
-			simulationRef.current?.restart();
-		},
+		restartSimulation,
 	};
+
+	function restartSimulation() {
+		simulationRef.current?.alpha(0.1);
+		simulationRef.current?.restart();
+	}
 }
 
 function updateNodes<T extends BranchConfiguration>(

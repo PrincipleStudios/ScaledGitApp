@@ -3,7 +3,7 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse)
+public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>
 {
 	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> RunCommand(IGitToolsCommandContext pwsh)
@@ -97,7 +97,10 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 					upstreams.TryGetValue(current, out var configuredUpstreams)
 						? configuredUpstreams.UpstreamBranchNames
 						: Enumerable.Empty<string>()));
-		return result.Distinct().ToArray();
+		result = result.Distinct();
+		if (Limit is int limit)
+			result = result.Take(limit);
+		return result.ToArray();
 	}
 
 	private string[] ExpandBaseBranches(IReadOnlyList<string> branchNames, Func<string, IEnumerable<string>> getMore)

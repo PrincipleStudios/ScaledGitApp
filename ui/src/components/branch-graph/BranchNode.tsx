@@ -80,6 +80,7 @@ function drag(
 	// `x`/`y` are positions that can be moved by the simulation
 	return setupDragHandler({
 		onMouseDown(ev) {
+			ev.preventDefault();
 			return {
 				xOffset: (node.fx ?? node.x ?? 0) - ev.clientX,
 				yOffset: (node.fy ?? node.y ?? 0) - ev.clientY,
@@ -96,10 +97,12 @@ function drag(
 			if (totalMovement <= 5) {
 				onClick?.();
 			} else {
-				node.y = yOffset + ev.clientY;
-				node.x = xOffset + ev.clientX;
-				node.fy = null;
-				node.fx = null;
+				if (ev.button === 0) {
+					node.y = yOffset + ev.clientY;
+					node.x = xOffset + ev.clientX;
+					node.fy = null;
+					node.fx = null;
+				}
 				onMove?.();
 			}
 		},

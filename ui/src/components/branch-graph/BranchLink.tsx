@@ -9,6 +9,12 @@ import type {
 	DetailedUpstreamBranch,
 } from '../../generated/api/models';
 
+function isDetailedUpstream(
+	branch: Branch | undefined,
+): branch is DetailedUpstreamBranch {
+	return branch ? 'behindCount' in branch : false;
+}
+
 export function BranchLink({
 	link,
 }: {
@@ -25,11 +31,11 @@ export function BranchLink({
 			<JotaiLine
 				x1={negativeLen}
 				y1={0}
-				x2={0}
+				x2={-5}
 				y2={0}
 				strokeWidth={1}
 				className={
-					targetLink && 'behindCount' in targetLink
+					isDetailedUpstream(targetLink)
 						? twMerge(
 								targetLink.hasConflict
 									? 'stroke-red-800 dark:stroke-red-200'
@@ -42,10 +48,8 @@ export function BranchLink({
 			<path
 				d="M-5,0l-5,3v-6z"
 				className={
-					targetLink && 'behindCount' in targetLink
-						? targetLink.hasConflict
-							? 'fill-red-800 dark:fill-red-200'
-							: 'fill-black'
+					isDetailedUpstream(targetLink) && targetLink.hasConflict
+						? 'fill-red-800 dark:fill-red-200'
 						: 'fill-black'
 				}
 			/>

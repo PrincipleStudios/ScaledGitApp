@@ -14,12 +14,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="src/**" />
+        <Compile Include="src/**" Watch="false" />
         <RestoreConfig Include="$(SolutionRoot)package.json" />
         <RestoreConfig Include="$(SolutionRoot)pnpm-lock.yaml" />
         <RestoreConfig Include="package.json" />
         <CompileConfig Include="tsconfig*.json" />
         <CompileConfig Include="rollup.config*.json" />
+        <Watch Include="@(RestoreConfig)" />
 
         <PnpmPackagedFiles Condition=" '$(PnpmPackagedFiles)' == '' " Include="@(CompileConfig)" />
         <PnpmPackagedFiles Include=".npmignore" />

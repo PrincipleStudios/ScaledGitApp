@@ -4,17 +4,17 @@ import { useBranchSimulation } from './branch-graph.simulation';
 import { BranchLink } from './BranchLink';
 import { BranchNode } from './BranchNode';
 import { CenterG } from './CenterG';
-import type { BranchConfiguration } from '../../generated/api/models';
+import type { Branch, BranchConfiguration } from '../../generated/api/models';
 
-export type BranchGraphPresentationProps<T extends BranchConfiguration> = {
-	upstreamData: T[];
-	onClick?: (node: T) => void;
+export type BranchGraphPresentationProps = {
+	upstreamData: BranchConfiguration[];
+	onClick?: (node: Branch) => void;
 };
 
-export function BranchGraphPresentation<T extends BranchConfiguration>({
+export function BranchGraphPresentation({
 	upstreamData,
 	onClick,
-}: BranchGraphPresentationProps<T>) {
+}: BranchGraphPresentationProps) {
 	const [sizeDetection, size] = useResizeDetector<SVGSVGElement>();
 	const { nodes, links, restartSimulation } = useBranchSimulation(upstreamData);
 

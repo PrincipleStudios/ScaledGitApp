@@ -46,13 +46,40 @@ public class GetConflictingFilesShould
 		verifyGitClone.Verify(Times.Once);
 	}
 
+	/// <summary>
+	/// This occurs if one of the specified branches does not exist
+	/// </summary>
+	[Fact]
+	public async Task Handle_failed_commands_in_an_expected_way()
+	{
+		var branch1 = "feature/PS-123";
+		var branch2 = "infra/auto-format";
+		var verifyGitClone = SetupFailedMerge(fixture.MockPowerShell, [branch1, branch2]);
+		var target = new GetConflictingFiles(branch1, branch2);
+
+		await Assert.ThrowsAsync<GitException>(() => target.RunCommand(fixture.Create()));
+
+		verifyGitClone.Verify(Times.Once);
+	}
+
 	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupConflictingFiles(Mock<IPowerShellCommandContext> target, string[] branches, string resultTreeHash, string[] conflictingFiles)
 	{
 		return target.Verifiable(
 			ps => ps.PowerShellInvoker.InvokeCliAsync("git", It.Is<string[]>(args => VerifyCliArgs(args, branches))),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.WithResults(conflictingFiles.Prepend(resultTreeHash).ToArray()) with
 			{
-				HadErrors = conflictingFiles is not []
+				LastExitCode = conflictingFiles is [] ? 0 : 1
+			})
+		);
+	}
+
+	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupFailedMerge(Mock<IPowerShellCommandContext> target, string[] branches)
+	{
+		return target.Verifiable(
+			ps => ps.PowerShellInvoker.InvokeCliAsync("git", It.Is<string[]>(args => VerifyCliArgs(args, branches))),
+			s => s.ReturnsAsync(PowerShellInvocationResultStubs.Empty with
+			{
+				LastExitCode = 2,
 			})
 		);
 	}

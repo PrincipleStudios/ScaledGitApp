@@ -1,4 +1,5 @@
-﻿using PrincipleStudios.ScaledGitApp.BranchingStrategy;
+﻿using PrincipleStudios.OpenApiCodegen.Json.Extensions;
+using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
@@ -12,7 +13,8 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 				getBranchDetailsBody.Branches.ToArray(),
 				IncludeDownstream: getBranchDetailsBody.IncludeDownstream,
 				IncludeUpstream: getBranchDetailsBody.IncludeUpstream,
-				Recurse: getBranchDetailsBody.Recurse
+				Recurse: getBranchDetailsBody.Recurse,
+				Limit: getBranchDetailsBody.Limit.TryGet(out var limit) ? limit : null
 			)
 		);
 

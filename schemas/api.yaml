@@ -98,6 +98,8 @@ paths:
                   type: boolean
                 recurse:
                   type: boolean
+                limit:
+                  type: integer
               required:
                 - branches
                 - includeDownstream

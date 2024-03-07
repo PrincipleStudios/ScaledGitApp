@@ -1,9 +1,6 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using PrincipleStudios.ScaledGitApp.ShellUtilities;
+﻿namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
-
-public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse)
+public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>
 {
 	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> RunCommand(IGitToolsCommandContext pwsh)
@@ -29,12 +26,23 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 			{
 				var fullUpstream = FullName(shortUpstream);
 
+				if (!branchExists)
+				{
+					entries.Add(new UpstreamBranchMergeInfo(
+						Name: shortUpstream,
+						Exists: await CheckBranchExists(fullUpstream),
+						BehindCount: 0,
+						HasConflict: false
+					));
+					continue;
+				}
+
 				var behind = await pwsh.RunCommand(new GetCommitCount(Included: [fullUpstream], Excluded: [fullBranchName]));
 				entries.Add(new UpstreamBranchMergeInfo(
 					Name: shortUpstream,
 					Exists: behind.HasValue,
 					BehindCount: behind ?? 0,
-					HasConflict: (await pwsh.RunCommand(new GetConflictingFiles(fullUpstream, fullBranchName))).HasConflict
+					HasConflict: behind.HasValue && (await pwsh.RunCommand(new GetConflictingFiles(fullUpstream, fullBranchName))).HasConflict
 				));
 			}
 
@@ -42,7 +50,12 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 				Name: baseBranch,
 				Exists: branchExists,
 				NonMergeCommitCount: branchExists
-					? await pwsh.RunCommand(new GetCommitCount(Included: [fullBranchName], Excluded: upstreamBranches.Select(FullName))) ?? 0
+					? await pwsh.RunCommand(new GetCommitCount(
+						Included: [fullBranchName],
+						Excluded: from entry in entries
+								  where entry.Exists
+								  select FullName(entry.Name)
+					)) ?? 0
 					: 0,
 				Upstreams: entries.ToArray()
 			));
@@ -81,7 +94,10 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 					upstreams.TryGetValue(current, out var configuredUpstreams)
 						? configuredUpstreams.UpstreamBranchNames
 						: Enumerable.Empty<string>()));
-		return result.Distinct().ToArray();
+		result = result.Distinct();
+		if (Limit is int limit)
+			result = result.Take(limit);
+		return result.ToArray();
 	}
 
 	private string[] ExpandBaseBranches(IReadOnlyList<string> branchNames, Func<string, IEnumerable<string>> getMore)

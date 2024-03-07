@@ -6,9 +6,12 @@ public record PowerShellInvocationResult(
 	IReadOnlyList<PSObject> Results,
 	PSInvocationState InvocationState,
 	Exception? InvocationStateException,
-	bool HadErrors,
-	IReadOnlyList<PSObject>? ErrorContents,
-	PowerShellInvocationStreams Streams);
+	int LastExitCode,
+	object? LastError,
+	PowerShellInvocationStreams Streams)
+{
+	public bool HadErrors => LastExitCode != 0 || LastError != null;
+}
 
 public static class PowerShellInvocationResultExtensions
 {
@@ -24,14 +27,15 @@ public static class PowerShellInvocationResultExtensions
 		var warningRecords = ps.Streams.Warning.ToArray();
 		var errorRecords = ps.Streams.Error.ToArray();
 
-		var originalHadErrors = ps.HadErrors;
+		var lastExecutionDetails = await GetLastExecutionDetails(ps);
+		var lastExitCode = Convert.ToInt32(lastExecutionDetails["LastExitCode"] ?? 0);
 
 		return new(
 			Results: results,
 			InvocationState: ps.InvocationStateInfo.State,
 			InvocationStateException: ps.InvocationStateInfo.Reason,
-			HadErrors: ps.HadErrors,
-			ErrorContents: originalHadErrors ? await GetError(ps) : null,
+			LastExitCode: lastExitCode,
+			LastError: lastExecutionDetails["Error"],
 			Streams: new PowerShellInvocationStreams(
 				debugRecords,
 				verboseRecords,
@@ -43,10 +47,11 @@ public static class PowerShellInvocationResultExtensions
 		);
 	}
 
-	private static async Task<IReadOnlyList<PSObject>> GetError(PowerShell ps)
+	private static async Task<System.Collections.Hashtable> GetLastExecutionDetails(PowerShell ps)
 	{
 		ps.Commands.Clear();
-		ps.AddScript("$error");
-		return (await ps.InvokeAsync()).ToArray();
+		ps.AddScript("@{ LastExitCode = $global:LastExitCode; Error = $global:error[0] }");
+		var outputs = await ps.InvokeAsync();
+		return (System.Collections.Hashtable)outputs.Single().BaseObject;
 	}
 }

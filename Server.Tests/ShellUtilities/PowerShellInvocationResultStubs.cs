@@ -10,8 +10,8 @@ public static class PowerShellInvocationResultStubs
 		Results: Array.Empty<PSObject>(),
 		InvocationState: PSInvocationState.Completed,
 		InvocationStateException: null,
-		HadErrors: false,
-		ErrorContents: Array.Empty<PSObject>(),
+		LastExitCode: 0,
+		LastError: null,
 		Streams: new(
 			Debug: Array.Empty<DebugRecord>(),
 			Verbose: Array.Empty<VerboseRecord>(),
@@ -28,10 +28,10 @@ public static class PowerShellInvocationResultStubs
 			Results = lines.Select(line => new PSObject(line)).ToArray()
 		};
 
-	public static PowerShellInvocationResult WithCliErrors(params string[] lines) =>
+	public static PowerShellInvocationResult WithCliErrors(int exitCode, params string[] lines) =>
 		Empty with
 		{
-			HadErrors = true,
+			LastExitCode = exitCode,
 			Streams = Empty.Streams with
 			{
 				Error = (

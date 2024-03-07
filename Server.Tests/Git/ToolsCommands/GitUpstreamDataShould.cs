@@ -88,6 +88,7 @@ public class GitUpstreamDataShould
 		return target.Verifiable(
 			ps => ps.InvokeCliAsync("git", "ls-tree", "-r", "refs/remotes/origin/_upstream", "--format=%(objectname) %(path)"),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.WithCliErrors(
+				128,
 				"fatal: Not a valid object name refs/remotes/origin/_upstream"
 			))
 		);

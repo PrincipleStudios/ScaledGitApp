@@ -35,6 +35,7 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 						  BehindCount: upstream.BehindCount,
 						  HasConflict: upstream.HasConflict
 					  ),
-			Downstream: result.DownstreamNames
+			Downstream: from downstream in result.DownstreamNames
+						select new Branch(Name: downstream)
 		);
 }

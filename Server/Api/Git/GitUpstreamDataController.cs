@@ -19,7 +19,7 @@ public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShel
 				Upstream: kvp.Value.UpstreamBranchNames.Select(n => new Branch(Name: n)),
 				Downstream: from entry in results
 							where entry.Value.UpstreamBranchNames.Contains(kvp.Key)
-							select entry.Key
+							select new Branch(Name: entry.Key)
 			)
 		).Concat(
 			from branchName in noUpstreams
@@ -29,7 +29,7 @@ public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShel
 				Upstream: Enumerable.Empty<Branch>(),
 				Downstream: from entry in results
 							where entry.Value.UpstreamBranchNames.Contains(branchName)
-							select entry.Key
+							select new Branch(Name: entry.Key)
 			)
 		));
 	}

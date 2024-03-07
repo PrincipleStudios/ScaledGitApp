@@ -8,13 +8,13 @@
 	<Import Project="$(RepositoryEngineeringDir)pnpm.targets" />
 
 	<ItemGroup>
-		<Compile Include="vite.config.ts" />
+		<Compile Include="vite.config.ts" Watch="false" />
 		<Compile Include="public/**/*" />
 		<Compile Remove="src/**/stories/**/*;src/**/*.stories.*" />
 		<Watch Include="$(SolutionRoot)schemas/**/*" />
 
 		<CompileOutputs Include="$(ViteBuildDir)\index.html" />
-		
+
 		<Clean Include="$(ViteBuildDir)**/*" Exclude="$(ViteBuildDir).gitkeep" />
 		<Clean Include="src/generated/api/**/*" />
 	</ItemGroup>

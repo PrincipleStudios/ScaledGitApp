@@ -68,7 +68,7 @@ public class GetConflictingFilesShould
 			ps => ps.PowerShellInvoker.InvokeCliAsync("git", It.Is<string[]>(args => VerifyCliArgs(args, branches))),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.WithResults(conflictingFiles.Prepend(resultTreeHash).ToArray()) with
 			{
-				HadErrors = conflictingFiles is not []
+				LastExitCode = conflictingFiles is [] ? 0 : 1
 			})
 		);
 	}
@@ -79,7 +79,7 @@ public class GetConflictingFilesShould
 			ps => ps.PowerShellInvoker.InvokeCliAsync("git", It.Is<string[]>(args => VerifyCliArgs(args, branches))),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.Empty with
 			{
-				HadErrors = true
+				LastExitCode = 2,
 			})
 		);
 	}

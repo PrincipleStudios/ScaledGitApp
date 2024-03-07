@@ -53,6 +53,12 @@ importers:
       '@principlestudios/openapi-codegen-typescript-fetch':
         specifier: ^0.7.1
         version: 0.7.1(@principlestudios/openapi-codegen-typescript@0.7.0)
+      '@principlestudios/react-jotai-form-components':
+        specifier: ^0.1.1
+        version: 0.1.1(jotai@2.6.5)(react@18.2.0)
+      '@principlestudios/react-jotai-forms':
+        specifier: ^0.3.0
+        version: 0.3.0(immer@10.0.3)(jotai@2.6.5)(react@18.2.0)(zod@3.22.4)
       '@tanstack/react-query':
         specifier: ^5.22.2
         version: 5.22.2(react@18.2.0)
@@ -104,6 +110,9 @@ importers:
       vite:
         specifier: ^5.0.12
         version: 5.0.12
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@storybook/addon-essentials':
         specifier: ^7.6.13
@@ -2142,6 +2151,33 @@ packages:
   /@principlestudios/openapi-codegen-typescript@0.7.0:
     resolution: {integrity: sha512-/9QrZAWeOdHygDuG51RIix1qVs9BNjIuA8GqIi5qNqGENuWLkLDz6atrpypq5kl+iPDSOCTRjJlzHm4oJ7S93w==}
     hasBin: true
+    dev: false
+
+  /@principlestudios/react-jotai-form-components@0.1.1(jotai@2.6.5)(react@18.2.0):
+    resolution: {integrity: sha512-gg9ZJtAP0DIaPPcow3qj/RcjmoICXJ2MTZ/24lw1o/XKAdPlgp1C+CERgQG0k6gtcdkXkHHkNurF9W2MLAucmw==}
+    peerDependencies:
+      jotai: '>=2.0.0'
+    dependencies:
+      '@principlestudios/jotai-react-signals': 0.5.1(jotai@2.6.5)(react@18.2.0)
+      jotai: 2.6.5(@types/react@18.2.55)(react@18.2.0)
+    transitivePeerDependencies:
+      - react
+    dev: false
+
+  /@principlestudios/react-jotai-forms@0.3.0(immer@10.0.3)(jotai@2.6.5)(react@18.2.0)(zod@3.22.4):
+    resolution: {integrity: sha512-zOd0+WCpRu64khgqO9skaZJRr9Ri/Cvqys0j5GxE3OdpUR7OyC2uRo/JUCl+7R37Y5hg4ysJqrjoPyCJhjcyMg==}
+    peerDependencies:
+      immer: ^10.0.3
+      jotai: '>=2.0.0'
+      react: '>=17.0.0'
+      zod: ^3.22.4
+    dependencies:
+      '@principlestudios/jotai-react-signals': 0.5.1(jotai@2.6.5)(react@18.2.0)
+      '@principlestudios/jotai-utilities': 0.5.2(jotai@2.6.5)
+      immer: 10.0.3
+      jotai: 2.6.5(@types/react@18.2.55)(react@18.2.0)
+      react: 18.2.0
+      zod: 3.22.4
     dev: false
 
   /@radix-ui/number@1.0.1:
@@ -6470,6 +6506,10 @@ packages:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
     engines: {node: '>= 4'}
 
+  /immer@10.0.3:
+    resolution: {integrity: sha512-pwupu3eWfouuaowscykeckFmVTpqbzW+rXFCX8rQLkZzM9ftBmU/++Ra+o+L27mz03zJTlyV4UUr+fdKNffo4A==}
+    dev: false
+
   /import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
     engines: {node: '>=6'}
@@ -9869,3 +9909,7 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: false

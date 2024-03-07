@@ -1,7 +1,13 @@
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
 import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
+import type {
+	BranchConfiguration,
+	BranchDetails,
+} from '../../generated/api/models';
 
-export function useComputedLinkValues(link: WithAtom<BranchGraphLinkDatum>) {
+export function useComputedLinkValues(
+	link: WithAtom<BranchGraphLinkDatum<BranchConfiguration | BranchDetails>>,
+) {
 	const position = useComputedAtom((get) => {
 		const { x: x1 = 0, y: y1 = 0 } = get(link.source.atom);
 		const { x: x2 = 0, y: y2 = 0 } = get(link.target.atom);
@@ -16,7 +22,7 @@ export function useComputedLinkValues(link: WithAtom<BranchGraphLinkDatum>) {
 		const { x1, x2, y1, y2 } = get(position);
 		const x = x2 - x1;
 		const y = y2 - y1;
-		return (-Math.sqrt(x * x + y * y)).toFixed(1);
+		return (-Math.sqrt(x * x + y * y) + 5).toFixed(1);
 	});
 	return { transform, negativeLen };
 }

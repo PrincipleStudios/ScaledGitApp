@@ -5,25 +5,18 @@ import { TooltipLine } from '../common';
 import { JotaiG } from '../svg/atom-elements';
 import { useTooltipReference } from '../tooltips';
 import type { BranchGraphNodeDatum, WithAtom } from './branch-graph.simulation';
-import type {
-	BranchConfiguration,
-	BranchDetails,
-} from '../../generated/api/models';
+import type { Branch, BranchDetails } from '../../generated/api/models';
 
-function isDetailed(
-	branch: BranchConfiguration | BranchDetails,
-): branch is BranchDetails {
+function isDetailed(branch: Branch): branch is BranchDetails {
 	return branch ? 'nonMergeCommitCount' in branch : false;
 }
-
-type NodeDetails = BranchConfiguration | BranchDetails;
 
 export function BranchNode({
 	node,
 	onMove,
 	onClick,
 }: {
-	node: WithAtom<BranchGraphNodeDatum<NodeDetails>>;
+	node: WithAtom<BranchGraphNodeDatum>;
 	onMove?: () => void;
 	onClick?: () => void;
 }) {
@@ -53,7 +46,7 @@ export function BranchNode({
 	);
 }
 
-function BranchNodeTooltip({ details }: { details: NodeDetails }) {
+function BranchNodeTooltip({ details }: { details: Branch }) {
 	const { t } = useTranslation('branch-graph');
 	if (!isDetailed(details))
 		return <span className="text-nowrap">{details.name}</span>;
@@ -71,7 +64,7 @@ function BranchNodeTooltip({ details }: { details: NodeDetails }) {
 }
 
 function drag(
-	node: WithAtom<BranchGraphNodeDatum<BranchConfiguration | BranchDetails>>,
+	node: WithAtom<BranchGraphNodeDatum>,
 	onMove?: () => void,
 	onClick?: () => void,
 ) {

@@ -4,8 +4,6 @@ import { useComputedLinkValues } from './useComputedLinkValues';
 import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
 import type {
 	Branch,
-	BranchConfiguration,
-	BranchDetails,
 	DetailedUpstreamBranch,
 } from '../../generated/api/models';
 
@@ -15,16 +13,12 @@ function isDetailedUpstream(
 	return branch ? 'behindCount' in branch : false;
 }
 
-export function BranchLink({
-	link,
-}: {
-	link: WithAtom<BranchGraphLinkDatum<BranchConfiguration | BranchDetails>>;
-}) {
+export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
 	const { transform, negativeLen } = useComputedLinkValues(link);
 
-	const targetLink = link.target.data.upstream.find(
+	const targetLink = link.target.data.upstream?.find(
 		(d) => d.name === link.source.id,
-	) as Branch | DetailedUpstreamBranch | undefined;
+	);
 
 	return (
 		<JotaiG style={{ transform: transform }}>

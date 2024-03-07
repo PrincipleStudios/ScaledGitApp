@@ -8,7 +8,7 @@ import {
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
-import type { BranchConfiguration } from '../../generated/api/models';
+import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
 import type {
 	Force,
@@ -21,32 +21,26 @@ import type {
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
-export type BranchGraphNodeDatum<
-	T extends BranchConfiguration = BranchConfiguration,
-> = {
+export type BranchGraphNodeDatum = {
 	id: string;
 	depth: number;
-	data: T;
+	data: Branch & Partial<BranchConfiguration>;
 } & SimulationNodeDatum;
-export type BranchGraphLinkDatum<
-	T extends BranchConfiguration = BranchConfiguration,
-> = {
+export type BranchGraphLinkDatum = {
 	id: string;
 	upstreamBranchName: string;
 	downstreamBranchName: string;
-	source: WithAtom<BranchGraphNodeDatum<T>>;
-	target: WithAtom<BranchGraphNodeDatum<T>>;
-} & SimulationLinkDatum<BranchGraphNodeDatum<T>>;
-type BranchSimulation<T extends BranchConfiguration = BranchConfiguration> =
-	Simulation<
-		WithAtom<BranchGraphNodeDatum<T>>,
-		WithAtom<BranchGraphLinkDatum<T>>
-	>;
-type BranchLinkForce<T extends BranchConfiguration = BranchConfiguration> =
-	ForceLink<
-		WithAtom<BranchGraphNodeDatum<T>>,
-		WithAtom<BranchGraphLinkDatum<T>>
-	>;
+	source: WithAtom<BranchGraphNodeDatum>;
+	target: WithAtom<BranchGraphNodeDatum>;
+} & SimulationLinkDatum<BranchGraphNodeDatum>;
+type BranchSimulation = Simulation<
+	WithAtom<BranchGraphNodeDatum>,
+	WithAtom<BranchGraphLinkDatum>
+>;
+type BranchLinkForce = ForceLink<
+	WithAtom<BranchGraphNodeDatum>,
+	WithAtom<BranchGraphLinkDatum>
+>;
 
 function forceHierarchy(
 	depthDistance: number,
@@ -75,16 +69,15 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	upstreamData: T[],
 ) {
 	const linkingForce = useRef(
-		forceLink<
-			WithAtom<BranchGraphNodeDatum<T>>,
-			WithAtom<BranchGraphLinkDatum<T>>
-		>([]).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
+		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
+			[],
+		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
 	);
-	const simulationRef = useRef<BranchSimulation<T>>();
+	const simulationRef = useRef<BranchSimulation>();
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
-			WithAtom<BranchGraphNodeDatum<T>>,
-			WithAtom<BranchGraphLinkDatum<T>>
+			WithAtom<BranchGraphNodeDatum>,
+			WithAtom<BranchGraphLinkDatum>
 		>([])
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
@@ -127,15 +120,31 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	}
 }
 
-function updateNodes<T extends BranchConfiguration>(
+function updateNodes(
 	store: JotaiStore,
-	simulation: BranchSimulation<T>,
-	linkForce: BranchLinkForce<T>,
-	upstreamData: T[],
+	simulation: BranchSimulation,
+	linkForce: BranchLinkForce,
+	upstreamData: BranchConfiguration[],
 ) {
+	const configsByName = Object.fromEntries(
+		upstreamData.map((e) => [e.name, e]),
+	);
+	const dataLookup: Record<string, Branch> = { ...configsByName };
+	const configuredLinks: { upstream: string; downstream: string }[] = [];
+	// fill in missing data - upstream nodes and links
+	for (const config of upstreamData) {
+		for (const upstream of config.upstream) {
+			if (!dataLookup[upstream.name]) dataLookup[upstream.name] = upstream;
+			configuredLinks.push({
+				upstream: upstream.name,
+				downstream: config.name,
+			});
+		}
+	}
+
 	// Updates nodes while creating atom proxy for animation
 	const oldNodes = simulation.nodes();
-	const newNodes = upstreamData.map((entry) =>
+	const newNodes = Object.values(dataLookup).map((entry) =>
 		findOrCreate(
 			store,
 			oldNodes,
@@ -148,51 +157,46 @@ function updateNodes<T extends BranchConfiguration>(
 			},
 		),
 	);
-	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum<T>>>(
+	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum>>(
 		newNodes.map((e) => [e.id, e] as const),
 	);
 
 	// Updates links while creating atom proxy for animation
 	const oldLinks = linkForce.links();
-	const newLinks = upstreamData
-		.flatMap((entry) => {
-			const target = nodeLookup.get(entry.name);
-			if (!target) return null;
-			return entry.upstream.map((upstreamBranch) => {
-				const source = nodeLookup.get(upstreamBranch.name);
-				if (!source) return null;
-				const id = `${entry.name}-${upstreamBranch.name}`;
-				return findOrCreate(
-					store,
-					oldLinks,
-					(n) => n.id === id,
-					{
-						source,
-						target,
-					},
-					{
-						id,
-						downstreamBranchName: entry.name,
-						upstreamBranchName: upstreamBranch.name,
-					},
-				);
-			});
+	const newLinks = configuredLinks
+		.map((entry) => {
+			const target = nodeLookup.get(entry.downstream);
+			const source = nodeLookup.get(entry.upstream);
+			if (!target || !source) return null;
+			const id = `${entry.downstream}-${entry.upstream}`;
+			return findOrCreate(
+				store,
+				oldLinks,
+				(n) => n.id === id,
+				{
+					source,
+					target,
+				},
+				{
+					id,
+					downstreamBranchName: entry.downstream,
+					upstreamBranchName: entry.upstream,
+				},
+			);
 		})
 		.filter((v): v is NonNullable<typeof v> => v !== null);
 
 	// Sets the node depth. TODO: double-check my algorithm, this is inefficient
 	const depth: Record<string, number> = Object.fromEntries(
-		upstreamData.map((e) => [e.name, 0] as const),
+		newNodes.map((e) => [e.id, 0] as const),
 	);
-	for (let i = 0; i < newNodes.length; i++) {
-		for (let j = 0; j < newNodes.length; j++) {
-			for (let k = 0; k < newNodes[j].data.upstream.length; k++) {
-				if (newNodes[j].data.upstream[k].name in depth)
-					depth[newNodes[j].id] = Math.max(
-						depth[newNodes[j].data.upstream[k].name] + 1,
-						depth[newNodes[j].id],
-					);
-			}
+	for (let i = 0; i < configuredLinks.length; i++) {
+		for (const link of configuredLinks) {
+			if (link.upstream in depth)
+				depth[link.downstream] = Math.max(
+					depth[link.upstream] + 1,
+					depth[link.downstream],
+				);
 		}
 	}
 	for (let i = 0; i < newNodes.length; i++) {

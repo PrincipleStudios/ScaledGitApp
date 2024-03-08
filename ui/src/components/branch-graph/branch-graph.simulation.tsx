@@ -136,18 +136,19 @@ function updateNodes(
 		for (const downstream of config.downstream) {
 			if (!dataLookup[downstream.name])
 				dataLookup[downstream.name] = downstream;
-			configuredLinks.push({
-				upstream: config.name,
-				downstream: downstream.name,
-			});
+			tryAddLink(config.name, downstream.name);
 		}
 		for (const upstream of config.upstream) {
 			if (!dataLookup[upstream.name]) dataLookup[upstream.name] = upstream;
-			configuredLinks.push({
-				upstream: upstream.name,
-				downstream: config.name,
-			});
+			tryAddLink(upstream.name, config.name);
 		}
+	}
+	function tryAddLink(u: string, d: string) {
+		if (!configuredLinks.find((l) => l.upstream === u && l.downstream === d))
+			configuredLinks.push({
+				upstream: u,
+				downstream: d,
+			});
 	}
 
 	// Updates nodes while creating atom proxy for animation

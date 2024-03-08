@@ -133,14 +133,14 @@ function updateNodes(
 	const configuredLinks: { upstream: string; downstream: string }[] = [];
 	// fill in missing data - both missing upstream/downstream nodes and links
 	for (const config of upstreamData) {
-		for (const downstream of config.downstream)
-			if (!dataLookup[downstream.name]) {
+		for (const downstream of config.downstream) {
+			if (!dataLookup[downstream.name])
 				dataLookup[downstream.name] = downstream;
-				configuredLinks.push({
-					upstream: config.name,
-					downstream: downstream.name,
-				});
-			}
+			configuredLinks.push({
+				upstream: config.name,
+				downstream: downstream.name,
+			});
+		}
 		for (const upstream of config.upstream) {
 			if (!dataLookup[upstream.name]) dataLookup[upstream.name] = upstream;
 			configuredLinks.push({

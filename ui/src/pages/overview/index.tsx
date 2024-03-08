@@ -1,14 +1,11 @@
-import { useBranchGraph } from '../../components/branch-graph';
-import styles from './overview.module.css';
-import { useGitVersion } from './useGitVersion';
+import { Container } from '../../components/common';
+import { useBranchListing } from './branch-listing';
 
 export function OverviewComponent() {
-	const GitVersion = useGitVersion();
-	const BranchGraph = useBranchGraph();
+	const BranchListing = useBranchListing();
 	return (
-		<div className={styles.container}>
-			<GitVersion />
-			<BranchGraph />
-		</div>
+		<Container.Flow>
+			<BranchListing />
+		</Container.Flow>
 	);
 }

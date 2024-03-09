@@ -30,13 +30,23 @@ export function BranchNode({
 	const tooltip = useTooltipReference(() => (
 		<BranchNodeTooltip details={node.data} />
 	));
+	const styles: React.CSSProperties = details.detailed
+		? {
+				fill: details.exists ? details.color : 'transparent',
+				opacity: details.nonMergeCommitCount > 0 ? 1 : 0.5,
+				stroke: details.color,
+			}
+		: {
+				fill: 'rgba(0.5,0.5,0.5,0.25)',
+				opacity: 1,
+				strokeDasharray: '3,3',
+				stroke: 'black',
+			};
 	return (
 		<JotaiG
 			style={{
 				transform: transform,
-				fill: details.exists ? node.data.color : 'transparent',
-				opacity: details.nonMergeCommitCount > 0 ? 1 : 0.5,
-				stroke: node.data.color,
+				...styles,
 			}}
 			{...tooltip()}
 			{...drag(node, onMove, onClick)}

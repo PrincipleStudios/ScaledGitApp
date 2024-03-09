@@ -21,10 +21,15 @@ import type {
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
+export type BranchInfo =
+	| (Branch & {
+			detailed: false;
+	  })
+	| (BranchConfiguration & { detailed: true });
 export type BranchGraphNodeDatum = {
 	id: string;
 	depth: number;
-	data: Branch & Partial<BranchConfiguration>;
+	data: BranchInfo;
 } & SimulationNodeDatum;
 export type BranchGraphLinkDatum = {
 	id: string;
@@ -127,19 +132,23 @@ function updateNodes(
 	upstreamData: BranchConfiguration[],
 ) {
 	const configsByName = Object.fromEntries(
-		upstreamData.map((e) => [e.name, e]),
+		upstreamData.map((e): [string, BranchInfo] => [
+			e.name,
+			{ ...e, detailed: true },
+		]),
 	);
-	const dataLookup: Record<string, Branch> = { ...configsByName };
+	const dataLookup: Record<string, BranchInfo> = { ...configsByName };
 	const configuredLinks: { upstream: string; downstream: string }[] = [];
 	// fill in missing data - both missing upstream/downstream nodes and links
 	for (const config of upstreamData) {
 		for (const downstream of config.downstream) {
 			if (!dataLookup[downstream.name])
-				dataLookup[downstream.name] = downstream;
+				dataLookup[downstream.name] = { ...downstream, detailed: false };
 			tryAddLink(config.name, downstream.name);
 		}
 		for (const upstream of config.upstream) {
-			if (!dataLookup[upstream.name]) dataLookup[upstream.name] = upstream;
+			if (!dataLookup[upstream.name])
+				dataLookup[upstream.name] = { ...upstream, detailed: false };
 			tryAddLink(upstream.name, config.name);
 		}
 	}
@@ -196,21 +205,33 @@ function updateNodes(
 		.filter((v): v is NonNullable<typeof v> => v !== null);
 
 	// Sets the node depth. TODO: double-check my algorithm, this is inefficient
-	const depth: Record<string, number> = Object.fromEntries(
-		newNodes.map((e) => [e.id, 0] as const),
-	);
+	const depth: Record<string, number> = {};
 	for (let i = 0; i < configuredLinks.length; i++) {
 		for (const link of configuredLinks) {
-			if (link.upstream in depth)
+			const originalUpstream = depth[link.upstream];
+			const originalDownstream = depth[link.downstream];
+
+			if (originalDownstream === undefined && originalUpstream === undefined) {
+				depth[link.upstream] = 0;
+				depth[link.downstream] = 1;
+				continue;
+			}
+
+			if (originalUpstream !== undefined)
 				depth[link.downstream] = Math.max(
 					depth[link.upstream] + 1,
-					depth[link.downstream],
+					depth[link.downstream] ?? Number.NEGATIVE_INFINITY,
+				);
+			if (link.downstream in depth)
+				depth[link.upstream] = Math.min(
+					depth[link.downstream] - 1,
+					depth[link.upstream] ?? Number.POSITIVE_INFINITY,
 				);
 		}
 	}
 	for (let i = 0; i < newNodes.length; i++) {
 		if (newNodes[i].depth !== depth[newNodes[i].id])
-			newNodes[i].depth = depth[newNodes[i].id];
+			newNodes[i].depth = depth[newNodes[i].id] ?? 0;
 	}
 
 	// Updates the simulation and link force

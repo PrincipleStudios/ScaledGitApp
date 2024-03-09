@@ -28,7 +28,6 @@ export type BranchInfo =
 	| (BranchConfiguration & { detailed: true });
 export type BranchGraphNodeDatum = {
 	id: string;
-	depth: number;
 	data: BranchInfo;
 } & SimulationNodeDatum;
 export type BranchGraphLinkDatum = {
@@ -119,7 +118,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
 			[],
-		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
+		).distance(80),
 	);
 	const hierarchyForce = useRef(forceHierarchy(100));
 	const simulationRef = useRef<BranchSimulation>();
@@ -214,7 +213,6 @@ function updateNodes(
 			{
 				id: entry.name,
 				data: entry,
-				depth: 0,
 			},
 		),
 	);
@@ -246,36 +244,6 @@ function updateNodes(
 			);
 		})
 		.filter((v): v is NonNullable<typeof v> => v !== null);
-
-	// Sets the node depth. TODO: double-check my algorithm, this is inefficient
-	const depth: Record<string, number> = {};
-	for (let i = 0; i < configuredLinks.length; i++) {
-		for (const link of configuredLinks) {
-			const originalUpstream = depth[link.upstream];
-			const originalDownstream = depth[link.downstream];
-
-			if (originalDownstream === undefined && originalUpstream === undefined) {
-				depth[link.upstream] = 0;
-				depth[link.downstream] = 1;
-				continue;
-			}
-
-			if (originalUpstream !== undefined)
-				depth[link.downstream] = Math.max(
-					depth[link.upstream] + 1,
-					depth[link.downstream] ?? Number.NEGATIVE_INFINITY,
-				);
-			if (link.downstream in depth)
-				depth[link.upstream] = Math.min(
-					depth[link.downstream] - 1,
-					depth[link.upstream] ?? Number.POSITIVE_INFINITY,
-				);
-		}
-	}
-	for (let i = 0; i < newNodes.length; i++) {
-		if (newNodes[i].depth !== depth[newNodes[i].id])
-			newNodes[i].depth = depth[newNodes[i].id] ?? 0;
-	}
 
 	// Updates the simulation and link force
 	simulation.nodes(newNodes);

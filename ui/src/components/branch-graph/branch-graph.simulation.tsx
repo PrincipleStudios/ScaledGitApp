@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import {
 	forceCenter,
 	forceCollide,
@@ -8,10 +8,10 @@ import {
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
+import { useAnimationFrame } from './useAnimationFrame';
 import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
 import type {
-	Force,
 	ForceLink,
 	Simulation,
 	SimulationLinkDatum,
@@ -47,25 +47,68 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphLinkDatum>
 >;
 
-function forceHierarchy(
-	depthDistance: number,
-): Force<WithAtom<BranchGraphNodeDatum>, never> {
+function toX(node: BranchGraphNodeDatum) {
+	return node.fx ?? node.x;
+}
+function isNumber(n: number | null | undefined): n is number {
+	return typeof n === 'number';
+}
+function isNotInfinity(n: number) {
+	return n !== Number.POSITIVE_INFINITY && n !== Number.NEGATIVE_INFINITY;
+}
+function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
+	const cache = new Map<TInput, TOutput>();
+	return {
+		get(this: void, input: TInput) {
+			if (cache.has(input)) return cache.get(input) as TOutput;
+			const result = toOutput(input);
+			cache.set(input, result);
+			return result;
+		},
+		clear(this: void) {
+			cache.clear();
+		},
+	};
+}
+
+function forceHierarchy(depthDistance: number) {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
+	let links: WithAtom<BranchGraphLinkDatum>[] = [];
+	const downstreamByNode = resettableMemo((node) =>
+		links.filter((l) => l.target === node).map((l) => l.source),
+	);
+	const upstreamByNode = resettableMemo((node) =>
+		links.filter((l) => l.source === node).map((l) => l.target),
+	);
 	function update(alpha: number) {
-		const allDepth = currentNodes.map((n) => n.depth);
-		const minDepth = Math.min(Number.POSITIVE_INFINITY, ...allDepth);
-		const maxDepth = Math.max(Number.NEGATIVE_INFINITY, ...allDepth);
-		const avgDepth = (minDepth + maxDepth) / 2;
 		for (const node of currentNodes) {
 			if (node.fx) continue;
-			const targetX = depthDistance * (node.depth - avgDepth);
+			const downstream = downstreamByNode.get(node);
+			const upstream = upstreamByNode.get(node);
+			const range = [
+				Math.max(...downstream.map(toX).filter(isNumber)) + depthDistance,
+				Math.min(...upstream.map(toX).filter(isNumber)) - depthDistance,
+			].filter(isNotInfinity);
+			if (range.length === 0) return;
+			const targetX = range.reduce(
+				(prev, next) => prev + next / range.length,
+				0,
+			);
+
 			const currentX = node.x ?? 0;
-			node.vx = (node.vx ?? 0) + (targetX - currentX) * alpha;
+			const delta = targetX - currentX;
+			node.vx =
+				(node.vx ?? 0) + delta * alpha * (downstream.length + upstream.length);
 		}
 	}
 	return Object.assign(update, {
 		initialize(nodes: WithAtom<BranchGraphNodeDatum>[]) {
 			currentNodes = nodes;
+		},
+		links(newLinks: WithAtom<BranchGraphLinkDatum>[]) {
+			links = newLinks;
+			downstreamByNode.clear();
+			upstreamByNode.clear();
 		},
 	});
 }
@@ -78,6 +121,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			[],
 		).distance((n) => Math.abs(n.source.depth - n.target.depth) * 80),
 	);
+	const hierarchyForce = useRef(forceHierarchy(100));
 	const simulationRef = useRef<BranchSimulation>();
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
@@ -88,26 +132,21 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			.force('collide', forceCollide(6))
 			.force('spaceAround', forceManyBody().distanceMax(80))
 			.force('center', forceCenter())
-			.force('hierarchy', forceHierarchy(100));
+			.force('hierarchy', hierarchyForce.current);
 	}
 
-	useEffect(function runSimulation() {
-		let cancelToken: null | number = null;
-		function animate() {
-			cancelToken = requestAnimationFrame(animate);
-			simulationRef.current?.tick();
-		}
-		animate();
-		return () => {
-			if (cancelToken !== null) cancelAnimationFrame(cancelToken);
-		};
-	}, []);
+	const animator = useAnimationFrame(() => {
+		if (!simulationRef.current) return false;
+		simulationRef.current.tick();
+		return simulationRef.current.alpha() >= simulationRef.current.alphaMin();
+	});
 
 	const store = useStore();
 	const { nodes, links } = updateNodes(
 		store,
 		simulationRef.current,
 		linkingForce.current,
+		hierarchyForce.current,
 		upstreamData,
 	);
 
@@ -122,6 +161,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	function restartSimulation() {
 		simulationRef.current?.alpha(0.1);
 		simulationRef.current?.restart();
+		animator.restart();
 	}
 }
 
@@ -129,6 +169,9 @@ function updateNodes(
 	store: JotaiStore,
 	simulation: BranchSimulation,
 	linkForce: BranchLinkForce,
+	hierarchyForce: {
+		links: (newLinks: WithAtom<BranchGraphLinkDatum>[]) => void;
+	},
 	upstreamData: BranchConfiguration[],
 ) {
 	const configsByName = Object.fromEntries(
@@ -237,6 +280,7 @@ function updateNodes(
 	// Updates the simulation and link force
 	simulation.nodes(newNodes);
 	linkForce.links(newLinks);
+	hierarchyForce.links(newLinks);
 
 	return { nodes: newNodes, links: newLinks };
 }

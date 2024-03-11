@@ -96,8 +96,18 @@ function forceHierarchy(depthDistance: number) {
 
 			const currentX = node.x ?? 0;
 			const delta = targetX - currentX;
-			node.vx =
-				(node.vx ?? 0) + delta * alpha * (downstream.length + upstream.length);
+			const amount = delta * alpha * (downstream.length + upstream.length);
+			node.vx = (node.vx ?? 0) + amount;
+			if (amount > 0)
+				for (const other of downstream) {
+					if (typeof other.fx !== 'number') continue;
+					other.vx = (other.vx ?? 0) - amount;
+				}
+			if (amount < 0)
+				for (const other of upstream) {
+					if (typeof other.fx !== 'number') continue;
+					other.vx = (other.vx ?? 0) - amount;
+				}
 		}
 	}
 	return Object.assign(update, {
@@ -118,18 +128,21 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
 			[],
-		).distance(80),
+		)
+			.distance(40)
+			.strength(0.9),
 	);
-	const hierarchyForce = useRef(forceHierarchy(100));
+	const hierarchyForce = useRef(forceHierarchy(40));
 	const simulationRef = useRef<BranchSimulation>();
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
 			WithAtom<BranchGraphNodeDatum>,
 			WithAtom<BranchGraphLinkDatum>
 		>([])
+			.alphaDecay(0.01)
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
-			.force('spaceAround', forceManyBody().distanceMax(80))
+			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
 			.force('center', forceCenter())
 			.force('hierarchy', hierarchyForce.current);
 	}

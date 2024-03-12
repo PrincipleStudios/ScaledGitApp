@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import {
-	forceCenter,
 	forceCollide,
 	forceLink,
 	forceManyBody,
@@ -8,9 +7,12 @@ import {
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
+import { isNumber } from '../../utils/isNumber';
+import { forceWithinBoundaries } from './forceWithinBoundaries';
 import { useAnimationFrame } from './useAnimationFrame';
 import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
+import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
 import type {
 	ForceLink,
 	Simulation,
@@ -46,11 +48,8 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphLinkDatum>
 >;
 
-function toX(node: BranchGraphNodeDatum) {
+function toX(node: SimulationNodeDatum) {
 	return node.fx ?? node.x;
-}
-function isNumber(n: number | null | undefined): n is number {
-	return typeof n === 'number';
 }
 function isNotInfinity(n: number) {
 	return n !== Number.POSITIVE_INFINITY && n !== Number.NEGATIVE_INFINITY;
@@ -124,6 +123,7 @@ function forceHierarchy(depthDistance: number) {
 
 export function useBranchSimulation<T extends BranchConfiguration>(
 	upstreamData: T[],
+	size: Atom<ElementDimensions>,
 ) {
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
@@ -134,6 +134,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	);
 	const hierarchyForce = useRef(forceHierarchy(40));
 	const simulationRef = useRef<BranchSimulation>();
+	const store = useStore();
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
 			WithAtom<BranchGraphNodeDatum>,
@@ -143,7 +144,10 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
-			.force('center', forceCenter())
+			.force(
+				'sizing',
+				forceWithinBoundaries(() => store.get(size), 10),
+			)
 			.force('hierarchy', hierarchyForce.current);
 	}
 
@@ -153,7 +157,6 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 		return simulationRef.current.alpha() >= simulationRef.current.alphaMin();
 	});
 
-	const store = useStore();
 	const { nodes, links } = updateNodes(
 		store,
 		simulationRef.current,

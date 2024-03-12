@@ -10,13 +10,16 @@ export function forceWithinBoundaries<TNode extends SimulationNodeDatum>(
 	function update() {
 		const { width = 0, height = 0 } = getSize();
 
-		const minX = Math.min(...nodes.map((n) => n.x).filter(isNumber));
-		const maxX = Math.max(...nodes.map((n) => n.x).filter(isNumber));
-		const [offsetX, scaleX] = toOffsetScale(minX, maxX, width);
+		const xNodes = nodes.filter((n) => !isNumber(n.fx));
+		const yNodes = nodes.filter((n) => !isNumber(n.fy));
 
-		const minY = Math.min(...nodes.map((n) => n.y).filter(isNumber));
-		const maxY = Math.max(...nodes.map((n) => n.y).filter(isNumber));
-		const [offsetY, scaleY] = toOffsetScale(minY, maxY, height);
+		const minX = Math.min(...xNodes.map((n) => n.x).filter(isNumber));
+		const maxX = Math.max(...xNodes.map((n) => n.x).filter(isNumber));
+		const [offsetX, scaleX] = toOffsetScale(minX, maxX, width, inset);
+
+		const minY = Math.min(...yNodes.map((n) => n.y).filter(isNumber));
+		const maxY = Math.max(...yNodes.map((n) => n.y).filter(isNumber));
+		const [offsetY, scaleY] = toOffsetScale(minY, maxY, height, inset);
 
 		for (const node of nodes) {
 			if (isNumber(node.x)) node.x = node.x * scaleX + offsetX;
@@ -28,19 +31,25 @@ export function forceWithinBoundaries<TNode extends SimulationNodeDatum>(
 			nodes = newNodes;
 		},
 	});
+}
 
-	function toOffsetScale(
-		min: number,
-		max: number,
-		targetRange: number,
-	): [offset: number, scale: number] {
-		const actualRange = max - min;
+export function toOffsetScale(
+	min: number,
+	max: number,
+	targetRange: number,
+	inset: number,
+): [offset: number, scale: number] {
+	const actualRange = max - min;
 
-		if (actualRange === Number.POSITIVE_INFINITY || targetRange <= 0)
-			return [0, 1];
-		return [
-			Math.max(0, 0 - min + inset),
-			Math.min(1, (targetRange - inset * 2) / actualRange),
-		];
-	}
+	if (actualRange === Number.POSITIVE_INFINITY || targetRange <= 0)
+		return [0, 1];
+	const scale = Math.min(1, (targetRange - inset * 2) / actualRange);
+	return [
+		min < inset
+			? inset - min * scale
+			: max * scale > targetRange - inset
+				? targetRange - inset - max * scale
+				: 0,
+		scale,
+	];
 }

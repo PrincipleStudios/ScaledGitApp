@@ -135,6 +135,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	const hierarchyForce = useRef(forceHierarchy(40));
 	const simulationRef = useRef<BranchSimulation>();
 	const store = useStore();
+	const getSize = () => store.get(size);
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
 			WithAtom<BranchGraphNodeDatum>,
@@ -144,10 +145,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
-			.force(
-				'sizing',
-				forceWithinBoundaries(() => store.get(size), 10),
-			)
+			.force('sizing', forceWithinBoundaries(getSize, 10))
 			.force('hierarchy', hierarchyForce.current);
 	}
 
@@ -163,6 +161,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 		linkingForce.current,
 		hierarchyForce.current,
 		upstreamData,
+		getSize(),
 	);
 
 	restartSimulation();
@@ -188,6 +187,7 @@ function updateNodes(
 		links: (newLinks: WithAtom<BranchGraphLinkDatum>[]) => void;
 	},
 	upstreamData: BranchConfiguration[],
+	{ width = 0, height = 0 }: Pick<ElementDimensions, 'width' | 'height'>,
 ) {
 	const configsByName = Object.fromEntries(
 		upstreamData.map((e): [string, BranchInfo] => [
@@ -225,7 +225,10 @@ function updateNodes(
 			store,
 			oldNodes,
 			(n) => n.id === entry.name,
-			{},
+			{
+				x: width / 2,
+				y: height / 2,
+			},
 			{
 				id: entry.name,
 				data: entry,
@@ -270,12 +273,12 @@ function updateNodes(
 }
 
 // Finds or creates an item in the list with an atom produced by a proxy
-function findOrCreate<TPartial, T extends TPartial>(
+function findOrCreate<T, TKeys extends keyof T>(
 	store: JotaiStore,
 	previous: WithAtom<T>[],
 	match: (value: T) => boolean,
-	initial: TPartial,
-	updates: Omit<T, keyof TPartial>,
+	initial: Pick<T, TKeys>,
+	updates: Omit<T, TKeys>,
 ): WithAtom<T> {
 	const found = previous.find(match);
 	let result: WithAtom<T>;

@@ -1,4 +1,5 @@
 import { getInfo } from './environment';
+import { getBranchDetails } from './git/branch-details';
 import { requestGitFetch } from './git/fetch';
 import { getUpstreamData } from './git/upstream-data';
 import type operations from '../../../generated/api/operations';
@@ -10,6 +11,5 @@ export const queries = {
 
 	requestGitFetch,
 	getUpstreamData,
-	// TODO: add with UI visualization
-	getBranchDetails: null,
+	getBranchDetails,
 } satisfies { [K in keyof typeof operations]: unknown };

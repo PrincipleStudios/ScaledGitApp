@@ -19,7 +19,7 @@ builder.Configuration.AddSecretsManager();
 
 var services = builder.Services;
 
-services.RegisterBranchingStrategy();
+services.RegisterBranchingStrategy(builder.Configuration.GetSection("Colors"));
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
 	environmentName: builder.Environment.EnvironmentName,

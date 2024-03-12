@@ -124,8 +124,6 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		}
 		return result.ToArray();
 	}
-
-
 }
 
 public record UpstreamBranchDetailedState(string Name, bool Exists, int NonMergeCommitCount, IEnumerable<UpstreamBranchMergeInfo> Upstreams, IReadOnlyList<string> DownstreamNames);

@@ -1,17 +1,17 @@
 import { api } from '../../fetch-api';
 
-export const getBranchDetails = (branchNames: string[]) => ({
-	queryKey: ['branch-details', branchNames],
+export const getBranchDetails = (branchName: string) => ({
+	queryKey: ['branch-details', branchName],
 	queryFn: async () => {
 		const response = await api.getBranchDetails({
 			body: {
-				branches: branchNames,
-				includeDownstream: true,
-				includeUpstream: true,
-				recurse: true,
+				branches: [branchName],
+				includeDownstream: false,
+				includeUpstream: false,
+				recurse: false,
 			},
 		});
 		if (response.statusCode !== 200) return Promise.reject(response);
-		return response.data;
+		return response.data[0];
 	},
 });

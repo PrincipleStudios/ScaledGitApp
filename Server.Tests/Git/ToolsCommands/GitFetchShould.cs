@@ -6,7 +6,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GitFetchShould
 {
-	private readonly GitToolsPowerShellFixture fixture = new GitToolsPowerShellFixture();
+	private readonly PowerShellFixture fixture = new();
 
 	[Fact]
 	public async Task Issue_a_fetch_command()
@@ -19,10 +19,10 @@ public class GitFetchShould
 		verifyGitFetch.Verify(Times.Once);
 	}
 
-	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitFetch(Mock<IPowerShell> target)
+	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupGitFetch(Mock<IPowerShellCommandContext> target)
 	{
 		return target.Verifiable(
-			ps => ps.InvokeCliAsync("git", "fetch", "--porcelain"),
+			ps => ps.PowerShellInvoker.InvokeCliAsync("git", "fetch", "--porcelain"),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.Empty)
 		);
 	}

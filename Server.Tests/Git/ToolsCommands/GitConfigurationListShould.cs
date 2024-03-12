@@ -10,7 +10,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class GitConfigurationListShould
 {
-	private readonly PowerShellFixture fixture = new PowerShellFixture();
+	private readonly PowerShellFixture fixture = new();
 	private readonly string[] standardConfiguration = [
 		"remote.azure.fetch=+refs/heads/*:refs/remotes/azure/*",
 		"remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*",

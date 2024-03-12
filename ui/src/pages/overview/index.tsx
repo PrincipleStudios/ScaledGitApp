@@ -1,14 +1,11 @@
-import { useBranchGraph } from '../../components/branch-graph';
+import { useBranchListing } from './branch-listing';
 import styles from './overview.module.css';
-import { useGitVersion } from './useGitVersion';
 
 export function OverviewComponent() {
-	const GitVersion = useGitVersion();
-	const BranchGraph = useBranchGraph();
+	const BranchListing = useBranchListing();
 	return (
 		<div className={styles.container}>
-			<GitVersion />
-			<BranchGraph />
+			<BranchListing />
 		</div>
 	);
 }

@@ -1,0 +1,12 @@
+{
+	"form": {
+		"fields": {
+			"branchName": {
+				"label": "Branch Name",
+				"errors": {
+					"too_small": "Provide a branch name to search"
+				}
+			}
+		}
+	}
+}

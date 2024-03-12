@@ -16,7 +16,7 @@ export function useComputedLinkValues(link: WithAtom<BranchGraphLinkDatum>) {
 		const { x1, x2, y1, y2 } = get(position);
 		const x = x2 - x1;
 		const y = y2 - y1;
-		return (-Math.sqrt(x * x + y * y)).toFixed(1);
+		return (-Math.sqrt(x * x + y * y) + 5).toFixed(1);
 	});
 	return { transform, negativeLen };
 }

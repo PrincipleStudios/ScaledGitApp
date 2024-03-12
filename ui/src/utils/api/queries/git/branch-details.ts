@@ -1,11 +1,11 @@
 import { api } from '../../fetch-api';
 
-export const getBranchDetails = (branchName: string) => ({
-	queryKey: ['branch-details', branchName],
+export const getBranchDetails = (branchNames: string[]) => ({
+	queryKey: ['branch-details', branchNames],
 	queryFn: async () => {
 		const response = await api.getBranchDetails({
 			body: {
-				branches: [branchName],
+				branches: branchNames,
 				includeDownstream: true,
 				includeUpstream: true,
 				recurse: true,

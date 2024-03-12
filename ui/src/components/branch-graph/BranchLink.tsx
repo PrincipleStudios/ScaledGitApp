@@ -16,9 +16,9 @@ function isDetailedUpstream(
 export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
 	const { transform, negativeLen } = useComputedLinkValues(link);
 
-	const targetLink = link.target.data.upstream?.find(
-		(d) => d.name === link.source.id,
-	);
+	const targetLink = link.target.data.detailed
+		? link.target.data.upstream.find((d) => d.name === link.source.id)
+		: undefined;
 
 	return (
 		<JotaiG style={{ transform: transform }}>

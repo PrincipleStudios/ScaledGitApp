@@ -45,14 +45,21 @@ function useBranchDetails(names: string[]) {
 	}
 }
 
+const upstreamLimit = 50;
+const downstreamLimit = 50;
+
 function getRelevantBranchNames(
 	names: string[],
 	getDetails: (branch: string) => BranchDetails | undefined,
 ) {
 	return [
 		...names,
-		...expandBranches(names, getUpstreamBranchNames(getDetails)),
-		...expandBranches(names, getDownstreamBranchNames(getDetails)),
+		...expandBranches(
+			names,
+			getDownstreamBranchNames(getDetails),
+			downstreamLimit,
+		),
+		...expandBranches(names, getUpstreamBranchNames(getDetails), upstreamLimit),
 	];
 }
 
@@ -73,6 +80,7 @@ function getDownstreamBranchNames(
 function expandBranches(
 	branchNames: string[],
 	getMore: (name: string) => string[],
+	limit: number,
 ) {
 	const result = new Set<string>(branchNames);
 	const stack = [...branchNames];
@@ -84,7 +92,9 @@ function expandBranches(
 			if (result.has(entry)) continue;
 			result.add(entry);
 			stack.push(entry);
+			if (result.size > limit) break;
 		}
+		if (result.size > limit) break;
 	}
 	return Array.from(result.values());
 }

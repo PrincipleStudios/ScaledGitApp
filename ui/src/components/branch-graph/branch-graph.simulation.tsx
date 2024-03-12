@@ -20,6 +20,11 @@ import type {
 	SimulationNodeDatum,
 } from 'd3-force';
 
+const maxUnknownBranchPerNodeCount = 5;
+const maxUnknownBranchCount = 100;
+// If the total number of branches goes over this number, do not display any non-detailed branches
+const branchCountTolerance = 100;
+
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
@@ -179,6 +184,53 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	}
 }
 
+function toLookups(upstreamData: BranchConfiguration[]) {
+	const configsByName = Object.fromEntries(
+		upstreamData.map((e): [string, BranchInfo] => [
+			e.name,
+			{ ...e, detailed: true },
+		]),
+	);
+	const dataLookup: Record<string, BranchInfo> = { ...configsByName };
+	const extraBranches: Record<string, BranchInfo> = { ...configsByName };
+	const configuredLinks: { upstream: string; downstream: string }[] = [];
+	// fill in missing data - both missing upstream/downstream nodes and links
+	const branchCount = upstreamData.length;
+	let unknownBranchCount = 0;
+	let currentNodeUnknownBranchCount = 0;
+	for (const config of upstreamData) {
+		currentNodeUnknownBranchCount = 0;
+		for (const downstream of config.downstream) {
+			tryAddUnknownBranch(downstream);
+			tryAddLink(config.name, downstream.name);
+		}
+		for (const upstream of config.upstream) {
+			tryAddUnknownBranch(upstream);
+			tryAddLink(upstream.name, config.name);
+		}
+	}
+	if (branchCount + unknownBranchCount < branchCountTolerance)
+		Object.assign(dataLookup, extraBranches);
+
+	return { dataLookup, configuredLinks };
+
+	function tryAddUnknownBranch(branch: Branch) {
+		if (dataLookup[branch.name] || extraBranches[branch.name]) return;
+		if (unknownBranchCount >= maxUnknownBranchCount) return;
+		if (currentNodeUnknownBranchCount >= maxUnknownBranchPerNodeCount) return;
+		unknownBranchCount++;
+		currentNodeUnknownBranchCount++;
+		extraBranches[branch.name] = { ...branch, detailed: false };
+	}
+	function tryAddLink(u: string, d: string) {
+		if (!configuredLinks.find((l) => l.upstream === u && l.downstream === d))
+			configuredLinks.push({
+				upstream: u,
+				downstream: d,
+			});
+	}
+}
+
 function updateNodes(
 	store: JotaiStore,
 	simulation: BranchSimulation,
@@ -189,34 +241,7 @@ function updateNodes(
 	upstreamData: BranchConfiguration[],
 	{ width = 0, height = 0 }: Pick<ElementDimensions, 'width' | 'height'>,
 ) {
-	const configsByName = Object.fromEntries(
-		upstreamData.map((e): [string, BranchInfo] => [
-			e.name,
-			{ ...e, detailed: true },
-		]),
-	);
-	const dataLookup: Record<string, BranchInfo> = { ...configsByName };
-	const configuredLinks: { upstream: string; downstream: string }[] = [];
-	// fill in missing data - both missing upstream/downstream nodes and links
-	for (const config of upstreamData) {
-		for (const downstream of config.downstream) {
-			if (!dataLookup[downstream.name])
-				dataLookup[downstream.name] = { ...downstream, detailed: false };
-			tryAddLink(config.name, downstream.name);
-		}
-		for (const upstream of config.upstream) {
-			if (!dataLookup[upstream.name])
-				dataLookup[upstream.name] = { ...upstream, detailed: false };
-			tryAddLink(upstream.name, config.name);
-		}
-	}
-	function tryAddLink(u: string, d: string) {
-		if (!configuredLinks.find((l) => l.upstream === u && l.downstream === d))
-			configuredLinks.push({
-				upstream: u,
-				downstream: d,
-			});
-	}
+	const { dataLookup, configuredLinks } = toLookups(upstreamData);
 
 	// Updates nodes while creating atom proxy for animation
 	const oldNodes = simulation.nodes();

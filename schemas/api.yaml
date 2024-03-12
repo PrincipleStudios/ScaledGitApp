@@ -125,10 +125,12 @@ components:
         - name
         - color
         - upstream
+        - downstream
       properties:
         name: { type: string }
         color: { type: string }
         upstream: { $ref: '#/components/schemas/BranchList' }
+        downstream: { $ref: '#/components/schemas/BranchList' }
     BranchDetails:
       type: object
       required:
@@ -137,6 +139,7 @@ components:
         - exists
         - nonMergeCommitCount
         - upstream
+        - downstream
       properties:
         name: { type: string }
         color: { type: string }
@@ -145,10 +148,10 @@ components:
         upstream:
           type: array
           items: { $ref: '#/components/schemas/DetailedUpstreamBranch' }
+        downstream: { $ref: '#/components/schemas/BranchList' }
     BranchList:
       type: array
-      items:
-        $ref: '#/components/schemas/Branch'
+      items: { $ref: '#/components/schemas/Branch' }
     Branch:
       type: object
       required: [name]

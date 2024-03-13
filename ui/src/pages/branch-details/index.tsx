@@ -8,8 +8,10 @@ import { Tab } from '../../components/tabs';
 import { queries } from '../../utils/api/queries';
 import styles from './branch-details.module.css';
 import { DetailsPanel } from './DetailsPanel';
+import { useRecommendationsPanel } from './RecommendationsPanel';
 import { useBranchDetails } from './useBranchDetails';
 import { namesOf } from './utils';
+import type { RecommendationsPanelComponent } from './RecommendationsPanel';
 import type { BranchDetails } from '../../generated/api/models';
 
 export function BranchDetailsComponent({ name }: { name: string[] }) {
@@ -18,11 +20,13 @@ export function BranchDetailsComponent({ name }: { name: string[] }) {
 		queries: name.map(queries.getBranchDetails),
 	}).map((result) => result.data);
 	const allBranchDetails = useBranchDetails(name);
+	const RecommendationsPanel = useRecommendationsPanel();
 	return (
 		<BranchDetailsComponentPresentation
 			navigate={navigate}
 			mainBranchDetails={mainBranchDetails}
 			allBranchDetails={allBranchDetails}
+			RecommendationsPanel={RecommendationsPanel}
 		/>
 	);
 }
@@ -31,10 +35,12 @@ function BranchDetailsComponentPresentation({
 	navigate,
 	mainBranchDetails,
 	allBranchDetails,
+	RecommendationsPanel,
 }: {
 	navigate: NavigateFunction;
 	mainBranchDetails: BranchDetails[];
 	allBranchDetails: BranchDetails[];
+	RecommendationsPanel: RecommendationsPanelComponent;
 }) {
 	const { t } = useTranslation('branch-details');
 	return (
@@ -42,7 +48,7 @@ function BranchDetailsComponentPresentation({
 			<Tab.Group>
 				<Tab.List className={styles.tabList}>
 					<Tab>{t('tabs.details')}</Tab>
-					<Tab>{t('tabs.suggestions')}</Tab>
+					<Tab>{t('tabs.recommendations')}</Tab>
 				</Tab.List>
 				<BranchGraphPresentation
 					upstreamData={allBranchDetails}
@@ -54,7 +60,9 @@ function BranchDetailsComponentPresentation({
 					<Tab.Panel>
 						<DetailsPanel branches={mainBranchDetails} />
 					</Tab.Panel>
-					<Tab.Panel>Two</Tab.Panel>
+					<Tab.Panel>
+						<RecommendationsPanel branches={mainBranchDetails} />
+					</Tab.Panel>
 				</Tab.Panels>
 			</Tab.Group>
 		</Container.Responsive>

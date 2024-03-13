@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import {
-	forceCenter,
 	forceCollide,
 	forceLink,
 	forceManyBody,
@@ -8,9 +7,13 @@ import {
 } from 'd3-force';
 import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
+import { isNumber } from '../../utils/isNumber';
+import { forceWithinBoundaries } from './forceWithinBoundaries';
+import { neutralizeVelocity } from './neutralizeVelocity';
 import { useAnimationFrame } from './useAnimationFrame';
 import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
+import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
 import type {
 	ForceLink,
 	Simulation,
@@ -46,11 +49,8 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphLinkDatum>
 >;
 
-function toX(node: BranchGraphNodeDatum) {
+function toX(node: SimulationNodeDatum) {
 	return node.fx ?? node.x;
-}
-function isNumber(n: number | null | undefined): n is number {
-	return typeof n === 'number';
 }
 function isNotInfinity(n: number) {
 	return n !== Number.POSITIVE_INFINITY && n !== Number.NEGATIVE_INFINITY;
@@ -70,6 +70,13 @@ function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
 	};
 }
 
+function average(values: number[]): number {
+	if (values.length === 0) return NaN;
+	return values
+		.map((v) => v / values.length)
+		.reduce((prev, next) => prev + next, 0);
+}
+
 function forceHierarchy(depthDistance: number) {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
 	let links: WithAtom<BranchGraphLinkDatum>[] = [];
@@ -81,7 +88,7 @@ function forceHierarchy(depthDistance: number) {
 	);
 	function update(alpha: number) {
 		for (const node of currentNodes) {
-			if (node.fx) continue;
+			if (isNumber(node.fx)) continue;
 			const downstream = downstreamByNode.get(node);
 			const upstream = upstreamByNode.get(node);
 			const range = [
@@ -89,25 +96,12 @@ function forceHierarchy(depthDistance: number) {
 				Math.min(...upstream.map(toX).filter(isNumber)) - depthDistance,
 			].filter(isNotInfinity);
 			if (range.length === 0) return;
-			const targetX = range.reduce(
-				(prev, next) => prev + next / range.length,
-				0,
-			);
+			const targetX = average(range);
 
 			const currentX = node.x ?? 0;
 			const delta = targetX - currentX;
-			const amount = delta * alpha * (downstream.length + upstream.length);
+			const amount = delta * alpha;
 			node.vx = (node.vx ?? 0) + amount;
-			if (amount > 0)
-				for (const other of downstream) {
-					if (typeof other.fx !== 'number') continue;
-					other.vx = (other.vx ?? 0) - amount;
-				}
-			if (amount < 0)
-				for (const other of upstream) {
-					if (typeof other.fx !== 'number') continue;
-					other.vx = (other.vx ?? 0) - amount;
-				}
 		}
 	}
 	return Object.assign(update, {
@@ -124,16 +118,19 @@ function forceHierarchy(depthDistance: number) {
 
 export function useBranchSimulation<T extends BranchConfiguration>(
 	upstreamData: T[],
+	size: Atom<ElementDimensions>,
 ) {
 	const linkingForce = useRef(
 		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
 			[],
 		)
 			.distance(40)
-			.strength(0.9),
+			.strength(0.5),
 	);
 	const hierarchyForce = useRef(forceHierarchy(40));
 	const simulationRef = useRef<BranchSimulation>();
+	const store = useStore();
+	const getSize = () => store.get(size);
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
 			WithAtom<BranchGraphNodeDatum>,
@@ -143,8 +140,9 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
-			.force('center', forceCenter())
-			.force('hierarchy', hierarchyForce.current);
+			.force('sizing', forceWithinBoundaries(getSize))
+			.force('hierarchy', hierarchyForce.current)
+			.force('neutral-velocity', neutralizeVelocity());
 	}
 
 	const animator = useAnimationFrame(() => {
@@ -153,13 +151,13 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 		return simulationRef.current.alpha() >= simulationRef.current.alphaMin();
 	});
 
-	const store = useStore();
 	const { nodes, links } = updateNodes(
 		store,
 		simulationRef.current,
 		linkingForce.current,
 		hierarchyForce.current,
 		upstreamData,
+		getSize(),
 	);
 
 	restartSimulation();
@@ -185,6 +183,7 @@ function updateNodes(
 		links: (newLinks: WithAtom<BranchGraphLinkDatum>[]) => void;
 	},
 	upstreamData: BranchConfiguration[],
+	{ width = 0, height = 0 }: Pick<ElementDimensions, 'width' | 'height'>,
 ) {
 	const configsByName = Object.fromEntries(
 		upstreamData.map((e): [string, BranchInfo] => [
@@ -222,7 +221,10 @@ function updateNodes(
 			store,
 			oldNodes,
 			(n) => n.id === entry.name,
-			{},
+			{
+				x: width / 2,
+				y: height / 2,
+			},
 			{
 				id: entry.name,
 				data: entry,
@@ -267,12 +269,12 @@ function updateNodes(
 }
 
 // Finds or creates an item in the list with an atom produced by a proxy
-function findOrCreate<TPartial, T extends TPartial>(
+function findOrCreate<T, TKeys extends keyof T>(
 	store: JotaiStore,
 	previous: WithAtom<T>[],
 	match: (value: T) => boolean,
-	initial: TPartial,
-	updates: Omit<T, keyof TPartial>,
+	initial: Pick<T, TKeys>,
+	updates: Omit<T, TKeys>,
 ): WithAtom<T> {
 	const found = previous.find(match);
 	let result: WithAtom<T>;

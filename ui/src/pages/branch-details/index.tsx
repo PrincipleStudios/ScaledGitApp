@@ -9,6 +9,7 @@ import { queries } from '../../utils/api/queries';
 import styles from './branch-details.module.css';
 import { DetailsPanel } from './DetailsPanel';
 import { useBranchDetails } from './useBranchDetails';
+import { namesOf } from './utils';
 import type { BranchDetails } from '../../generated/api/models';
 
 export function BranchDetailsComponent({ name }: { name: string[] }) {
@@ -48,7 +49,8 @@ function BranchDetailsComponentPresentation({
 					onClick={(node) => navigate({ search: `?name=${node.name}` })}
 				/>
 
-				<Tab.Panels>
+				{/* Key forces remount of all panels when main branches change */}
+				<Tab.Panels key={namesOf(mainBranchDetails).join(',')}>
 					<Tab.Panel>
 						<DetailsPanel branches={mainBranchDetails} />
 					</Tab.Panel>

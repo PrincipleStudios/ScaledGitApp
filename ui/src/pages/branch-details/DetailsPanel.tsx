@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@principlestudios/react-jotai-forms';
 import { useAtomValue } from 'jotai';
@@ -7,8 +6,8 @@ import { Section } from '../../components/common';
 import { Details } from '../../components/details';
 import { SelectField } from '../../components/form/select-field';
 import { Prose } from '../../components/text';
+import { findBranch, namesOf } from './utils';
 import type {
-	Branch,
 	BranchDetails,
 	DetailedUpstreamBranch,
 } from '../../generated/api/models';
@@ -17,13 +16,6 @@ const detailsSchema = z.object({
 	mainBranch: z.string(),
 	upstreamBranch: z.string().nullable(),
 });
-
-function namesOf(branches: Branch[]) {
-	return branches.map((b) => b.name);
-}
-function findBranch<T extends Branch>(branches: T[], name?: string | null) {
-	return branches.find((b) => b.name === name);
-}
 
 export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 	const { t } = useTranslation('branch-details');
@@ -35,18 +27,17 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 		schema: detailsSchema,
 		translation: t,
 		fields: {
-			mainBranch: {
-				path: ['mainBranch'],
-				readOnly: () => branches.length === 1,
-			},
+			mainBranch: ['mainBranch'],
 			upstreamBranch: ['upstreamBranch'],
 		},
 	});
-	const mainBranchName = useAtomValue(form.fields.mainBranch.atom);
+
+	const { mainBranch: mainBranchName, upstreamBranch: upstreamBranchName } =
+		useAtomValue(form.atom);
 	const mainBranch = findBranch(branches, mainBranchName);
-	const upstreamBranchName = useAtomValue(form.fields.upstreamBranch.atom);
 	const upstreamBranch =
 		mainBranch && findBranch(mainBranch.upstream, upstreamBranchName);
+
 	return (
 		<Section.SingleColumn>
 			<SelectField field={form.fields.mainBranch} items={namesOf(branches)}>
@@ -59,7 +50,8 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 					items={namesOf(mainBranch.upstream)}
 				>
 					{(branchName) =>
-						branchName ??
+						// Ensures the branch named actually exists in the main branch
+						findBranch(mainBranch.upstream, branchName)?.name ??
 						form.fields.upstreamBranch.translation('none-selected')
 					}
 				</SelectField>

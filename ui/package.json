@@ -15,7 +15,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@principlestudios/jotai-react-signals": "^0.5.1",
-		"@principlestudios/jotai-utilities": "^0.5.2",
+		"@principlestudios/jotai-utilities": "^0.6.0",
 		"@principlestudios/openapi-codegen-typescript": "^0.7.0",
 		"@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
 		"@principlestudios/react-jotai-form-components": "^0.1.1",

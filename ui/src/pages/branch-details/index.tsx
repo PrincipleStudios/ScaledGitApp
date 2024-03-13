@@ -7,7 +7,7 @@ import { Container } from '../../components/common';
 import { Tab } from '../../components/tabs';
 import { queries } from '../../utils/api/queries';
 import styles from './branch-details.module.css';
-import { DetailsList } from './DetailsList';
+import { DetailsPanel } from './DetailsPanel';
 import { useBranchDetails } from './useBranchDetails';
 import type { BranchDetails } from '../../generated/api/models';
 
@@ -50,7 +50,7 @@ function BranchDetailsComponentPresentation({
 
 				<Tab.Panels>
 					<Tab.Panel>
-						<DetailsList branches={mainBranchDetails} />
+						<DetailsPanel branches={mainBranchDetails} />
 					</Tab.Panel>
 					<Tab.Panel>Two</Tab.Panel>
 				</Tab.Panels>

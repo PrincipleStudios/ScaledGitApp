@@ -1,0 +1,33 @@
+{
+	"tabs": {
+		"details": "Details",
+		"recommendations": "Recommendations"
+	},
+	"fields": {
+		"mainBranch": {
+			"label": "Branch"
+		},
+		"upstreamBranch": {
+			"label": "Upstream Branch",
+			"none-selected": "<none selected>"
+		}
+	},
+	"main-details": {
+		"name": "Name",
+		"exists": "Exists?",
+		"exists-true": "Present on remote",
+		"exists-false": "Missing from remote",
+		"non-merge-commits": "Commits ahead of upstreams"
+	},
+	"no-upstream-branches": "The selected branch has no upstream branches.",
+	"upstream-details": {
+		"name": "Name",
+		"exists": "Exists?",
+		"exists-true": "Present on remote",
+		"exists-false": "Missing from remote",
+		"behind-count": "Incoming commits",
+		"has-conflict": "Has Conflict?",
+		"has-conflict-true": "Conflict will occur from incoming commits",
+		"has-conflict-false": "No conflicts"
+	}
+}

@@ -1,0 +1,9 @@
+.container {
+	grid-template-areas: 'tabs tabs' 'graph details';
+	grid-template-rows: auto 1fr;
+	grid-template-columns: 1fr theme(screens.sm);
+}
+
+.tabList {
+	grid-area: tabs;
+}

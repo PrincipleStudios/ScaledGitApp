@@ -9,8 +9,15 @@ export const HintText = elementTemplate('HintText', 'p', (T) => (
 ));
 
 export const Code = elementTemplate('Code', 'pre', (T) => (
-	<T className="font-mono bg-zinc-300 dark:bg-zinc-700 text-black dark:text-white p-4 border-zinc-500 rounded my-4" />
+	<T className="font-mono bg-zinc-300 dark:bg-zinc-700 text-black dark:text-white p-4 border-zinc-500 rounded my-4 overflow-x-auto" />
 ));
+
+const HeadingBase = elementTemplate('Heading', 'h2', (T) => (
+	<T className="text-xl font-bold" />
+));
+export const Heading = HeadingBase.themed({
+	Section: () => <h3 className="text-lg" />,
+});
 
 export const LargeInstructions = elementTemplate(
 	'LargeInstructions',

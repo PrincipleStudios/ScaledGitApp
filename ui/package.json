@@ -14,6 +14,7 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
+		"@headlessui/react": "^1.7.18",
 		"@principlestudios/jotai-react-signals": "^0.5.1",
 		"@principlestudios/jotai-utilities": "^0.5.2",
 		"@principlestudios/openapi-codegen-typescript": "^0.7.0",

@@ -13,4 +13,7 @@ export const Container = {
 	Full: ContainerBase.extend('Container.Full', (T) => (
 		<T className="w-full h-full grid grid-cols-1 grid-rows-1" />
 	)),
+	Responsive: elementTemplate('Container.GridBase', 'div', (T) => (
+		<T className="px-4 w-full min-h-full overflow-auto md:overflow-hidden md:py-4 md:grid gap-4" />
+	)),
 };

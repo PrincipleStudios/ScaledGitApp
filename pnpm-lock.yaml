@@ -45,8 +45,8 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1(jotai@2.6.5)(react@18.2.0)
       '@principlestudios/jotai-utilities':
-        specifier: ^0.5.2
-        version: 0.5.2(jotai@2.6.5)
+        specifier: ^0.6.0
+        version: 0.6.0(jotai@2.6.5)
       '@principlestudios/openapi-codegen-typescript':
         specifier: ^0.7.0
         version: 0.7.0
@@ -2134,6 +2134,14 @@ packages:
 
   /@principlestudios/jotai-utilities@0.5.2(jotai@2.6.5):
     resolution: {integrity: sha512-AVWz0QE4jGGOVwwX1IaXsHlq8RR4uXkgyO3iOCQkoSoOD/EMXqaEk813nyVRSMWrIKoHL7OguC8yxDPe7vtpSQ==}
+    peerDependencies:
+      jotai: '>=2.0.0'
+    dependencies:
+      jotai: 2.6.5(@types/react@18.2.55)(react@18.2.0)
+    dev: false
+
+  /@principlestudios/jotai-utilities@0.6.0(jotai@2.6.5):
+    resolution: {integrity: sha512-xvORw4svwPaPqIOYUVPZU7tuTjcnKZR+CC0GHEr3kRer1dIvLl0hjuRhuoiihKAYvTxFiL3XcshWlgaDiLYhMA==}
     peerDependencies:
       jotai: '>=2.0.0'
     dependencies:

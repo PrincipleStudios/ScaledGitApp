@@ -136,7 +136,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
-			.force('sizing', forceWithinBoundaries(getSize, 10))
+			.force('sizing', forceWithinBoundaries(getSize))
 			.force('hierarchy', hierarchyForce.current)
 			.force('neutral-velocity', neutralizeVelocity());
 	}

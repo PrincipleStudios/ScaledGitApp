@@ -4,19 +4,18 @@ import {
 	useQueries,
 } from '@tanstack/react-query';
 import { queries } from '../../utils/api/queries';
-import { getBranchDetails } from '../../utils/api/queries/git/branch-details';
 import type { BranchDetails } from '../../generated/api/models';
 
 export function useBranchDetails(names: string[]) {
 	const queryClient = useQueryClient();
 
 	useSuspenseQueries({
-		queries: names.map(getBranchDetails),
+		queries: names.map(queries.getBranchDetails),
 	});
 
 	const currentResults = getRelevantBranchNames(names, getDetails);
 	const result = useQueries({
-		queries: currentResults.map(getBranchDetails),
+		queries: currentResults.map(queries.getBranchDetails),
 	});
 	return result
 		.filter((r): r is typeof r & { isSuccess: true } => r.isSuccess)

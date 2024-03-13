@@ -24,7 +24,7 @@ import type {
 const maxUnknownBranchPerNodeCount = 5;
 const maxUnknownBranchCount = 100;
 // If the total number of branches goes over this number, do not display any non-detailed branches
-const branchCountTolerance = 100;
+const branchCountTolerance = 150;
 
 export type WithAtom<T> = T & {
 	atom: Atom<T>;

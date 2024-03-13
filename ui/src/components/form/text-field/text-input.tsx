@@ -1,5 +1,5 @@
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
-import { isAtom } from '@principlestudios/jotai-utilities/isAtom';
+import { currentValue } from '@principlestudios/jotai-utilities/currentValue';
 import JotaiInput from '@principlestudios/react-jotai-form-components/input';
 import { useTwMerge } from '../../jotai/useTwMerge';
 import styles from './text-input.module.css';
@@ -17,12 +17,12 @@ export function TextInput({
 				'px-2 py-2 w-full',
 				'border',
 				useComputedAtom((get) =>
-					(isAtom(readOnly) ? get(readOnly) : readOnly)
+					currentValue(readOnly, get)
 						? 'border-transparent'
 						: 'border-slate-500 disabled:border-slate-200 dark:disabled:border-slate-800',
 				),
 				useComputedAtom((get) =>
-					(isAtom(readOnly) ? get(readOnly) : readOnly)
+					currentValue(readOnly, get)
 						? 'bg-transparent'
 						: 'bg-transparent disabled:bg-slate-500/10',
 				),

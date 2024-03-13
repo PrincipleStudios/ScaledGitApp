@@ -24,7 +24,7 @@ export const Tab = Object.assign(
 		List: elementTemplate('Tab.List', HeadlessuiTab.List, (T) => (
 			<T className="flex space-x-1 rounded-xl bg-blue-900/20 p-1" />
 		)),
-		Panel: elementTemplate('TabPanel', HeadlessuiTab.Panel, (T) => (
+		Panel: elementTemplate('Tab.Panel', HeadlessuiTab.Panel, (T) => (
 			<T
 				className={twMerge(
 					'rounded-xl bg-white p-3',
@@ -33,6 +33,8 @@ export const Tab = Object.assign(
 			/>
 		)),
 		Group: HeadlessuiTab.Group,
-		Panels: HeadlessuiTab.Panels,
+		Panels: elementTemplate('Tab.Panels', HeadlessuiTab.Panels, (T) => (
+			<T className="contents" />
+		)),
 	},
 );

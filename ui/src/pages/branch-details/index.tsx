@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSuspenseQueries } from '@tanstack/react-query';
 import { BranchGraphPresentation } from '../../components/branch-graph/branch-graph.presentation';
 import { Container } from '../../components/common';
+import { LoadingSection } from '../../components/layout/LoadingSection';
 import { Tab } from '../../components/tabs';
 import { queries } from '../../utils/api/queries';
 import styles from './branch-details.module.css';
@@ -56,14 +57,16 @@ function BranchDetailsComponentPresentation({
 				/>
 
 				{/* Key forces remount of all panels when main branches change */}
-				<Tab.Panels key={namesOf(mainBranchDetails).join(',')}>
-					<Tab.Panel>
-						<DetailsPanel branches={mainBranchDetails} />
-					</Tab.Panel>
-					<Tab.Panel>
-						<RecommendationsPanel branches={mainBranchDetails} />
-					</Tab.Panel>
-				</Tab.Panels>
+				<LoadingSection>
+					<Tab.Panels key={namesOf(mainBranchDetails).join(',')}>
+						<Tab.Panel>
+							<DetailsPanel branches={mainBranchDetails} />
+						</Tab.Panel>
+						<Tab.Panel>
+							<RecommendationsPanel branches={mainBranchDetails} />
+						</Tab.Panel>
+					</Tab.Panels>
+				</LoadingSection>
 			</Tab.Group>
 		</Container.Responsive>
 	);

@@ -1,18 +1,17 @@
-import type { BranchDetails } from '../generated/api/models';
+import { useSuspensePromise } from '../utils/useSuspensePromise';
+import { loadAllRules } from './load-all-rules';
+import type { RecommendationsEngine } from './rule-base';
 
-export type RecommendationsEngine = {
-	getRecommendations: (branches: BranchDetails[]) => Recommendation[];
-};
-
-export type Recommendation = {
-	description: string;
-	commands: string[];
-};
+export type { RecommendationsEngine, Recommendation } from './rule-base';
 
 export function useRecommendationsEngine(): RecommendationsEngine {
+	const allRules = useSuspensePromise(loadAllRules());
+
 	return {
 		getRecommendations(branches) {
-			return [];
+			return allRules
+				.flatMap((rule) => rule.analyze(branches))
+				.sort((a, b) => a.priority - b.priority);
 		},
 	};
 }

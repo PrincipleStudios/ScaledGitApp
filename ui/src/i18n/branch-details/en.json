@@ -29,8 +29,5 @@
 		"has-conflict": "Has Conflict?",
 		"has-conflict-true": "Conflict will occur from incoming commits",
 		"has-conflict-false": "No conflicts"
-	},
-	"recommendations": {
-		"none": "No recommendations could be found for the selected branch(es)."
 	}
 }

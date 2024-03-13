@@ -70,6 +70,13 @@ function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
 	};
 }
 
+function average(values: number[]): number {
+	if (values.length === 0) return NaN;
+	return values
+		.map((v) => v / values.length)
+		.reduce((prev, next) => prev + next, 0);
+}
+
 function forceHierarchy(depthDistance: number) {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
 	let links: WithAtom<BranchGraphLinkDatum>[] = [];
@@ -89,10 +96,7 @@ function forceHierarchy(depthDistance: number) {
 				Math.min(...upstream.map(toX).filter(isNumber)) - depthDistance,
 			].filter(isNotInfinity);
 			if (range.length === 0) return;
-			const targetX = range.reduce(
-				(prev, next) => prev + next / range.length,
-				0,
-			);
+			const targetX = average(range);
 
 			const currentX = node.x ?? 0;
 			const delta = targetX - currentX;
@@ -121,7 +125,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			[],
 		)
 			.distance(40)
-			.strength(0.9),
+			.strength(0.5),
 	);
 	const hierarchyForce = useRef(forceHierarchy(40));
 	const simulationRef = useRef<BranchSimulation>();

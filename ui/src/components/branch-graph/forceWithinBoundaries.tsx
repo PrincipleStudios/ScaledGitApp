@@ -4,7 +4,7 @@ import type { SimulationNodeDatum } from 'd3-force';
 
 export function forceWithinBoundaries<TNode extends SimulationNodeDatum>(
 	getSize: () => ElementDimensions,
-	inset: number = 0,
+	inset: number = 10,
 ) {
 	let nodes: TNode[] = [];
 	function update() {

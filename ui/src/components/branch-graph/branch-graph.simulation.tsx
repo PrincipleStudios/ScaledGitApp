@@ -9,6 +9,7 @@ import { useStore, type Atom } from 'jotai';
 import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
 import { isNumber } from '../../utils/isNumber';
 import { forceWithinBoundaries } from './forceWithinBoundaries';
+import { neutralizeVelocity } from './neutralizeVelocity';
 import { useAnimationFrame } from './useAnimationFrame';
 import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
@@ -87,7 +88,7 @@ function forceHierarchy(depthDistance: number) {
 	);
 	function update(alpha: number) {
 		for (const node of currentNodes) {
-			if (node.fx) continue;
+			if (isNumber(node.fx)) continue;
 			const downstream = downstreamByNode.get(node);
 			const upstream = upstreamByNode.get(node);
 			const range = [
@@ -99,7 +100,7 @@ function forceHierarchy(depthDistance: number) {
 
 			const currentX = node.x ?? 0;
 			const delta = targetX - currentX;
-			const amount = delta * alpha * (downstream.length + upstream.length);
+			const amount = delta * alpha;
 			node.vx = (node.vx ?? 0) + amount;
 		}
 	}
@@ -139,8 +140,9 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			.force('link', linkingForce.current)
 			.force('collide', forceCollide(6))
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
-			.force('sizing', forceWithinBoundaries(getSize, 10))
-			.force('hierarchy', hierarchyForce.current);
+			.force('sizing', forceWithinBoundaries(getSize))
+			.force('hierarchy', hierarchyForce.current)
+			.force('neutral-velocity', neutralizeVelocity());
 	}
 
 	const animator = useAnimationFrame(() => {

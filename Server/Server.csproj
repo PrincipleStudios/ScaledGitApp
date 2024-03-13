@@ -47,6 +47,8 @@
 
   <ItemGroup>
     <OpenApiSchemaMvcServer Include="..\schemas\api.yaml" Link="Api\api.yaml" />
+    <Watch Include=".env" />
+    <Watch Include="../.env" />
   </ItemGroup>
 
   <ItemGroup>

@@ -14,6 +14,7 @@ import { useAnimationFrame } from './useAnimationFrame';
 import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
 import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
+import type { BranchInfo } from '../branch-display';
 import type {
 	ForceLink,
 	Simulation,
@@ -29,11 +30,6 @@ const branchCountTolerance = 150;
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
-export type BranchInfo =
-	| (Branch & {
-			detailed: false;
-	  })
-	| (BranchConfiguration & { detailed: true });
 export type BranchGraphNodeDatum = {
 	id: string;
 	data: BranchInfo;

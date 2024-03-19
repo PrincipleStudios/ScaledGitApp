@@ -1,4 +1,5 @@
 import { twMerge } from 'tailwind-merge';
+import { isDetailed } from '../branch-display';
 import { JotaiG, JotaiLine } from '../svg/atom-elements';
 import { useComputedLinkValues } from './useComputedLinkValues';
 import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
@@ -16,37 +17,33 @@ function isDetailedUpstream(
 export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
 	const { transform, negativeLen } = useComputedLinkValues(link);
 
-	const targetLink = link.target.data.detailed
+	const targetLink = isDetailed(link.target.data)
 		? link.target.data.upstream.find((d) => d.name === link.source.id)
 		: undefined;
 
 	return (
-		<JotaiG style={{ transform: transform }}>
+		<JotaiG
+			style={{ transform: transform }}
+			className={
+				isDetailedUpstream(targetLink)
+					? twMerge(
+							targetLink.hasConflict
+								? 'text-red-800 dark:text-red-400'
+								: 'text-black dark:text-white',
+							targetLink.behindCount > 0 ? 'text-2' : '',
+						)
+					: 'text-black dark:text-white'
+			}
+		>
 			<JotaiLine
 				x1={negativeLen}
 				y1={0}
 				x2={-5}
 				y2={0}
 				strokeWidth={1}
-				className={
-					isDetailedUpstream(targetLink)
-						? twMerge(
-								targetLink.hasConflict
-									? 'stroke-red-800 dark:stroke-red-200'
-									: 'stroke-black',
-								targetLink.behindCount > 0 ? 'stroke-2' : '',
-							)
-						: 'stroke-black'
-				}
+				className="stroke-current"
 			/>
-			<path
-				d="M-5,0l-5,3v-6z"
-				className={
-					isDetailedUpstream(targetLink) && targetLink.hasConflict
-						? 'fill-red-800 dark:fill-red-200'
-						: 'fill-black'
-				}
-			/>
+			<path d="M-5,0l-5,3v-6z" className={'fill-current'} />
 		</JotaiG>
 	);
 }

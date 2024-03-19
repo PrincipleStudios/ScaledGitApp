@@ -21,10 +21,10 @@ export function BranchSvgCircle({ data }: { data: BranchInfo }) {
 		fill:
 			isDetailed(data) && !data.exists
 				? 'transparent'
-				: details.color ?? 'rgba(0.5, 0.5, 0.5, 0.25)',
+				: details.color ?? 'rgba(128, 128, 128, 0.5)',
 		opacity: (details.nonMergeCommitCount ?? 1) > 0 ? 1 : 0.5,
 		strokeDasharray: details.color ? undefined : '3,3',
-		stroke: details.color ?? 'rgb(0.5,0.5,0.5)',
+		stroke: details.color ?? 'rgb(128,128,128)',
 		strokeWidth: branchNodeStrokeWidth,
 	};
 	return (

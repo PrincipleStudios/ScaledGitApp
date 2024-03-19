@@ -3,7 +3,13 @@ import { TooltipLine } from '../common';
 import { useTooltipReference } from '../tooltips';
 import { isDetailed, type BranchInfo } from './types';
 
-/** A node in a branch graph to represent a branch */
+export const branchNodeRadius = 5;
+export const branchNodeStrokeWidth = 1;
+export const branchNodeRadiusWithStroke =
+	branchNodeRadius + branchNodeStrokeWidth / 2;
+
+/** A node in a branch graph to represent a branch. Centers branch at 0,0 - use
+ * transforms outside of this item to position elsewhere. */
 export function BranchSvgCircle({ data }: { data: BranchInfo }) {
 	const tooltip = useTooltipReference(() => (
 		<BranchNodeTooltip details={data} />
@@ -11,21 +17,19 @@ export function BranchSvgCircle({ data }: { data: BranchInfo }) {
 	const details = isDetailed(data)
 		? data
 		: { ...data, nonMergeCommitCount: null, exists: null };
-	const styles: React.CSSProperties = details.detailed
-		? {
-				fill: details.exists ? details.color : 'transparent',
-				opacity: (details.nonMergeCommitCount ?? 1) > 0 ? 1 : 0.5,
-				stroke: details.color,
-			}
-		: {
-				fill: 'rgba(0.5,0.5,0.5,0.25)',
-				opacity: 1,
-				strokeDasharray: '3,3',
-				stroke: 'black',
-			};
+	const styles: React.CSSProperties = {
+		fill:
+			isDetailed(data) && !data.exists
+				? 'transparent'
+				: details.color ?? 'rgba(0.5, 0.5, 0.5, 0.25)',
+		opacity: (details.nonMergeCommitCount ?? 1) > 0 ? 1 : 0.5,
+		strokeDasharray: details.color ? undefined : '3,3',
+		stroke: details.color ?? 'rgb(0.5,0.5,0.5)',
+		strokeWidth: branchNodeStrokeWidth,
+	};
 	return (
 		<g {...tooltip()}>
-			<circle cx={0} cy={0} r={5} style={styles} />
+			<circle cx={0} cy={0} r={branchNodeRadius} style={styles} />
 		</g>
 	);
 }

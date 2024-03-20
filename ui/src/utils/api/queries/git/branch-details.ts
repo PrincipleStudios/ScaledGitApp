@@ -5,13 +5,10 @@ export const getBranchDetails = (branchName: string) => ({
 	queryFn: async () => {
 		const response = await api.getBranchDetails({
 			body: {
-				branches: [branchName],
-				includeDownstream: false,
-				includeUpstream: false,
-				recurse: false,
+				branch: branchName,
 			},
 		});
 		if (response.statusCode !== 200) return Promise.reject(response);
-		return response.data[0];
+		return response.data;
 	},
 });

@@ -10,15 +10,15 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 	{
 		var results = await gitToolsPowerShell.RunCommand(
 			new GitBranchUpstreamDetails(
-				getBranchDetailsBody.Branches.ToArray(),
-				IncludeDownstream: getBranchDetailsBody.IncludeDownstream,
-				IncludeUpstream: getBranchDetailsBody.IncludeUpstream,
-				Recurse: getBranchDetailsBody.Recurse,
-				Limit: getBranchDetailsBody.Limit.TryGet(out var limit) ? limit : null
+				[getBranchDetailsBody.Branch],
+				IncludeDownstream: false,
+				IncludeUpstream: false,
+				Recurse: false,
+				Limit: null
 			)
 		);
 
-		return GetBranchDetailsActionResult.Ok(results.Select(ToBranchDetails));
+		return GetBranchDetailsActionResult.Ok(ToBranchDetails(results.Single()));
 	}
 
 	private BranchDetails ToBranchDetails(UpstreamBranchDetailedState result) =>

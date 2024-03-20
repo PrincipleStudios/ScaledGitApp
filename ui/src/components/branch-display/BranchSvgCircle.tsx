@@ -1,12 +1,11 @@
-import { useTranslation } from 'react-i18next';
 import {
 	useComputedAtom,
 	type CSSPropertiesWithSignal,
 } from '@principlestudios/jotai-react-signals';
-import { TooltipLine } from '../common';
 import { JotaiCircle } from '../svg/atom-elements';
 import { useTooltipReference } from '../tooltips';
 import { activeBranchNames } from './active';
+import { BranchNodeTooltip } from './BranchNodeTooltip';
 import { isDetailed, type BranchInfo } from './types';
 import { useActiveBranchOnHover } from './useActiveBranchOnHover';
 
@@ -57,22 +56,5 @@ export function BranchSvgCircle({ data }: { data: BranchInfo }) {
 				<JotaiCircle cx={0} cy={0} r={branchNodeRadius} style={focusStyles} />
 			</g>
 		</g>
-	);
-}
-
-function BranchNodeTooltip({ details }: { details: BranchInfo }) {
-	const { t } = useTranslation('branch-graph');
-	if (!isDetailed(details))
-		return <span className="text-nowrap">{details.name}</span>;
-	return (
-		<>
-			<TooltipLine>{details.name}</TooltipLine>
-			{!details.exists ? (
-				<TooltipLine>{t('does-not-exist')}</TooltipLine>
-			) : null}
-			<TooltipLine>
-				{t('commits')}: {details.nonMergeCommitCount}
-			</TooltipLine>
-		</>
 	);
 }

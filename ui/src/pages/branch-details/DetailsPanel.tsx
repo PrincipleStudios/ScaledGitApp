@@ -51,7 +51,9 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 				translation={t}
 				items={namesOf(branches)}
 			>
-				{(branchName) => branchName}
+				{(branchName) => (
+					<BranchName data={branches.find((b) => b.name === branchName)!} />
+				)}
 			</SelectField>
 			{mainBranch ? <BranchStatePresentation branch={mainBranch} /> : null}
 			{mainBranch?.upstream.length ? (
@@ -60,11 +62,15 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 					translation={t}
 					items={namesOf(mainBranch.upstream)}
 				>
-					{(branchName) =>
+					{(branchName) => {
 						// Ensures the branch named actually exists in the main branch
-						findBranch(mainBranch.upstream, branchName)?.name ??
-						upstreamBranchTranslation(['none-selected'])
-					}
+						const branch = findBranch(mainBranch.upstream, branchName);
+						return branch ? (
+							<BranchName data={branch} />
+						) : (
+							upstreamBranchTranslation(['none-selected'])
+						);
+					}}
 				</SelectField>
 			) : (
 				<Prose>{t('no-upstream-branches')}</Prose>

@@ -1,15 +1,14 @@
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	useComputedAtom,
 	type CSSPropertiesWithSignal,
 } from '@principlestudios/jotai-react-signals';
-import { useSetAtom } from 'jotai';
 import { TooltipLine } from '../common';
 import { JotaiCircle } from '../svg/atom-elements';
 import { useTooltipReference } from '../tooltips';
 import { activeBranchNames } from './active';
 import { isDetailed, type BranchInfo } from './types';
+import { useActiveBranchOnHover } from './useActiveBranchOnHover';
 
 export const branchNodeRadius = 5;
 export const branchNodeStrokeWidth = 1;
@@ -50,17 +49,10 @@ export function BranchSvgCircle({ data }: { data: BranchInfo }) {
 			get(isActive) ? 'scale(1.4)' : 'scale(1.0)',
 		),
 	};
-	const setActiveBranches = useSetAtom(activeBranchNames);
-	useEffect(function onUnmountRemoveFromActiveBranches() {
-		return () => setActiveBranches({ remove: data.name });
-	});
+	const onHover = useActiveBranchOnHover(data);
 	return (
 		<g {...tooltip()}>
-			<g
-				onMouseEnter={() => setActiveBranches({ add: data.name })}
-				onMouseLeave={() => setActiveBranches({ remove: data.name })}
-				style={outerStyles}
-			>
+			<g {...onHover} style={outerStyles}>
 				<circle cx={0} cy={0} r={branchNodeRadius} style={fillStyles} />
 				<JotaiCircle cx={0} cy={0} r={branchNodeRadius} style={focusStyles} />
 			</g>

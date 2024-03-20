@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@principlestudios/react-jotai-forms';
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
+import { BranchName } from '../../components/branch-display/BranchName';
 import { Section } from '../../components/common';
 import { Details } from '../../components/details';
 import { SelectField } from '../../components/form/select-field';
@@ -80,7 +81,9 @@ function BranchStatePresentation({ branch }: { branch: BranchDetails }) {
 	return (
 		<Section.SingleColumn>
 			<Details>
-				<Details.Entry label={t('name')}>{branch.name}</Details.Entry>
+				<Details.Entry label={t('name')}>
+					<BranchName data={branch} />
+				</Details.Entry>
 				<Details.Entry label={t('exists')}>
 					{branch.exists ? t('exists-true') : t('exists-false')}
 				</Details.Entry>
@@ -103,7 +106,9 @@ function UpstreamBranchStatePresentation({
 	return (
 		<Section.SingleColumn>
 			<Details>
-				<Details.Entry label={t('name')}>{branch.name}</Details.Entry>
+				<Details.Entry label={t('name')}>
+					<BranchName data={branch} />
+				</Details.Entry>
 				<Details.Entry label={t('exists')}>
 					{branch.exists ? t('exists-true') : t('exists-false')}
 				</Details.Entry>

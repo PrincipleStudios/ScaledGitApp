@@ -24,23 +24,20 @@ export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
 	return (
 		<JotaiG
 			style={{ transform: transform }}
-			className={
-				isDetailedUpstream(targetLink)
-					? twMerge(
-							targetLink.hasConflict
-								? 'text-red-800 dark:text-red-400'
-								: 'text-black dark:text-white',
-							targetLink.behindCount > 0 ? 'text-2' : '',
-						)
-					: 'text-black dark:text-white'
-			}
+			className={twMerge(
+				targetLink?.hasConflict
+					? 'text-red-800 dark:text-red-400'
+					: 'text-black dark:text-white',
+				isDetailedUpstream(targetLink) && targetLink.behindCount > 0
+					? 'stroke-2'
+					: '',
+			)}
 		>
 			<JotaiLine
 				x1={negativeLen}
 				y1={0}
 				x2={-5}
 				y2={0}
-				strokeWidth={1}
 				className="stroke-current"
 			/>
 			<path d="M-5,0l-5,3v-6z" className={'fill-current'} />

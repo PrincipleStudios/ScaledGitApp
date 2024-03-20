@@ -14,6 +14,7 @@ export default perBranch({
 
 		return [
 			{
+				recommendationKey: `${translationKey}-${branch.name}`,
 				priority: 0,
 				translationKey,
 				commands,

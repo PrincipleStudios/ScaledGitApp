@@ -8,6 +8,7 @@ import { BulletList, Link, Section } from '../../components/common';
 import { TextField } from '../../components/form/text-field';
 import { queries } from '../../utils/api/queries';
 import type { StandardField } from '../../components/form/FieldProps';
+import type { TFunction } from 'i18next';
 
 const branchListingSearchSchema = z.object({
 	branchName: z.string(),
@@ -18,7 +19,6 @@ export function useBranchListing() {
 	const form = useForm({
 		defaultValue: { branchName: '' },
 		schema: branchListingSearchSchema,
-		translation: t,
 		fields: {
 			branchName: ['branchName'],
 		},
@@ -43,24 +43,29 @@ export function useBranchListing() {
 		function FullBranchListingPresentation() {
 			return (
 				<>
-					<BranchListingForm branchName={form.fields.branchName} />
+					<BranchListingForm
+						branchName={form.fields.branchName}
+						translation={t}
+					/>
 					<BranchListing />
 				</>
 			);
 		},
-		[form.fields.branchName, BranchListing],
+		[form.fields.branchName, BranchListing, t],
 	);
 }
 
 function BranchListingForm({
 	branchName,
+	translation: t,
 }: {
 	branchName: StandardField<string>;
+	translation: TFunction;
 }) {
 	return (
 		<Section.SingleColumn>
 			<form onSubmit={(e) => e.preventDefault()}>
-				<TextField field={branchName} />
+				<TextField field={branchName} translation={t} />
 			</form>
 		</Section.SingleColumn>
 	);

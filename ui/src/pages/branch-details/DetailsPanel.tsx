@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Section } from '../../components/common';
 import { Details } from '../../components/details';
 import { SelectField } from '../../components/form/select-field';
+import { translateField } from '../../components/form/utils/translations';
 import { Prose } from '../../components/text';
 import { findBranch, namesOf } from './utils';
 import type {
@@ -25,7 +26,6 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 			upstreamBranch: null,
 		},
 		schema: detailsSchema,
-		translation: t,
 		fields: {
 			mainBranch: ['mainBranch'],
 			upstreamBranch: ['upstreamBranch'],
@@ -38,21 +38,31 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 	const upstreamBranch =
 		mainBranch && findBranch(mainBranch.upstream, upstreamBranchName);
 
+	const upstreamBranchTranslation = translateField(
+		form.fields.upstreamBranch,
+		t,
+	);
+
 	return (
 		<Section.SingleColumn>
-			<SelectField field={form.fields.mainBranch} items={namesOf(branches)}>
+			<SelectField
+				field={form.fields.mainBranch}
+				translation={t}
+				items={namesOf(branches)}
+			>
 				{(branchName) => branchName}
 			</SelectField>
 			{mainBranch ? <BranchStatePresentation branch={mainBranch} /> : null}
 			{mainBranch?.upstream.length ? (
 				<SelectField
 					field={form.fields.upstreamBranch}
+					translation={t}
 					items={namesOf(mainBranch.upstream)}
 				>
 					{(branchName) =>
 						// Ensures the branch named actually exists in the main branch
 						findBranch(mainBranch.upstream, branchName)?.name ??
-						form.fields.upstreamBranch.translation('none-selected')
+						upstreamBranchTranslation(['none-selected'])
 					}
 				</SelectField>
 			) : (

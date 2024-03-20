@@ -1,10 +1,8 @@
-import type {
-	ErrorsAtom,
-	FieldTranslation,
-} from '@principlestudios/react-jotai-forms';
+import type { ErrorsAtom } from '@principlestudios/react-jotai-forms';
 import { useAtomValue } from 'jotai';
 import { HiX } from 'react-icons/hi';
 import { elementTemplate } from '../templating';
+import type { FieldTranslation } from './utils/translations';
 
 export function ErrorsList({
 	errors,

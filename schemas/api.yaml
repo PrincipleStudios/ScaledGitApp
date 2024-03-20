@@ -89,30 +89,15 @@ paths:
             schema:
               type: object
               properties:
-                branches:
-                  type: array
-                  items: { type: string }
-                includeDownstream:
-                  type: boolean
-                includeUpstream:
-                  type: boolean
-                recurse:
-                  type: boolean
-                limit:
-                  type: integer
+                branch: { type: string }
               required:
-                - branches
-                - includeDownstream
-                - includeUpstream
-                - recurse
+                - branch
       responses:
         200:
           description: Upstream branch configuration data
           content:
             application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/BranchDetails' }
+              schema: { $ref: '#/components/schemas/BranchDetails' }
 components:
   schemas:
     UpstreamBranches:

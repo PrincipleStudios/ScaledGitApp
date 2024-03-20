@@ -3,6 +3,7 @@ import { useTwMerge } from '../../jotai/useTwMerge';
 import { elementTemplate } from '../../templating';
 import { ErrorsList } from '../errors-list';
 import { Field } from '../field';
+import { translateField } from '../utils/translations';
 import { TextInput } from './text-input';
 import type { JotaiLabel } from '../../jotai/label';
 import type { FieldProps } from '../FieldProps';
@@ -19,7 +20,8 @@ export type TextFieldProps = FieldProps<string> & TextFieldPersistentProps;
 function BaseTextField(props: TextFieldProps) {
 	const htmlProps = props.field.htmlProps();
 	const {
-		field: { translation: t, errors },
+		field: { errors },
+		translation,
 		type,
 		description,
 		labelClassName,
@@ -31,6 +33,7 @@ function BaseTextField(props: TextFieldProps) {
 		useComputedAtom((get) => (get(htmlProps.disabled) ? 'text-slate-500' : '')),
 		labelClassName,
 	);
+	const t = translateField(props.field, translation);
 	return (
 		<Field
 			{...fieldProps}

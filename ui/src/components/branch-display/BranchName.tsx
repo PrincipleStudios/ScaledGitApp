@@ -1,19 +1,8 @@
+import { InlineText } from '../common';
 import { FullSizeSvg } from '../svg/full-size-svg';
-import { elementTemplate } from '../templating';
 import { BranchSvgCircle } from './BranchSvgCircle';
 import { useActiveBranchOnHover } from './useActiveBranchOnHover';
 import type { BranchInfo } from './types';
-
-const InlineText = Object.assign(
-	elementTemplate('InlineText', 'span', (T) => (
-		<T className="inline-flex flex-row align-baseline gap-x-1" />
-	)),
-	{
-		Icon: elementTemplate('InlineText.Icon', 'span', (T) => (
-			<T className="inline-block w-4 h-4 self-center" />
-		)),
-	},
-);
 
 export function BranchName({ data }: { data: BranchInfo }) {
 	const onHover = useActiveBranchOnHover(data);

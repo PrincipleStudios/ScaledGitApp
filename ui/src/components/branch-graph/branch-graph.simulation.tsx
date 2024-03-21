@@ -14,6 +14,7 @@ import { useAnimationFrame } from './useAnimationFrame';
 import type { Branch, BranchConfiguration } from '../../generated/api/models';
 import type { JotaiStore } from '../../utils/atoms/JotaiStore';
 import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
+import type { BranchInfo } from '../branch-display';
 import type {
 	ForceLink,
 	Simulation,
@@ -29,11 +30,6 @@ const branchCountTolerance = 150;
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
-export type BranchInfo =
-	| (Branch & {
-			detailed: false;
-	  })
-	| (BranchConfiguration & { detailed: true });
 export type BranchGraphNodeDatum = {
 	id: string;
 	data: BranchInfo;
@@ -182,10 +178,7 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 
 function toLookups(upstreamData: BranchConfiguration[]) {
 	const configsByName = Object.fromEntries(
-		upstreamData.map((e): [string, BranchInfo] => [
-			e.name,
-			{ ...e, detailed: true },
-		]),
+		upstreamData.map((e): [string, BranchInfo] => [e.name, e]),
 	);
 	const dataLookup: Record<string, BranchInfo> = { ...configsByName };
 	const extraBranches: Record<string, BranchInfo> = { ...configsByName };
@@ -216,7 +209,7 @@ function toLookups(upstreamData: BranchConfiguration[]) {
 		if (currentNodeUnknownBranchCount >= maxUnknownBranchPerNodeCount) return;
 		unknownBranchCount++;
 		currentNodeUnknownBranchCount++;
-		extraBranches[branch.name] = { ...branch, detailed: false };
+		extraBranches[branch.name] = branch;
 	}
 	function tryAddLink(u: string, d: string) {
 		if (!configuredLinks.find((l) => l.upstream === u && l.downstream === d))

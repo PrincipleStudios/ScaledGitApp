@@ -1,15 +1,8 @@
-import { useTranslation } from 'react-i18next';
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
 import { setupDragHandler } from '../../utils/dragging';
-import { TooltipLine } from '../common';
+import { BranchSvgCircle } from '../branch-display';
 import { JotaiG } from '../svg/atom-elements';
-import { useTooltipReference } from '../tooltips';
 import type { BranchGraphNodeDatum, WithAtom } from './branch-graph.simulation';
-import type { Branch, BranchDetails } from '../../generated/api/models';
-
-function isDetailed(branch: Branch): branch is BranchDetails {
-	return branch ? 'nonMergeCommitCount' in branch : false;
-}
 
 export function BranchNode({
 	node,
@@ -24,52 +17,10 @@ export function BranchNode({
 		const { x, y } = get(node.atom);
 		return `translate(${(x ?? 0).toFixed(1)}px, ${(y ?? 0).toFixed(1)}px)`;
 	});
-	const details = isDetailed(node.data)
-		? node.data
-		: { ...node.data, nonMergeCommitCount: 1, exists: true };
-	const tooltip = useTooltipReference(() => (
-		<BranchNodeTooltip details={node.data} />
-	));
-	const styles: React.CSSProperties = details.detailed
-		? {
-				fill: details.exists ? details.color : 'transparent',
-				opacity: details.nonMergeCommitCount > 0 ? 1 : 0.5,
-				stroke: details.color,
-			}
-		: {
-				fill: 'rgba(0.5,0.5,0.5,0.25)',
-				opacity: 1,
-				strokeDasharray: '3,3',
-				stroke: 'black',
-			};
 	return (
-		<JotaiG
-			style={{
-				transform: transform,
-				...styles,
-			}}
-			{...tooltip()}
-			{...drag(node, onMove, onClick)}
-		>
-			<circle cx={0} cy={0} r={5} />
+		<JotaiG style={{ transform: transform }} {...drag(node, onMove, onClick)}>
+			<BranchSvgCircle data={node.data} />
 		</JotaiG>
-	);
-}
-
-function BranchNodeTooltip({ details }: { details: Branch }) {
-	const { t } = useTranslation('branch-graph');
-	if (!isDetailed(details))
-		return <span className="text-nowrap">{details.name}</span>;
-	return (
-		<>
-			<TooltipLine>{details.name}</TooltipLine>
-			{!details.exists ? (
-				<TooltipLine>{t('does-not-exist')}</TooltipLine>
-			) : null}
-			<TooltipLine>
-				{t('commits')}: {details.nonMergeCommitCount}
-			</TooltipLine>
-		</>
 	);
 }
 

@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PrincipleStudios.ScaledGitApp.Auth;
 
 public class AuthController : ControllerBase
 {
 	[HttpGet]
-	[global::Microsoft.AspNetCore.Mvc.Route("/challenge/{scheme}")]
-	public IActionResult ChallengeSpecificScheme(string scheme)
+	[Route("/challenge/{scheme}")]
+	public IActionResult ChallengeSpecificScheme(string scheme, [FromQuery] string returnUrl)
 	{
-		return this.Challenge(scheme);
+		return Challenge(new AuthenticationProperties
+		{
+			RedirectUri = Url.IsLocalUrl(returnUrl) ? returnUrl : "/",
+		}, scheme);
 	}
 }

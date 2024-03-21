@@ -21,6 +21,14 @@ The URL from which the repository should be cloned. If the
 The directory where the [Scalable Git Branching Tools][git-tools] are already
 cloned.
 
+## AUTH__AUTHENTICATION__GITHUB__CLIENTID
+
+The Client ID for a GitHub Application used for authentication.
+
+## AUTH__AUTHENTICATION__GITHUB__CLIENTSECRET
+
+The Client Secret for a GitHub Application used for authentication.
+
 # Common Scenarios
 
 ## Working locally

@@ -1,5 +1,6 @@
 #pragma warning disable CA1861 // Avoid constant arrays as arguments - the envfile list belongs here, and static arrays cannot be created in Program.cs
 using dotenv.net;
+using PrincipleStudios.ScaledGitApp.Auth;
 using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
@@ -19,6 +20,7 @@ builder.Configuration.AddSecretsManager();
 
 var services = builder.Services;
 
+services.RegisterAuth(builder.Configuration.GetSection("Auth"));
 services.RegisterBranchingStrategy(builder.Configuration.GetSection("Colors"));
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
@@ -35,6 +37,9 @@ var app = builder.Build();
 app.UseHealthChecks("/health");
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 #pragma warning disable ASP0014 // Suggest using top level route registrations - this seems to be necessary to prevent the SPA middleware from overwriting controller requests
 app.UseEndpoints(endpoints =>

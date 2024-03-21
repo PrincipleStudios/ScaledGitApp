@@ -59,6 +59,8 @@ paths:
     post:
       x-dotnet-mvc-server-controller: GitFetch
       operationId: requestGitFetch
+      security:
+        - AuthenticatedUser: []
       summary: Request that the git clone is immediately refreshed
       responses:
         200:
@@ -69,6 +71,8 @@ paths:
     get:
       x-dotnet-mvc-server-controller: GitUpstreamData
       operationId: getUpstreamData
+      security:
+        - AuthenticatedUser: []
       summary: Gets the upstream data for all branches
       responses:
         200:
@@ -81,6 +85,8 @@ paths:
     post:
       x-dotnet-mvc-server-controller: GitBranchDetails
       operationId: getBranchDetails
+      security:
+        - AuthenticatedUser: []
       summary: Gets the upstream data for a specific branch
       requestBody:
         required: true
@@ -157,3 +163,9 @@ components:
         exists: { type: boolean }
         behindCount: { type: integer }
         hasConflict: { type: boolean }
+
+  securitySchemes:
+    AuthenticatedUser:
+      type: apiKey
+      in: cookie
+      name: .AspNetCore.Cookies

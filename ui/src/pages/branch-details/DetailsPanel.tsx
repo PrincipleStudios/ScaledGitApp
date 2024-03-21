@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@principlestudios/react-jotai-forms';
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
+import { BranchName } from '../../components/branch-display/BranchName';
 import { Section } from '../../components/common';
 import { Details } from '../../components/details';
 import { SelectField } from '../../components/form/select-field';
@@ -50,7 +51,9 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 				translation={t}
 				items={namesOf(branches)}
 			>
-				{(branchName) => branchName}
+				{(branchName) => (
+					<BranchName data={branches.find((b) => b.name === branchName)!} />
+				)}
 			</SelectField>
 			{mainBranch ? <BranchStatePresentation branch={mainBranch} /> : null}
 			{mainBranch?.upstream.length ? (
@@ -59,11 +62,15 @@ export function DetailsPanel({ branches }: { branches: BranchDetails[] }) {
 					translation={t}
 					items={namesOf(mainBranch.upstream)}
 				>
-					{(branchName) =>
+					{(branchName) => {
 						// Ensures the branch named actually exists in the main branch
-						findBranch(mainBranch.upstream, branchName)?.name ??
-						upstreamBranchTranslation(['none-selected'])
-					}
+						const branch = findBranch(mainBranch.upstream, branchName);
+						return branch ? (
+							<BranchName data={branch} />
+						) : (
+							upstreamBranchTranslation(['none-selected'])
+						);
+					}}
 				</SelectField>
 			) : (
 				<Prose>{t('no-upstream-branches')}</Prose>
@@ -80,7 +87,9 @@ function BranchStatePresentation({ branch }: { branch: BranchDetails }) {
 	return (
 		<Section.SingleColumn>
 			<Details>
-				<Details.Entry label={t('name')}>{branch.name}</Details.Entry>
+				<Details.Entry label={t('name')}>
+					<BranchName data={branch} />
+				</Details.Entry>
 				<Details.Entry label={t('exists')}>
 					{branch.exists ? t('exists-true') : t('exists-false')}
 				</Details.Entry>
@@ -103,7 +112,9 @@ function UpstreamBranchStatePresentation({
 	return (
 		<Section.SingleColumn>
 			<Details>
-				<Details.Entry label={t('name')}>{branch.name}</Details.Entry>
+				<Details.Entry label={t('name')}>
+					<BranchName data={branch} />
+				</Details.Entry>
 				<Details.Entry label={t('exists')}>
 					{branch.exists ? t('exists-true') : t('exists-false')}
 				</Details.Entry>

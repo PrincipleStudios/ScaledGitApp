@@ -16,6 +16,9 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 			var branchExists = await context.CheckBranchExists(fullBranchName);
 
 			var entries = await LoadImmediateUpstreamInfo(context, baseBranch, branchExists);
+			var existingUpstream = branchExists
+				? await GetExistingRecursiveUpstreamBranches(upstreams, context, fullBranchName, entries)
+				: Enumerable.Empty<string>();
 
 			result.Add(new(
 				Name: baseBranch,
@@ -23,9 +26,7 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 				NonMergeCommitCount: branchExists
 					? await pwsh.RunCommand(new GetCommitCount(
 						Included: [fullBranchName],
-						Excluded: from entry in entries
-								  where entry.Exists
-								  select context.FullName(entry.Name)
+						Excluded: existingUpstream
 					)) ?? 0
 					: 0,
 				Upstreams: entries.ToArray(),
@@ -34,6 +35,25 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		}
 
 		return result.AsReadOnly();
+	}
+
+	private async Task<List<string>> GetExistingRecursiveUpstreamBranches(IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams, ExecutionContext context, string fullBranchName, List<UpstreamBranchMergeInfo> entries)
+	{
+		var recursiveUpstream = ExpandBaseBranches(
+			entries.Select(e => e.Name).ToArray(),
+			(current) =>
+				upstreams.TryGetValue(current, out var configuredUpstreams)
+					? configuredUpstreams.UpstreamBranchNames
+					: Enumerable.Empty<string>(),
+			forceRecurse: true
+		);
+		var existingUpstream = new List<string>();
+		foreach (var e in recursiveUpstream.Select(context.FullName).Except([fullBranchName]))
+		{
+			if (await context.CheckBranchExists(e)) existingUpstream.Add(e);
+		}
+
+		return existingUpstream;
 	}
 
 	private static async Task<List<UpstreamBranchMergeInfo>> LoadImmediateUpstreamInfo(ExecutionContext context, string baseBranch, bool branchExists)

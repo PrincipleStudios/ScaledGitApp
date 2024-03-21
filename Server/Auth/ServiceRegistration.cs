@@ -37,6 +37,7 @@ public static class ServiceRegistration
 		 * any credentials.
 		 * */
 
+		var options = configurationSection.Get<AuthOptions>();
 		services.AddAuthorization(options =>
 		{
 			options.AddPolicy("AuthenticatedUser", builder =>
@@ -51,7 +52,7 @@ public static class ServiceRegistration
 		});
 
 
-		services
+		var authenticationBuilder = services
 			.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -68,5 +69,8 @@ public static class ServiceRegistration
 						return Task.CompletedTask;
 					};
 			});
+
+		if (options?.Authentication.TryGetValue("GitHub", out var gitHubOptions) ?? false)
+			authenticationBuilder.AddGitHub(gitHubOptions.Bind);
 	}
 }

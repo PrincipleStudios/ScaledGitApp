@@ -55,6 +55,18 @@ paths:
                   type: object
                   # each additional property at this level is a namespace
                   additionalProperties: { type: object, format: any }
+  /api/login/schemes:
+    get:
+      operationId: getLoginSchemes
+      summary: Lists the available login schemes
+      responses:
+        200:
+          description: A list of login schemes that the user may leverage for this installation of ScaledGitApp
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string }
   /api/git/fetch:
     post:
       x-dotnet-mvc-server-controller: GitFetch

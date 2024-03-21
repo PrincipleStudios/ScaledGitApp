@@ -29,6 +29,19 @@ The Client ID for a GitHub Application used for authentication.
 
 The Client Secret for a GitHub Application used for authentication.
 
+## AUTH__ALLOWEDUSERS__{n}
+
+0-based list of usernames to allow. If provided, all other usernames will be
+denied access to git-related APIs.
+
+For example:
+
+```
+AUTH__ALLOWEDUSERS__0=mdekrey
+AUTH__ALLOWEDUSERS__1=Mike343
+AUTH__ALLOWEDUSERS__2=JordanRhode
+```
+
 # Common Scenarios
 
 ## Working locally

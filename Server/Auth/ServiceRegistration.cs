@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 namespace PrincipleStudios.ScaledGitApp.Auth;
 
@@ -51,6 +52,15 @@ public static class ServiceRegistration
 
 				if (appOptions.Authentication.Count > 0)
 					builder.RequireAuthenticatedUser();
+
+				if (appOptions.AllowedUsers.Count > 0)
+					builder.RequireAssertion(
+						context =>
+							context.User.Claims.Any(
+								c =>
+									c.Type == ClaimTypes.Name && appOptions.AllowedUsers.Contains(c.Value)
+							)
+					);
 			});
 		});
 
@@ -65,12 +75,16 @@ public static class ServiceRegistration
 			{
 				options.Cookie.Expiration = null;
 				options.Cookie.Path = "/";
-				options.Events.OnRedirectToAccessDenied =
-					options.Events.OnRedirectToLogin = c =>
-					{
-						c.Response.StatusCode = 401;
-						return Task.CompletedTask;
-					};
+				options.Events.OnRedirectToAccessDenied = c =>
+				{
+					c.Response.StatusCode = 403;
+					return Task.CompletedTask;
+				};
+				options.Events.OnRedirectToLogin = c =>
+				{
+					c.Response.StatusCode = 401;
+					return Task.CompletedTask;
+				};
 			});
 
 		if (appOptions.Authentication.TryGetValue("GitHub", out var gitHubOptions))

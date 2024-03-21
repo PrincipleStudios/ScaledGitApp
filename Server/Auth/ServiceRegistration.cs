@@ -37,7 +37,7 @@ public static class ServiceRegistration
 		 * any credentials.
 		 * */
 
-		var options = configurationSection.Get<AuthOptions>();
+		var appOptions = configurationSection.Get<AuthOptions>() ?? new AuthOptions();
 		services.AddAuthorization(options =>
 		{
 			options.AddPolicy("AuthenticatedUser", builder =>
@@ -48,6 +48,9 @@ public static class ServiceRegistration
 				// We want config-based rules, but every policy must have a requirement.
 				// This "always allowed" requirement satisfies that rule.
 				builder.RequireAssertion(context => true);
+
+				if (appOptions.Authentication.Count > 0)
+					builder.RequireAuthenticatedUser();
 			});
 		});
 
@@ -70,7 +73,7 @@ public static class ServiceRegistration
 					};
 			});
 
-		if (options?.Authentication.TryGetValue("GitHub", out var gitHubOptions) ?? false)
+		if (appOptions.Authentication.TryGetValue("GitHub", out var gitHubOptions))
 			authenticationBuilder.AddGitHub(gitHubOptions.Bind);
 	}
 }

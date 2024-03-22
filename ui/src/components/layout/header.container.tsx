@@ -18,7 +18,7 @@ export function useHeader(): React.ComponentType<HeaderPresentationalProps> {
 			return (
 				<HeaderPresentation
 					{...props}
-					onRefresh={fetch.mutate}
+					onRefresh={() => !fetch.isPending && fetch.mutate()}
 					isRefreshing={fetch.isPending}
 				/>
 			);

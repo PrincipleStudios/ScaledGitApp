@@ -1,0 +1,11 @@
+{
+	"intro": "Select from the following login methods:",
+	"scheme": {
+		"GitHub": {
+			"login": "Login with GitHub"
+		},
+		"Microsoft": {
+			"login": "Login with Microsoft Account"
+		}
+	}
+}

@@ -1,3 +1,4 @@
+import { getLoginSchemes } from './auth/get-login-schemes';
 import { getInfo } from './environment';
 import { getBranchDetails } from './git/branch-details';
 import { requestGitFetch } from './git/fetch';
@@ -6,6 +7,7 @@ import type operations from '../../../generated/api/operations';
 
 export const queries = {
 	getInfo,
+	getLoginSchemes,
 	/** Intentionally not supporting `getTranslationData` here */
 	getTranslationData: null,
 

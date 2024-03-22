@@ -9,9 +9,13 @@ import { OverviewComponent } from './pages/overview';
 import './utils/i18n/setup';
 
 const withSearchParamsName = withSearchParamsValue('name');
+const withSearchParamsReturnUrl = withSearchParamsValue('returnUrl');
 
 const mainRoute: RouteObject[] = [
-	{ path: 'login/', Component: withErrorBoundary(LoginComponent) },
+	{
+		path: 'login/',
+		Component: withErrorBoundary(withSearchParamsReturnUrl(LoginComponent)),
+	},
 	{ path: 'overview/', Component: withErrorBoundary(OverviewComponent) },
 	{ path: 'about/', Component: withErrorBoundary(AboutComponent) },
 	{

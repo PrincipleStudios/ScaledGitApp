@@ -6,7 +6,7 @@ export const api = toFetchApi(operations, async (url, req) => {
 	if (result.status === 401) {
 		const currentLocation = toPathQueryHash(window.location);
 		if (!currentLocation.startsWith('/#/login?'))
-			window.location.href = `/#/login?returnUrl=${toPathQueryHash(window.location)}`;
+			window.location.href = `/#/login?returnUrl=${encodeURIComponent(toPathQueryHash(window.location))}`;
 
 		// redirecting; cannot be reached
 		throw new Error();

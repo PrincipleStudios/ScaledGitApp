@@ -29,6 +29,21 @@ The Client ID for a GitHub Application used for authentication.
 
 The Client Secret for a GitHub Application used for authentication.
 
+## AUTH__AUTHENTICATION__MICROSOFT__CLIENTID
+
+The Client ID for a Microsoft Azure AD Application used for authentication. See
+[how to set up a web application][ms-auth].
+
+## AUTH__AUTHENTICATION__MICROSOFT__CLIENTSECRET
+
+The Client Secret for a Microsoft Azure AD Application used for authentication.
+See [how to set up a web application][ms-auth].
+
+## AUTH__AUTHENTICATION__MICROSOFT__TENANTID
+
+The Tenant ID for a Microsoft Azure AD Application used for authentication when
+not set up for a multi-organization app.
+
 ## AUTH__ALLOWEDUSERS__{n}
 
 0-based list of usernames to allow. If provided, all other usernames will be
@@ -52,3 +67,4 @@ GIT__GITTOOLSDIRECTORY=C:\Users\youruser\source\scalable-git-branching-tools
 ```
 
 [git-tools]: https://github.com/PrincipleStudios/scalable-git-branching-tools/
+[ms-auth]: https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-register-applications

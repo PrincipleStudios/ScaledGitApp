@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace PrincipleStudios.ScaledGitApp.Auth;
 
@@ -89,5 +93,15 @@ public static class ServiceRegistration
 
 		if (appOptions.Authentication.TryGetValue("GitHub", out var gitHubOptions))
 			authenticationBuilder.AddGitHub(gitHubOptions.Bind);
+		if (appOptions.Authentication.TryGetValue("Microsoft", out var msOptions))
+			authenticationBuilder.AddMicrosoftAccount(options =>
+			{
+				msOptions.Bind(options);
+				if (msOptions.GetSection("TenantId").Get<string>() is string tenantId)
+				{
+					options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+					options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
+				}
+			});
 	}
 }

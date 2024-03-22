@@ -57,6 +57,17 @@ AUTH__ALLOWEDUSERS__1=Mike343
 AUTH__ALLOWEDUSERS__2=JordanRhode
 ```
 
+## AUTH__EMAILADDRESSDOMAINS__{n}
+
+0-based list of email address domains to allow. If provided, all other usernames
+will be denied access to git-related APIs.
+
+For example:
+
+```
+AUTH__EMAILADDRESSDOMAINS__0=principlestudios.com
+```
+
 # Common Scenarios
 
 ## Working locally

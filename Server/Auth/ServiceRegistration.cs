@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using AspNet.Security.OAuth.GitHub;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace PrincipleStudios.ScaledGitApp.Auth;
 
@@ -54,22 +54,21 @@ public static class ServiceRegistration
 				// This "always allowed" requirement satisfies that rule.
 				builder.RequireAssertion(context => true);
 
-				if (appOptions.Authentication.Count > 0)
-					builder.RequireAuthenticatedUser();
-
-				if (appOptions.AllowedUsers.Count > 0)
-					builder.RequireAssertion(
-						context =>
-							context.User.Claims.Any(
-								c =>
-									c.Type == ClaimTypes.Name && appOptions.AllowedUsers.Contains(c.Value)
-							)
-					);
+				AddAuthorizationRules(builder, appOptions);
 			});
 		});
 
+		var authenticationBuilder = AddAuthenticationDefaults(services);
 
-		var authenticationBuilder = services
+		if (appOptions.Authentication.TryGetValue(GitHubAuthenticationDefaults.AuthenticationScheme, out var gitHubOptions))
+			authenticationBuilder.AddGitHub(gitHubOptions.Bind);
+		if (appOptions.Authentication.TryGetValue(MicrosoftAccountDefaults.AuthenticationScheme, out var msOptions))
+			AddMicrosoftAuthenticationScheme(authenticationBuilder, msOptions);
+	}
+
+	private static AuthenticationBuilder AddAuthenticationDefaults(IServiceCollection services)
+	{
+		return services
 			.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -90,18 +89,42 @@ public static class ServiceRegistration
 					return Task.CompletedTask;
 				};
 			});
+	}
 
-		if (appOptions.Authentication.TryGetValue("GitHub", out var gitHubOptions))
-			authenticationBuilder.AddGitHub(gitHubOptions.Bind);
-		if (appOptions.Authentication.TryGetValue("Microsoft", out var msOptions))
-			authenticationBuilder.AddMicrosoftAccount(options =>
+	private static void AddAuthorizationRules(AuthorizationPolicyBuilder builder, AuthOptions appOptions)
+	{
+		if (appOptions.Authentication.Count > 0)
+			builder.RequireAuthenticatedUser();
+
+		if (appOptions.AllowedUsers.Count > 0)
+			builder.RequireAssertion(
+				context =>
+					context.User.Claims.Any(
+						c =>
+							c.Type == ClaimTypes.Name && appOptions.AllowedUsers.Contains(c.Value)
+					)
+			);
+
+		if (appOptions.EmailAddressDomains.Count > 0)
+			builder.RequireAssertion(
+				context =>
+					context.User.Claims.Any(
+						c =>
+							c.Type == ClaimTypes.Email && appOptions.EmailAddressDomains.Any(domain => c.Value.EndsWith($"@{domain}", StringComparison.InvariantCultureIgnoreCase))
+					)
+			);
+	}
+
+	private static void AddMicrosoftAuthenticationScheme(AuthenticationBuilder authenticationBuilder, IConfigurationSection msOptions)
+	{
+		authenticationBuilder.AddMicrosoftAccount(options =>
+		{
+			msOptions.Bind(options);
+			if (msOptions.GetSection("TenantId").Get<string>() is string tenantId)
 			{
-				msOptions.Bind(options);
-				if (msOptions.GetSection("TenantId").Get<string>() is string tenantId)
-				{
-					options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
-					options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
-				}
-			});
+				options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+				options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
+			}
+		});
 	}
 }

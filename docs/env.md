@@ -21,6 +21,53 @@ The URL from which the repository should be cloned. If the
 The directory where the [Scalable Git Branching Tools][git-tools] are already
 cloned.
 
+## AUTH__AUTHENTICATION__GITHUB__CLIENTID
+
+The Client ID for a GitHub Application used for authentication.
+
+## AUTH__AUTHENTICATION__GITHUB__CLIENTSECRET
+
+The Client Secret for a GitHub Application used for authentication.
+
+## AUTH__AUTHENTICATION__MICROSOFT__CLIENTID
+
+The Client ID for a Microsoft Azure AD Application used for authentication. See
+[how to set up a web application][ms-auth].
+
+## AUTH__AUTHENTICATION__MICROSOFT__CLIENTSECRET
+
+The Client Secret for a Microsoft Azure AD Application used for authentication.
+See [how to set up a web application][ms-auth].
+
+## AUTH__AUTHENTICATION__MICROSOFT__TENANTID
+
+The Tenant ID for a Microsoft Azure AD Application used for authentication when
+not set up for a multi-organization app.
+
+## AUTH__ALLOWEDUSERS__{n}
+
+0-based list of usernames to allow. If provided, all other usernames will be
+denied access to git-related APIs.
+
+For example:
+
+```
+AUTH__ALLOWEDUSERS__0=mdekrey
+AUTH__ALLOWEDUSERS__1=Mike343
+AUTH__ALLOWEDUSERS__2=JordanRhode
+```
+
+## AUTH__EMAILADDRESSDOMAINS__{n}
+
+0-based list of email address domains to allow. If provided, all other usernames
+will be denied access to git-related APIs.
+
+For example:
+
+```
+AUTH__EMAILADDRESSDOMAINS__0=principlestudios.com
+```
+
 # Common Scenarios
 
 ## Working locally
@@ -31,3 +78,4 @@ GIT__GITTOOLSDIRECTORY=C:\Users\youruser\source\scalable-git-branching-tools
 ```
 
 [git-tools]: https://github.com/PrincipleStudios/scalable-git-branching-tools/
+[ms-auth]: https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-register-applications

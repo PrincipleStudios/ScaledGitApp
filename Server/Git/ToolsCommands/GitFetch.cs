@@ -10,6 +10,6 @@ public record GitFetch() : IPowerShellCommand<Task>
 {
 	public async Task RunCommand(IPowerShellCommandContext pwsh)
 	{
-		(await pwsh.InvokeCliAsync("git", "fetch", "--porcelain")).ThrowIfHadErrors();
+		(await pwsh.InvokeCliAsync("git", "fetch", "--porcelain", "--prune")).ThrowIfHadErrors();
 	}
 }

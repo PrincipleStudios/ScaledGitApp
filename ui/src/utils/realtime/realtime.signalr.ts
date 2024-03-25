@@ -13,7 +13,7 @@ function firstCompleted<T>(promises: Array<Promise<T>>) {
 	);
 }
 
-export function getConnection(
+function getConnection(
 	setup: (connection: HubConnection) => void,
 	signal: AbortSignal,
 ) {
@@ -38,6 +38,13 @@ export function getConnection(
 	] as const;
 }
 
+/**
+ * Establishes a new connection based on default configuration.
+ * @param setup Setup function to register handlers
+ * @returns A tuple including: an abort controller for cancellation tokens, the
+ * promise representing the initial connection readiness, and the actual SignalR
+ * connection instance.
+ */
 export function createRealtimeApiConnection(
 	setup: (connection: HubConnection) => void,
 ) {

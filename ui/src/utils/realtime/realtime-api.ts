@@ -1,13 +1,13 @@
 import { createContext, useContext } from 'react';
-import type {
-	MessageFromServiceWorker,
-	MessageFromWindow,
-} from '@/service-worker/messages.ts';
 import { neverEver } from '@/utils/never-ever.ts';
+import type {
+	MessageFromServer,
+	MessageFromApp,
+} from '@/utils/realtime/messages';
 import { HubConnectionState } from '@microsoft/signalr';
 import type { QueryClient } from '@tanstack/react-query';
 import { atom, getDefaultStore } from 'jotai';
-import { registerSW } from 'virtual:pwa-register';
+import { realtimeApiEventTarget } from './implementation';
 import type { Atom } from 'jotai';
 
 const reconnectStates = [
@@ -19,22 +19,10 @@ export function createRealtimeApi(queryClient: QueryClient): RealtimeApi {
 	const store = getDefaultStore();
 	const connectionState$ = atom(HubConnectionState.Connecting);
 
-	registerSW({
-		onRegisteredSW() {
-			if (!navigator.serviceWorker?.controller) {
-				// After a hard refresh, sometimes the `controller` doesn't load
-				window.location.reload();
-			}
-			navigator.serviceWorker?.addEventListener('message', (event) => {
-				void handleServiceMessage(event.data as MessageFromServiceWorker);
-			});
-			requestHubState();
-		},
-		onRegisterError(error: unknown) {
-			console.error('Unable to register service worker', error);
-			// TODO: pop up a modal that tells the user something went wrong badly
-		},
+	realtimeApiEventTarget.addServerMessageHandler((data) => {
+		void handleServiceMessage(data);
 	});
+	requestHubState();
 
 	const result: RealtimeApi = {
 		connectionState$,
@@ -55,7 +43,7 @@ export function createRealtimeApi(queryClient: QueryClient): RealtimeApi {
 		sendServiceMessage({ type: 'requestHubState' });
 	}
 
-	async function handleServiceMessage(message: MessageFromServiceWorker) {
+	async function handleServiceMessage(message: MessageFromServer) {
 		switch (message.type) {
 			case 'gitFetched':
 				await queryClient.invalidateQueries();
@@ -74,8 +62,8 @@ export function createRealtimeApi(queryClient: QueryClient): RealtimeApi {
 		}
 	}
 
-	function sendServiceMessage(message: MessageFromWindow) {
-		navigator.serviceWorker?.controller?.postMessage(message);
+	function sendServiceMessage(message: MessageFromApp) {
+		realtimeApiEventTarget.sendToServer(message);
 	}
 
 	return result;
@@ -84,7 +72,7 @@ export function createRealtimeApi(queryClient: QueryClient): RealtimeApi {
 export interface RealtimeApi {
 	readonly connectionState$: Atom<HubConnectionState>;
 	reconnect(this: void): Promise<void>;
-	sendServiceMessage(this: void, message: MessageFromWindow): void;
+	sendServiceMessage(this: void, message: MessageFromApp): void;
 }
 
 const context = createContext<RealtimeApi | null>(null);

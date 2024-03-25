@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { RealtimeApi } from './utils/api/realtime-api';
+import type { RealtimeApi } from './utils/realtime/realtime-api';
 
 declare global {
 	interface Window {

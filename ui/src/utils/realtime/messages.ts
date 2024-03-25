@@ -21,9 +21,9 @@ export type HubStatusMesage = {
 	state: HubConnectionState;
 };
 
-export type MessageFromWindow =
+export type MessageFromApp =
 	| RequestHubStateMessage
 	| RequestReconnectMessage
 	| ForceDisconnectMessage
 	| ForceReconnectMessage;
-export type MessageFromServiceWorker = GitFetchedMessage | HubStatusMesage;
+export type MessageFromServer = GitFetchedMessage | HubStatusMesage;

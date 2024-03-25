@@ -6,7 +6,7 @@ import { setupRuntimeApi } from './runtime-api';
 import {
 	RealtimeApiProvider,
 	createRealtimeApi,
-} from './utils/api/realtime-api.ts';
+} from './utils/realtime/realtime-api.ts';
 import './main.css';
 
 const queryClient = new QueryClient({

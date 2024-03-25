@@ -4,10 +4,7 @@
 		"rootDir": ".",
 
 		"types": [
-			"vite/client",
-			"vite-plugin-pwa/client",
-			"vite-plugin-pwa/info",
-			"vite-plugin-pwa/react"
+			"vite/client"
 		],
 		"paths": {
 			"@/*": ["./src/*"]

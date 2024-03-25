@@ -15,6 +15,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@headlessui/react": "^1.7.18",
+		"@microsoft/signalr": "^8.0.0",
 		"@principlestudios/jotai-react-signals": "^0.6.0",
 		"@principlestudios/jotai-utilities": "^0.6.0",
 		"@principlestudios/openapi-codegen-typescript": "^0.7.0",

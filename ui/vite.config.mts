@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
@@ -9,7 +10,11 @@ export default defineConfig({
 		emptyOutDir: true,
 		assetsInlineLimit: 0,
 	},
-	resolve: {},
+	resolve: {
+		alias: {
+			'@': fileURLToPath(await import.meta.resolve('./src')),
+		},
+	},
 	server: {
 		hmr: {
 			path: '/.vite/hmr',

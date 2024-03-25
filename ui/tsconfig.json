@@ -3,7 +3,10 @@
 	"compilerOptions": {
 		"rootDir": ".",
 
-		"types": ["vite/client"]
+		"types": ["vite/client"],
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
 	"include": ["src", "./vitest.setup.mts"],
 	"references": [

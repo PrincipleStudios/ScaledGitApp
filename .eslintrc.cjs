@@ -15,7 +15,12 @@ module.exports = {
 		// https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
 		'no-undef': 'off',
 	},
-	ignorePatterns: ['artifacts/**/*', '**/generated/**/*', '*/dev-dist/**/*'],
+	ignorePatterns: [
+		'artifacts/**/*',
+		'**/generated/**/*',
+		'*/dev-dist/**/*',
+		'Server/wwwroot/assets/**/*',
+	],
 	parserOptions: {
 		ecmaVersion: 'latest',
 		sourceType: 'module',

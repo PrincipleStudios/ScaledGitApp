@@ -15,6 +15,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@headlessui/react": "^1.7.18",
+		"@microsoft/signalr": "^8.0.0",
 		"@principlestudios/jotai-react-signals": "^0.6.0",
 		"@principlestudios/jotai-utilities": "^0.6.0",
 		"@principlestudios/openapi-codegen-typescript": "^0.7.0",
@@ -40,6 +41,10 @@
 		"react-icons": "^5.0.1",
 		"react-router-dom": "^6.22.1",
 		"vite": "^5.0.12",
+		"vite-plugin-pwa": "^0.19.7",
+		"workbox-core": "^7.0.0",
+		"workbox-precaching": "^7.0.0",
+		"workbox-window": "^7.0.0",
 		"zod": "^3.22.4"
 	},
 	"devDependencies": {

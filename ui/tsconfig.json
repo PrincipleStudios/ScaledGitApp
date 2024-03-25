@@ -3,7 +3,15 @@
 	"compilerOptions": {
 		"rootDir": ".",
 
-		"types": ["vite/client"]
+		"types": [
+			"vite/client",
+			"vite-plugin-pwa/client",
+			"vite-plugin-pwa/info",
+			"vite-plugin-pwa/react"
+		],
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
 	"include": ["src", "./vitest.setup.mts"],
 	"references": [

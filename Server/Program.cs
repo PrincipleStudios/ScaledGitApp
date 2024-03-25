@@ -5,6 +5,7 @@ using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Locales;
+using PrincipleStudios.ScaledGitApp.Realtime;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 DotEnv.Load(new DotEnvOptions(envFilePaths: new[] {
@@ -30,6 +31,9 @@ services.RegisterEnvironment(
 );
 services.RegisterGit(builder.Configuration.GetSection("git"));
 services.RegisterLocales(builder.Configuration.GetSection("localization"));
+services.RegisterRealtimeNotifications(
+	includeAzureSignalR: builder.Configuration["Azure:SignalR:ConnectionString"] != null
+);
 services.RegisterShellUtilities();
 
 var app = builder.Build();
@@ -45,6 +49,7 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 	{
 		endpoints.MapControllers();
+		endpoints.MapHub<FullHub>("/hub");
 	});
 #pragma warning restore ASP0014 // Suggest using top level route registrations
 

@@ -53,7 +53,6 @@ function log(...args: unknown[]) {
 		`[${new Date().toISOString()}] @${gitHash.substring(0, 8)}`,
 		...args,
 	);
-	// void sendToAll({ type: 'log', args });
 }
 
 self.addEventListener('install', function (e) {
@@ -92,6 +91,12 @@ function setupConnection(connection: HubConnection) {
 			void self.registration.update();
 		}
 	});
+
+	connection.off('GitFetched');
+	connection.on('GitFetched', () => {
+		void sendToAll({ type: 'gitFetched' });
+	});
+
 	connection.onclose((err) => {
 		console.error('onclose', err);
 		void sendToAll(getHubStateMessage());

@@ -57,8 +57,8 @@ export function createRealtimeApi(queryClient: QueryClient): RealtimeApi {
 
 	async function handleServiceMessage(message: MessageFromServiceWorker) {
 		switch (message.type) {
-			case 'log':
-				console.log(`Log from sw:`, ...message.args);
+			case 'gitFetched':
+				await queryClient.invalidateQueries();
 				break;
 			case 'hubState':
 				console.log('hubState', message.state);

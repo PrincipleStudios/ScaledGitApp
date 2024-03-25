@@ -9,5 +9,7 @@ public static class ServiceRegistration
 		if (includeAzureSignalR)
 			signalr.AddAzureSignalR();
 #endif
+
+		services.AddSingleton<IRealtimeMessageInvoker, RealtimeMessageInvoker>();
 	}
 }

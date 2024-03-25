@@ -13,11 +13,9 @@ export type ForceReconnectMessage = {
 	type: 'forceReconnect';
 };
 
-export type LogMessage = {
-	type: 'log';
-	args: readonly unknown[];
+export type GitFetchedMessage = {
+	type: 'gitFetched';
 };
-
 export type HubStatusMesage = {
 	type: 'hubState';
 	state: HubConnectionState;
@@ -28,4 +26,4 @@ export type MessageFromWindow =
 	| RequestReconnectMessage
 	| ForceDisconnectMessage
 	| ForceReconnectMessage;
-export type MessageFromServiceWorker = LogMessage | HubStatusMesage;
+export type MessageFromServiceWorker = GitFetchedMessage | HubStatusMesage;

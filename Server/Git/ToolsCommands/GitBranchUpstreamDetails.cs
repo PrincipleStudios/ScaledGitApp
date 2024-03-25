@@ -3,34 +3,34 @@
 public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>
 {
-	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> RunCommand(IGitToolsCommandContext pwsh)
+	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> RunCommand(IGitToolsCommandContext context)
 	{
-		var upstreams = await pwsh.RunCommand(new GitUpstreamData());
-		var context = new ExecutionContext(pwsh, upstreams);
-		var baseBranches = ExpandBaseBranches(context, BranchNames);
+		var upstreams = await context.RunCommand(new GitUpstreamData());
+		var executionContext = new ExecutionContext(context, upstreams);
+		var baseBranches = ExpandBaseBranches(executionContext, BranchNames);
 
 		var result = new List<UpstreamBranchDetailedState>();
 		foreach (var baseBranch in baseBranches)
 		{
-			var fullBranchName = context.FullName(baseBranch);
-			var branchExists = await context.CheckBranchExists(fullBranchName);
+			var fullBranchName = executionContext.FullName(baseBranch);
+			var branchExists = await executionContext.CheckBranchExists(fullBranchName);
 
-			var entries = await LoadImmediateUpstreamInfo(context, baseBranch, branchExists);
+			var entries = await LoadImmediateUpstreamInfo(executionContext, baseBranch, branchExists);
 			var existingUpstream = branchExists
-				? await GetExistingRecursiveUpstreamBranches(upstreams, context, fullBranchName, entries)
+				? await GetExistingRecursiveUpstreamBranches(upstreams, executionContext, fullBranchName, entries)
 				: Enumerable.Empty<string>();
 
 			result.Add(new(
 				Name: baseBranch,
 				Exists: branchExists,
 				NonMergeCommitCount: branchExists
-					? await pwsh.RunCommand(new GetCommitCount(
+					? await context.RunCommand(new GetCommitCount(
 						Included: [fullBranchName],
 						Excluded: existingUpstream
 					)) ?? 0
 					: 0,
 				Upstreams: entries.ToArray(),
-				DownstreamNames: GetDownstreamBranchNames(context, baseBranch).ToArray()
+				DownstreamNames: GetDownstreamBranchNames(executionContext, baseBranch).ToArray()
 			));
 		}
 

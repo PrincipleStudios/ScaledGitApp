@@ -1,4 +1,4 @@
-import type { BranchDetails } from '../generated/api/models';
+import type { BranchDetails } from '@/generated/api/models';
 
 export type RecommendationsEngine = {
 	getRecommendations: (branches: BranchDetails[]) => Recommendation[];

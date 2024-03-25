@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
+import { queries } from '@/utils/api/queries';
 import { useMutation } from '@tanstack/react-query';
-import { queries } from '../../utils/api/queries';
 import { HeaderPresentation } from './header.presentation';
 import type { HeaderPresentationalProps } from './header.presentation';
 

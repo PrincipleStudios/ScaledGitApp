@@ -1,7 +1,7 @@
+import { translateField } from '@/utils/translations';
 import { elementTemplate } from '../../templating';
 import { ErrorsList } from '../errors-list';
 import { Field } from '../field';
-import { translateField } from '../utils/translations';
 import { SelectInput } from './select-input';
 import type { SelectInputProps } from './select-input';
 import type { StandardField } from '../FieldProps';

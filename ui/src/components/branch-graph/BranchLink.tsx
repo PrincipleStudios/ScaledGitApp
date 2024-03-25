@@ -1,12 +1,9 @@
+import type { Branch, DetailedUpstreamBranch } from '@/generated/api/models';
 import { twMerge } from 'tailwind-merge';
 import { isDetailed } from '../branch-display';
 import { JotaiG, JotaiLine } from '../svg/atom-elements';
 import { useComputedLinkValues } from './useComputedLinkValues';
 import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
-import type {
-	Branch,
-	DetailedUpstreamBranch,
-} from '../../generated/api/models';
 
 function isDetailedUpstream(
 	branch: Branch | undefined,

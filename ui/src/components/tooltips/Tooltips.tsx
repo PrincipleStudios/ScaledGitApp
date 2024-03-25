@@ -1,13 +1,13 @@
 import { useEffect, useMemo } from 'react';
+import { subscribeToDimensionChanges } from '@/utils/atoms/subscribeToDimensionChanges';
+import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
 import {
 	useComputedAtom,
 	withSignal,
 } from '@principlestudios/jotai-react-signals';
 import { atom, useStore, useAtomValue } from 'jotai';
-import { subscribeToDimensionChanges } from '../../utils/atoms/subscribeToDimensionChanges';
 import { tooltipState } from './state';
 import { TooltipContainer } from './TooltipContainer';
-import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
 
 export function Tooltips() {
 	const store = useStore();

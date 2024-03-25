@@ -1,5 +1,5 @@
-import { isNumber } from '../../utils/isNumber';
-import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
+import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
+import { isNumber } from '@/utils/isNumber';
 import type { SimulationNodeDatum } from 'd3-force';
 
 export function forceWithinBoundaries<TNode extends SimulationNodeDatum>(

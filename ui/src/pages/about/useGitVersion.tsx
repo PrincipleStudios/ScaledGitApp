@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
+import { queries } from '@/utils/api/queries';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { queries } from '../../utils/api/queries';
 
 export function useGitVersion() {
 	const result = useSuspenseQuery(queries.getInfo);

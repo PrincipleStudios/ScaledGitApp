@@ -1,6 +1,6 @@
+import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
 import { JotaiG } from '../svg/atom-elements';
-import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
 import type { Atom } from 'jotai';
 
 export function CenterG({

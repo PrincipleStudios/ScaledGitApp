@@ -1,12 +1,12 @@
-import { translateField } from '@/utils/translations';
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
+import type { JotaiLabel } from '../../jotai/label';
 import { useTwMerge } from '../../jotai/useTwMerge';
 import { elementTemplate } from '../../templating';
 import { ErrorsList } from '../errors-list';
 import { Field } from '../field';
-import { TextInput } from './text-input';
-import type { JotaiLabel } from '../../jotai/label';
 import type { FieldProps } from '../FieldProps';
+import { translateField } from '../utils/translations';
+import { TextInput } from './text-input';
 
 export type TextFieldPersistentProps = {
 	description?: boolean;

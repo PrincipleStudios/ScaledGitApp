@@ -1,8 +1,8 @@
+import type { Atom } from 'jotai';
 import { JotaiDiv } from '../../jotai/div';
 import { JotaiLabel } from '../../jotai/label';
 import { JotaiSpan } from '../../jotai/span';
 import { useTwMerge } from '../../jotai/useTwMerge';
-import type { Atom } from 'jotai';
 
 export type FieldProps = React.ComponentProps<typeof JotaiLabel> & {
 	noLabel?: boolean;

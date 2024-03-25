@@ -1,11 +1,11 @@
 import { initReactI18next } from 'react-i18next';
-import { constructUrl as toLocalizationUrl } from '@/generated/api/operations/getTranslationData';
 import i18nextBase from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi, { type HttpBackendOptions } from 'i18next-http-backend';
 import MultiloadAdapter, {
 	type MultiloadBackendOptions,
 } from 'i18next-multiload-backend-adapter';
+import { constructUrl as toLocalizationUrl } from '@/generated/api/operations/getTranslationData';
 
 const reportedKeys = new Set<string>();
 

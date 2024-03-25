@@ -1,10 +1,10 @@
-import type { BranchDetails } from '@/generated/api/models';
-import { queries } from '@/utils/api/queries';
 import {
 	useQueryClient,
 	useSuspenseQueries,
 	useQueries,
 } from '@tanstack/react-query';
+import type { BranchDetails } from '@/generated/api/models';
+import { queries } from '@/utils/api/queries';
 
 export function useBranchDetails(names: string[]) {
 	const queryClient = useQueryClient();

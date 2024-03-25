@@ -1,8 +1,8 @@
 import { InlineText } from '../common';
 import { FullSizeSvg } from '../svg/full-size-svg';
 import { BranchSvgCircle } from './BranchSvgCircle';
-import { useActiveBranchOnHover } from './useActiveBranchOnHover';
 import type { BranchInfo } from './types';
+import { useActiveBranchOnHover } from './useActiveBranchOnHover';
 
 export function BranchName({ data }: { data: BranchInfo }) {
 	const onHover = useActiveBranchOnHover(data);

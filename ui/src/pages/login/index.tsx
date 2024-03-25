@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { Container, ExternalLink, Section } from '@/components/common';
 import { Prose } from '@/components/text';
 import { queries } from '@/utils/api/queries';
-import { useSuspenseQuery } from '@tanstack/react-query';
 
 export function LoginComponent({ returnUrl }: { returnUrl: string[] }) {
 	const schemes = useSuspenseQuery(queries.getLoginSchemes);

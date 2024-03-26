@@ -15,7 +15,6 @@ internal static class UsabilityExtensions
 	public static Task<T> RunCommand<T>(this IGitToolsCommandContext target, IGitToolsCommand<Task<T>> command) =>
 		target.GitToolsCommandInvoker.RunCommand(command);
 
-
 	public static Task RunCommand(this IPowerShellCommandContext target, IPowerShellCommand<Task> command) =>
 		target.PowerShellCommandInvoker.RunCommand(command);
 	public static Task<T> RunCommand<T>(this IPowerShellCommandContext target, IPowerShellCommand<Task<T>> command) =>

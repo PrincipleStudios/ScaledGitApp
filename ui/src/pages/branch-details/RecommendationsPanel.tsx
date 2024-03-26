@@ -1,13 +1,10 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Section } from '../../components/common';
-import { Code, Heading, HintText } from '../../components/text';
-import { useRecommendationsEngine } from '../../recommendations';
-import type { BranchDetails } from '../../generated/api/models';
-import type {
-	RecommendationsEngine,
-	Recommendation,
-} from '../../recommendations';
+import { Section } from '@/components/common';
+import { Code, Heading, HintText } from '@/components/text';
+import type { BranchDetails } from '@/generated/api/models';
+import { useRecommendationsEngine } from '@/recommendations';
+import type { RecommendationsEngine, Recommendation } from '@/recommendations';
 
 export type RecommendationsPanelComponent = React.FC<{
 	branches: BranchDetails[];

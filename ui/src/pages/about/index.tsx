@@ -1,4 +1,4 @@
-import { Section } from '../../components/common';
+import { Section } from '@/components/common';
 import { useGitVersion } from './useGitVersion';
 
 export function AboutComponent() {

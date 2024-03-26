@@ -1,9 +1,9 @@
 import { twMerge } from 'tailwind-merge';
 import { elementTemplate } from '../templating';
 import { Tooltips } from '../tooltips';
+import type { HeaderPresentationalProps } from './header.presentation';
 import styles from './layout.module.css';
 import { LoadingSection } from './LoadingSection';
-import type { HeaderPresentationalProps } from './header.presentation';
 
 export type LayoutProps = {
 	header: React.ComponentType<HeaderPresentationalProps>;

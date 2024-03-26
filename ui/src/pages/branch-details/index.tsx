@@ -2,18 +2,18 @@ import { useTranslation } from 'react-i18next';
 import type { NavigateFunction } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useSuspenseQueries } from '@tanstack/react-query';
-import { BranchGraphPresentation } from '../../components/branch-graph/branch-graph.presentation';
-import { Container } from '../../components/common';
-import { LoadingSection } from '../../components/layout/LoadingSection';
-import { Tab } from '../../components/tabs';
-import { queries } from '../../utils/api/queries';
+import { BranchGraphPresentation } from '@/components/branch-graph/branch-graph.presentation';
+import { Container } from '@/components/common';
+import { LoadingSection } from '@/components/layout/LoadingSection';
+import { Tab } from '@/components/tabs';
+import type { BranchDetails } from '@/generated/api/models';
+import { queries } from '@/utils/api/queries';
 import styles from './branch-details.module.css';
 import { DetailsPanel } from './DetailsPanel';
 import { useRecommendationsPanel } from './RecommendationsPanel';
+import type { RecommendationsPanelComponent } from './RecommendationsPanel';
 import { useBranchDetails } from './useBranchDetails';
 import { namesOf } from './utils';
-import type { RecommendationsPanelComponent } from './RecommendationsPanel';
-import type { BranchDetails } from '../../generated/api/models';
 
 export function BranchDetailsComponent({ name }: { name: string[] }) {
 	const navigate = useNavigate();

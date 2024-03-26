@@ -3,9 +3,9 @@ import { Listbox, Transition } from '@headlessui/react';
 import { useAsAtom } from '@principlestudios/jotai-react-signals';
 import type { ControlledHtmlProps } from '@principlestudios/react-jotai-forms';
 import { useAtomValue } from 'jotai';
+import type { Atom } from 'jotai';
 import { HiCheck, HiChevronUpDown } from 'react-icons/hi2';
 import { twMerge } from 'tailwind-merge';
-import type { Atom } from 'jotai';
 
 export type SelectInputProps<T> = {
 	className?: string | Atom<string>;

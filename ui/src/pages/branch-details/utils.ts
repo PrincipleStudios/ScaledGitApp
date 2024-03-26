@@ -1,4 +1,4 @@
-import type { Branch } from '../../generated/api/models';
+import type { Branch } from '@/generated/api/models';
 
 export function namesOf(branches: Branch[]) {
 	return branches.map((b) => b.name);

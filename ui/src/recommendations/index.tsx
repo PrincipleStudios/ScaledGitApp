@@ -1,4 +1,4 @@
-import { useSuspensePromise } from '../utils/useSuspensePromise';
+import { useSuspensePromise } from '@/utils/useSuspensePromise';
 import { loadAllRules } from './load-all-rules';
 import type { RecommendationsEngine } from './rule-base';
 

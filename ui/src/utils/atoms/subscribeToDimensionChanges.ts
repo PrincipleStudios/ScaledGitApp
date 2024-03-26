@@ -1,6 +1,6 @@
+import type { PrimitiveAtom } from 'jotai';
 import type { JotaiStore } from './JotaiStore';
 import type { ElementDimensions } from './useResizeDetector';
-import type { PrimitiveAtom } from 'jotai';
 
 export function subscribeToDimensionChanges<
 	T extends HTMLElement | SVGElement = HTMLElement,

@@ -1,9 +1,9 @@
-import { useResizeDetector } from '../../utils/atoms/useResizeDetector';
+import type { Branch, BranchConfiguration } from '@/generated/api/models';
+import { useResizeDetector } from '@/utils/atoms/useResizeDetector';
 import { FullSizeSvg } from '../svg/full-size-svg';
 import { useBranchSimulation } from './branch-graph.simulation';
 import { BranchLink } from './BranchLink';
 import { BranchNode } from './BranchNode';
-import type { Branch, BranchConfiguration } from '../../generated/api/models';
 
 export type BranchGraphPresentationProps = {
 	upstreamData: BranchConfiguration[];

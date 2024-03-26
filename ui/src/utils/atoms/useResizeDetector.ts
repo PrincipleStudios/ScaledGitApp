@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useMemo } from 'react';
 import { atom, useStore } from 'jotai';
-import { subscribeToDimensionChanges } from './subscribeToDimensionChanges';
 import type { PrimitiveAtom } from 'jotai';
+import { subscribeToDimensionChanges } from './subscribeToDimensionChanges';
 
 export interface ElementDimensions {
 	left?: number;

@@ -5,22 +5,22 @@ import {
 	forceManyBody,
 	forceSimulation,
 } from 'd3-force';
-import { useStore, type Atom } from 'jotai';
-import { atomWithImperativeProxy } from '../../utils/atoms/jotai-imperative-atom';
-import { isNumber } from '../../utils/isNumber';
-import { forceWithinBoundaries } from './forceWithinBoundaries';
-import { neutralizeVelocity } from './neutralizeVelocity';
-import { useAnimationFrame } from './useAnimationFrame';
-import type { Branch, BranchConfiguration } from '../../generated/api/models';
-import type { JotaiStore } from '../../utils/atoms/JotaiStore';
-import type { ElementDimensions } from '../../utils/atoms/useResizeDetector';
-import type { BranchInfo } from '../branch-display';
 import type {
 	ForceLink,
 	Simulation,
 	SimulationLinkDatum,
 	SimulationNodeDatum,
 } from 'd3-force';
+import { useStore, type Atom } from 'jotai';
+import type { Branch, BranchConfiguration } from '@/generated/api/models';
+import { atomWithImperativeProxy } from '@/utils/atoms/jotai-imperative-atom';
+import type { JotaiStore } from '@/utils/atoms/JotaiStore';
+import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
+import { isNumber } from '@/utils/isNumber';
+import type { BranchInfo } from '../branch-display';
+import { forceWithinBoundaries } from './forceWithinBoundaries';
+import { neutralizeVelocity } from './neutralizeVelocity';
+import { useAnimationFrame } from './useAnimationFrame';
 
 const maxUnknownBranchPerNodeCount = 5;
 const maxUnknownBranchCount = 100;

@@ -23,16 +23,16 @@ public class GitToolsPowerShellInvokerFixture
 	/// <param name="options">Uses `gitOptions` above if not provided</param>
 	/// <param name="mockFactoryDirectly">Prevents detecting git directory or runspace setup if true</param>
 	/// <returns>The target GitToolsPowerShellInvoker instance</returns>
-	public GitToolsPowerShellInvoker CreateTarget(GitOptions? options = null, GitCloneConfiguration? cloneConfiguration = null)
+	public GitToolsCommandInvoker CreateTarget(GitOptions? options = null, GitCloneConfiguration? cloneConfiguration = null)
 	{
 		GitOptions = options ?? GitOptions;
 		CloneConfiguration = cloneConfiguration ?? CloneConfiguration;
 
-		var gitToolsPowerShell = new GitToolsPowerShellInvoker(
+		var gitToolsPowerShell = new GitToolsCommandInvoker(
 			Options.Create(GitOptions),
 			MockPowerShellFactory.Object,
 			CloneConfiguration,
-			Mock.Of<ILogger<GitToolsPowerShellInvoker>>()
+			Mock.Of<ILogger<GitToolsCommandInvoker>>()
 		);
 
 		return gitToolsPowerShell;

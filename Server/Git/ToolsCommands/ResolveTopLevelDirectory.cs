@@ -4,7 +4,7 @@ using System.Management.Automation;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class ResolveTopLevelDirectory() : IPowerShellCommand<Task<string>>
+public record ResolveTopLevelDirectory() : IPowerShellCommand<Task<string>>
 {
 	public async Task<string> RunCommand(IPowerShellCommandContext context)
 	{

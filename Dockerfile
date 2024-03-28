@@ -103,10 +103,13 @@ ENV BUILD__GITHASH=${GITHASH}
 ARG BUILDTAG
 ENV BUILD__TAG=${BUILDTAG}
 
+COPY ["./eng/docker-startup/docker-entrypoint.sh", "./"]
+RUN chmod +x ./docker-entrypoint.sh
+
 ENV LOCALIZATION__BUNDLEPATH=./wwwroot/i18n/<lang>.json
 ENV LOCALIZATION__STANDARDPATH=./wwwroot/i18n/<namespace>/<lang>.json
 
 COPY --from=build-dotnet /src/artifacts/bin/Server/Release/net8.0/publish .
 COPY --from=build-ui /src/Server/wwwroot ./wwwroot
 
-ENTRYPOINT ["dotnet", "PrincipleStudios.ScaledGitApp.Server.dll"]
+ENTRYPOINT ["./docker-entrypoint.sh", "dotnet", "PrincipleStudios.ScaledGitApp.Server.dll"]

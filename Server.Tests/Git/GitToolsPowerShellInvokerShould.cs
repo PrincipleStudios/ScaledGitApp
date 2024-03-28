@@ -2,6 +2,7 @@
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PrincipleStudios.ScaledGitApp.Commands;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
@@ -23,7 +24,8 @@ public partial class GitToolsPowerShellInvokerShould
 				calledFactory = true;
 				return Task.FromResult(fixture.CloneConfiguration);
 			},
-			Mock.Of<ILogger<GitToolsCommandInvoker>>()
+			Mock.Of<ILogger<GitToolsCommandInvoker>>(),
+			Mock.Of<StubCommandCache>()
 		);
 
 		await Task.Yield();

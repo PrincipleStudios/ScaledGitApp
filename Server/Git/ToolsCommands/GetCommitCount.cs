@@ -12,4 +12,9 @@ public record GetCommitCount(IEnumerable<string> Included, IEnumerable<string> E
 		if (cliResults.HadErrors) return null;
 		return int.Parse(cliResults.ToResultStrings().Single());
 	}
+
+	public virtual bool Equals(GetCommitCount? other) =>
+		other?.GetType() == GetType() && Included.SequenceEqual(other.Included) && Excluded.SequenceEqual(other.Excluded);
+	public override int GetHashCode() =>
+		Included.Concat(Excluded).Aggregate(typeof(GetCommitCount).GetHashCode(), (prev, next) => prev ^ next.GetHashCode());
 }

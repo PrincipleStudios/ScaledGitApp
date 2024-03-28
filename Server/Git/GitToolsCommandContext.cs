@@ -3,25 +3,21 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsCommandContext : CommandInvoker<IGitToolsCommandContext>, IGitToolsCommandContext
+public sealed class GitToolsCommandContext(
+	IPowerShellInvoker pwsh,
+	IGitToolsInvoker gitToolsInvoker,
+	IGitCloneConfiguration gitCloneConfiguration,
+	ILogger logger,
+	ICommandCache commandCache
+) : CachingCommandInvoker<IGitToolsCommandContext>(logger, commandCache), IGitToolsCommandContext
 {
-	private readonly IPowerShellInvoker pwsh;
-
-	public GitToolsCommandContext(IPowerShellInvoker pwsh, IGitToolsInvoker gitToolsInvoker, IGitCloneConfiguration gitCloneConfiguration, ILogger logger)
-		: base(logger)
-	{
-		this.pwsh = pwsh;
-		GitCloneConfiguration = gitCloneConfiguration;
-		GitToolsInvoker = gitToolsInvoker;
-	}
-
 	public IPowerShellCommandInvoker PowerShellCommandInvoker => this;
 
 	public IGitToolsCommandInvoker GitToolsCommandInvoker => this;
 
-	public IGitToolsInvoker GitToolsInvoker { get; }
+	public IGitToolsInvoker GitToolsInvoker => gitToolsInvoker;
 
-	public IGitCloneConfiguration GitCloneConfiguration { get; }
+	public IGitCloneConfiguration GitCloneConfiguration => gitCloneConfiguration;
 
 	IPowerShellInvoker IPowerShellCommandContext.PowerShellInvoker => pwsh;
 

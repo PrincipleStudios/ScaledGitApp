@@ -8,16 +8,17 @@ public sealed class GitToolsCommandInvoker(
 	IOptions<GitOptions> options,
 	PowerShellFactory psFactory,
 	Lazy<Task<GitCloneConfiguration>> gitCloneConfigurationAccessor,
-	ILogger<GitToolsCommandInvoker> logger
-) : CommandInvoker<IGitToolsCommandContext>(logger)
+	ILogger<GitToolsCommandInvoker> logger,
+	ICommandCache commandCache
+) : CachingCommandInvoker<IGitToolsCommandContext>(logger, commandCache)
 {
-	public GitToolsCommandInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, Func<Task<GitCloneConfiguration>> gitCloneConfiguration, ILogger<GitToolsCommandInvoker> logger)
-		: this(options, psFactory, new Lazy<Task<GitCloneConfiguration>>(gitCloneConfiguration), logger)
+	public GitToolsCommandInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, Func<Task<GitCloneConfiguration>> gitCloneConfiguration, ILogger<GitToolsCommandInvoker> logger, ICommandCache commandCache)
+		: this(options, psFactory, new Lazy<Task<GitCloneConfiguration>>(gitCloneConfiguration), logger, commandCache)
 	{
 	}
 
-	public GitToolsCommandInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, GitCloneConfiguration gitCloneConfiguration, ILogger<GitToolsCommandInvoker> logger)
-		: this(options, psFactory, () => Task.FromResult(gitCloneConfiguration), logger)
+	public GitToolsCommandInvoker(IOptions<GitOptions> options, PowerShellFactory psFactory, GitCloneConfiguration gitCloneConfiguration, ILogger<GitToolsCommandInvoker> logger, ICommandCache commandCache)
+		: this(options, psFactory, () => Task.FromResult(gitCloneConfiguration), logger, commandCache)
 	{
 	}
 
@@ -26,7 +27,7 @@ public sealed class GitToolsCommandInvoker(
 		using var pwsh = psFactory.Create();
 		var config = await gitCloneConfigurationAccessor.Value;
 		pwsh.SetCurrentWorkingDirectory(config.GitRootDirectory);
-		var context = new GitToolsCommandContext(pwsh, new GitToolsInvoker(pwsh, options.Value), config, logger);
+		var context = new GitToolsCommandContext(pwsh, new GitToolsInvoker(pwsh, options.Value), config, logger, Cache);
 		return await RunGenericCommand(command, context);
 	}
 }

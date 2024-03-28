@@ -3,8 +3,8 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class PowerShellCommandContext(IPowerShellInvoker powerShell, ILogger logger)
-	: CommandInvoker<IPowerShellCommandContext>(logger), IPowerShellCommandContext
+public sealed class PowerShellCommandContext(IPowerShellInvoker powerShell, ILogger logger, ICommandCache commandCache)
+	: CachingCommandInvoker<IPowerShellCommandContext>(logger, commandCache), IPowerShellCommandContext
 {
 	public IPowerShellCommandInvoker PowerShellCommandInvoker => this;
 	public IPowerShellInvoker PowerShellInvoker => powerShell;

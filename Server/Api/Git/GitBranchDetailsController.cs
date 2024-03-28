@@ -10,7 +10,7 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 	{
 		var results = await gitToolsPowerShell.RunCommand(
 			new GitBranchUpstreamDetails(
-				[getBranchDetailsBody.Branch],
+				getBranchDetailsBody.Branch,
 				IncludeDownstream: false,
 				IncludeUpstream: false,
 				Recurse: false,

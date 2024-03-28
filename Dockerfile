@@ -96,6 +96,8 @@ WORKDIR /src/Server/wwwroot
 RUN find . -type f -not -regex ".*\.\(avif\|jpg\|jpeg\|gif\|png\|webp\|mp4\|webm\)" -exec gzip -k "{}" \; -exec brotli -k "{}" \;
 
 FROM base as final
+ENV GIT__WORKINGDIRECTORY=/data
+ENV GIT__GITTOOLSDIRECTORY=/git-tools
 ARG GITHASH
 ENV BUILD__GITHASH=${GITHASH}
 ARG BUILDTAG

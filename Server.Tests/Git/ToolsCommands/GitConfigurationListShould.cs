@@ -36,7 +36,7 @@ public class GitConfigurationListShould
 
 		var target = new GitConfigurationList();
 
-		var actualConfiguration = await target.RunCommand(fixture.Create());
+		var actualConfiguration = await target.Execute(fixture.Create());
 
 		var actualValues = Assert.Contains(key, actualConfiguration);
 		Assert.Contains(expectedValue, actualValues);

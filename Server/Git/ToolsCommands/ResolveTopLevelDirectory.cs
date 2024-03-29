@@ -6,7 +6,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 public class ResolveTopLevelDirectory() : IPowerShellCommand<Task<string>>
 {
-	public async Task<string> RunCommand(IPowerShellCommandContext context)
+	public async Task<string> Execute(IPowerShellCommandContext context)
 	{
 		// Gets the _actual_ top level of the working directory
 		var result = await context.InvokeCliAsync("git", "rev-parse", "--show-toplevel");

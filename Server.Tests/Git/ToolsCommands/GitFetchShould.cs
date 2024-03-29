@@ -14,7 +14,7 @@ public class GitFetchShould
 		var verifyGitFetch = SetupGitFetch(fixture.MockPowerShell);
 		var target = new GitFetch();
 
-		await target.RunCommand(fixture.Create());
+		await target.Execute(fixture.Create());
 
 		verifyGitFetch.Verify(Times.Once);
 	}

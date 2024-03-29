@@ -14,7 +14,7 @@ public class GitRemoteShould
 		var verifyGitRemote = SetupGitRemote(fixture.MockPowerShell);
 		var target = new GitRemote();
 
-		var remotes = await target.RunCommand(fixture.Create());
+		var remotes = await target.Execute(fixture.Create());
 
 		Assert.Empty(remotes.Remotes);
 		verifyGitRemote.Verify(Times.Once);
@@ -27,7 +27,7 @@ public class GitRemoteShould
 		var verifyGitRemote = SetupGitRemote(fixture.MockPowerShell, [expectedRemote]);
 		var target = new GitRemote();
 
-		var remotes = await target.RunCommand(fixture.Create());
+		var remotes = await target.Execute(fixture.Create());
 
 		var actualRemote = Assert.Single(remotes.Remotes);
 		Assert.Equal(expectedRemote, actualRemote);
@@ -42,7 +42,7 @@ public class GitRemoteShould
 		var verifyGitRemote = SetupGitRemote(fixture.MockPowerShell, [expectedRemote1, expectedRemote2]);
 		var target = new GitRemote();
 
-		var remotes = await target.RunCommand(fixture.Create());
+		var remotes = await target.Execute(fixture.Create());
 
 		Assert.Collection(
 			remotes.Remotes,

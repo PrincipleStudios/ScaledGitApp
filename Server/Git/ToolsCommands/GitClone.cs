@@ -8,7 +8,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 /// <param name="Repository">The Git URL for the repository to clone</param>
 public record GitClone(string Repository) : IPowerShellCommand<Task>
 {
-	public async Task RunCommand(IPowerShellCommandContext context)
+	public async Task Execute(IPowerShellCommandContext context)
 	{
 		// TODO: git tools do not support bare repos, otherwise this should be a bare repo
 		(await context.InvokeCliAsync("git", "clone", Repository, ".", "--quiet", "--no-checkout")).ThrowIfHadErrors();

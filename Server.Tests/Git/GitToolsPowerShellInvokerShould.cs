@@ -43,7 +43,7 @@ public partial class GitToolsPowerShellInvokerShould
 		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
 
 		var mockCommand = new Mock<IGitToolsCommand<Task<string>>>();
-		var verifiableCommand = mockCommand.Verifiable(cmd => cmd.RunCommand(It.IsAny<IGitToolsCommandContext>()), s => s.ReturnsAsync(expectedResult));
+		var verifiableCommand = mockCommand.Verifiable(cmd => cmd.Execute(It.IsAny<IGitToolsCommandContext>()), s => s.ReturnsAsync(expectedResult));
 
 		// By mocking the factory directly, we skip working directory detection
 		var target = fixture.CreateTarget();

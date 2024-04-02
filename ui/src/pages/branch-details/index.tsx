@@ -57,16 +57,18 @@ function BranchDetailsComponentPresentation({
 				/>
 
 				{/* Key forces remount of all panels when main branches change */}
-				<LoadingSection>
-					<Tab.Panels key={namesOf(mainBranchDetails).join(',')}>
-						<Tab.Panel>
+				<Tab.Panels key={namesOf(mainBranchDetails).join(',')}>
+					<Tab.Panel>
+						<LoadingSection>
 							<DetailsPanel branches={mainBranchDetails} />
-						</Tab.Panel>
-						<Tab.Panel>
+						</LoadingSection>
+					</Tab.Panel>
+					<Tab.Panel>
+						<LoadingSection>
 							<RecommendationsPanel branches={mainBranchDetails} />
-						</Tab.Panel>
-					</Tab.Panels>
-				</LoadingSection>
+						</LoadingSection>
+					</Tab.Panel>
+				</Tab.Panels>
 			</Tab.Group>
 		</Container.Responsive>
 	);

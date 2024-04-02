@@ -8,8 +8,8 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 /// <param name="Repository">The Git URL for the repository to clone</param>
 public record GitFetch() : IPowerShellCommand<Task>
 {
-	public async Task RunCommand(IPowerShellCommandContext pwsh)
+	public async Task RunCommand(IPowerShellCommandContext context)
 	{
-		(await pwsh.InvokeCliAsync("git", "fetch", "--porcelain", "--prune")).ThrowIfHadErrors();
+		(await context.InvokeCliAsync("git", "fetch", "--porcelain", "--prune")).ThrowIfHadErrors();
 	}
 }

@@ -1,9 +1,12 @@
 #pragma warning disable CA1861 // Avoid constant arrays as arguments - the envfile list belongs here, and static arrays cannot be created in Program.cs
 using dotenv.net;
+using PrincipleStudios.ScaledGitApp.Auth;
 using PrincipleStudios.ScaledGitApp.BranchingStrategy;
+using PrincipleStudios.ScaledGitApp.Commands;
 using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Locales;
+using PrincipleStudios.ScaledGitApp.Realtime;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 DotEnv.Load(new DotEnvOptions(envFilePaths: new[] {
@@ -19,7 +22,9 @@ builder.Configuration.AddSecretsManager();
 
 var services = builder.Services;
 
+services.RegisterAuth(builder.Configuration.GetSection("Auth"));
 services.RegisterBranchingStrategy(builder.Configuration.GetSection("Colors"));
+services.RegisterCommands();
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
 	environmentName: builder.Environment.EnvironmentName,
@@ -28,18 +33,28 @@ services.RegisterEnvironment(
 );
 services.RegisterGit(builder.Configuration.GetSection("git"));
 services.RegisterLocales(builder.Configuration.GetSection("localization"));
+services.RegisterRealtimeNotifications(
+	includeAzureSignalR: builder.Configuration["Azure:SignalR:ConnectionString"] != null
+);
 services.RegisterShellUtilities();
 
 var app = builder.Build();
 
 app.UseHealthChecks("/health");
 
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
+
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 #pragma warning disable ASP0014 // Suggest using top level route registrations - this seems to be necessary to prevent the SPA middleware from overwriting controller requests
 app.UseEndpoints(endpoints =>
 	{
 		endpoints.MapControllers();
+		endpoints.MapHub<FullHub>("/hub");
 	});
 #pragma warning restore ASP0014 // Suggest using top level route registrations
 

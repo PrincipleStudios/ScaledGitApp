@@ -16,7 +16,7 @@ public class GetConflictingFilesShould
 		var verifyGitClone = SetupConflictingFiles(fixture.MockPowerShell, [branch1, branch2], expectedTree, []);
 		var target = new GetConflictingFiles(branch1, branch2);
 
-		var actual = await target.RunCommand(fixture.Create());
+		var actual = await target.Execute(fixture.Create());
 
 		Assert.False(actual.HasConflict);
 		Assert.Equal(expectedTree, actual.ResultTreeHash);
@@ -38,7 +38,7 @@ public class GetConflictingFilesShould
 		var verifyGitClone = SetupConflictingFiles(fixture.MockPowerShell, [branch1, branch2], expectedTree, conflictingFiles);
 		var target = new GetConflictingFiles(branch1, branch2);
 
-		var actual = await target.RunCommand(fixture.Create());
+		var actual = await target.Execute(fixture.Create());
 
 		Assert.True(actual.HasConflict);
 		Assert.Equal(expectedTree, actual.ResultTreeHash);
@@ -57,7 +57,7 @@ public class GetConflictingFilesShould
 		var verifyGitClone = SetupFailedMerge(fixture.MockPowerShell, [branch1, branch2]);
 		var target = new GetConflictingFiles(branch1, branch2);
 
-		await Assert.ThrowsAsync<GitException>(() => target.RunCommand(fixture.Create()));
+		await Assert.ThrowsAsync<GitException>(() => target.Execute(fixture.Create()));
 
 		verifyGitClone.Verify(Times.Once);
 	}

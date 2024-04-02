@@ -2,6 +2,7 @@
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PrincipleStudios.ScaledGitApp.Commands;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
@@ -15,7 +16,7 @@ public partial class GitToolsPowerShellInvokerShould
 		var calledFactory = false;
 		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns((IPowerShell)null!);
 
-		var target = new GitToolsPowerShellInvoker(
+		var target = new GitToolsCommandInvoker(
 			Options.Create(fixture.GitOptions),
 			fixture.MockPowerShellFactory.Object,
 			() =>
@@ -23,7 +24,8 @@ public partial class GitToolsPowerShellInvokerShould
 				calledFactory = true;
 				return Task.FromResult(fixture.CloneConfiguration);
 			},
-			Mock.Of<ILogger<GitToolsPowerShellInvoker>>()
+			Mock.Of<ILogger<GitToolsCommandInvoker>>(),
+			Mock.Of<StubCommandCache>()
 		);
 
 		await Task.Yield();
@@ -43,12 +45,12 @@ public partial class GitToolsPowerShellInvokerShould
 		fixture.MockPowerShellFactory.Setup(ps => ps.Create(null)).Returns(mockFinal.Object);
 
 		var mockCommand = new Mock<IGitToolsCommand<Task<string>>>();
-		var verifiableCommand = mockCommand.Verifiable(cmd => cmd.RunCommand(It.IsAny<IGitToolsCommandContext>()), s => s.ReturnsAsync(expectedResult));
+		var verifiableCommand = mockCommand.Verifiable(cmd => cmd.Execute(It.IsAny<IGitToolsCommandContext>()), s => s.ReturnsAsync(expectedResult));
 
 		// By mocking the factory directly, we skip working directory detection
 		var target = fixture.CreateTarget();
 
-		var result = await target.GitToolsCommandInvoker.RunCommand(mockCommand.Object);
+		var result = await target.RunCommand(mockCommand.Object);
 
 		// Assert that we got the expected result from the command because the value was passed through
 		Assert.Equal(expectedResult, result);

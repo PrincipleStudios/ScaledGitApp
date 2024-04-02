@@ -1,5 +1,5 @@
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
-import { setupDragHandler } from '../../utils/dragging';
+import { setupDragHandler } from '@/utils/dragging';
 import { BranchSvgCircle } from '../branch-display';
 import { JotaiG } from '../svg/atom-elements';
 import type { BranchGraphNodeDatum, WithAtom } from './branch-graph.simulation';

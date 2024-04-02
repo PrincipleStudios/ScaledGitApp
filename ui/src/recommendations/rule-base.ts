@@ -1,6 +1,6 @@
 import { type QueryClient } from '@tanstack/react-query';
 import { type Atom } from 'jotai';
-import { type BranchDetails } from '../generated/api/models';
+import { type BranchDetails } from '@/generated/api/models';
 
 // Not using Jotai's Loadable<> here because it doesn't allow for partial data
 export type LoadableRecommendations = {

@@ -5,8 +5,8 @@ public static partial class GitLogging
 	[LoggerMessage(LogLevel.Information, "No git repository configured; skipping clone.")]
 	public static partial void NoGitRepositoryConfigured(this ILogger logger);
 
-	[LoggerMessage(LogLevel.Information, "Running {CommandType}.")]
-	public static partial void RunningGitToolsPowerShellCommand(this ILogger logger, string commandType);
+	[LoggerMessage(LogLevel.Debug, "Running {CommandType}.")]
+	public static partial void RunningCommand(this ILogger logger, string commandType);
 
 
 	[LoggerMessage(LogLevel.Information, "Git was already cloned in {Directory} for {Remote}")]

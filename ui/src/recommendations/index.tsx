@@ -5,10 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { atom, useAtomValue } from 'jotai';
 import { loadable } from 'jotai/utils';
 import { type Loadable } from 'jotai/vanilla/utils/loadable';
-import { useSuspensePromise } from '../utils/useSuspensePromise';
+import type { BranchDetails } from '@/generated/api/models';
+import { useSuspensePromise } from '@/utils/useSuspensePromise';
 import { loadAllRules } from './load-all-rules';
 import type { RecommendationOutput, RecommendationsEngine } from './rule-base';
-import type { BranchDetails } from '../generated/api/models';
 
 export type {
 	RecommendationsEngine,

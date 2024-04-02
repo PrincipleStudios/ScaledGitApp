@@ -1,3 +1,4 @@
+export * from './button';
 export * from './container';
 export * from './InlineText';
 export * from './list';

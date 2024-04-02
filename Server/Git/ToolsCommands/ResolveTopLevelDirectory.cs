@@ -4,12 +4,12 @@ using System.Management.Automation;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class ResolveTopLevelDirectory() : IPowerShellCommand<Task<string>>
+public record ResolveTopLevelDirectory() : IPowerShellCommand<Task<string>>
 {
-	public async Task<string> RunCommand(IPowerShellCommandContext pwsh)
+	public async Task<string> Execute(IPowerShellCommandContext context)
 	{
 		// Gets the _actual_ top level of the working directory
-		var result = await pwsh.InvokeCliAsync("git", "rev-parse", "--show-toplevel");
+		var result = await context.InvokeCliAsync("git", "rev-parse", "--show-toplevel");
 		result.ThrowIfHadErrors();
 		return result switch
 		{

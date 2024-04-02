@@ -1,4 +1,4 @@
-import { Container } from '../../components/common';
+import { Container } from '@/components/common';
 import { useBranchListing } from './branch-listing';
 
 export function OverviewComponent() {

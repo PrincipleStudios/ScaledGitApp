@@ -3,26 +3,24 @@ using PrincipleStudios.ScaledGitApp.ShellUtilities;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
-public sealed class GitToolsCommandContext : IGitToolsCommandContext
+public sealed class GitToolsCommandContext(
+	IPowerShellInvoker pwsh,
+	IGitToolsInvoker gitToolsInvoker,
+	IGitCloneConfiguration gitCloneConfiguration,
+	ILogger logger,
+	ICommandCache commandCache
+) : CachingCommandInvoker<IGitToolsCommandContext>(logger, commandCache), IGitToolsCommandContext
 {
-	private readonly IPowerShellInvoker pwsh;
+	public IPowerShellCommandInvoker PowerShellCommandInvoker => this;
 
-	public GitToolsCommandContext(IPowerShellInvoker pwsh, IGitToolsInvoker gitToolsInvoker, IGitCloneConfiguration gitCloneConfiguration, ILogger logger)
-	{
-		this.pwsh = pwsh;
-		GitCloneConfiguration = gitCloneConfiguration;
-		GitToolsInvoker = gitToolsInvoker;
-		PowerShellCommandInvoker = new InstanceCommandInvoker<IPowerShellCommandContext>(this, logger);
-		GitToolsCommandInvoker = new InstanceCommandInvoker<IGitToolsCommandContext>(this, logger);
-	}
+	public IGitToolsCommandInvoker GitToolsCommandInvoker => this;
 
-	public IPowerShellCommandInvoker PowerShellCommandInvoker { get; }
+	public IGitToolsInvoker GitToolsInvoker => gitToolsInvoker;
 
-	public IGitToolsCommandInvoker GitToolsCommandInvoker { get; }
-
-	public IGitToolsInvoker GitToolsInvoker { get; }
-
-	public IGitCloneConfiguration GitCloneConfiguration { get; }
+	public IGitCloneConfiguration GitCloneConfiguration => gitCloneConfiguration;
 
 	IPowerShellInvoker IPowerShellCommandContext.PowerShellInvoker => pwsh;
+
+	protected override Task<T> RunGenericCommand<T>(ICommand<T, IGitToolsCommandContext> command) =>
+		RunGenericCommand(command, this);
 }

@@ -3,11 +3,11 @@ using System.Collections.Immutable;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class GitConfigurationList : IPowerShellCommand<Task<IReadOnlyDictionary<string, IReadOnlyList<string>>>>
+public record GitConfigurationList : IPowerShellCommand<Task<IReadOnlyDictionary<string, IReadOnlyList<string>>>>
 {
-	public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> RunCommand(IPowerShellCommandContext pwsh)
+	public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> Execute(IPowerShellCommandContext context)
 	{
-		var configurationResult = await pwsh.InvokeCliAsync("git", "config", "--list");
+		var configurationResult = await context.InvokeCliAsync("git", "config", "--list");
 		configurationResult.ThrowIfHadErrors();
 		return
 			(

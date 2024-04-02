@@ -1,11 +1,11 @@
+import type { TFunction } from 'i18next';
 import { elementTemplate } from '../../templating';
 import { ErrorsList } from '../errors-list';
 import { Field } from '../field';
+import type { StandardField } from '../FieldProps';
 import { translateField } from '../utils/translations';
 import { SelectInput } from './select-input';
 import type { SelectInputProps } from './select-input';
-import type { StandardField } from '../FieldProps';
-import type { TFunction } from 'i18next';
 
 export const NotSelected = elementTemplate('NotSelected', 'span', (T) => (
 	<T className="text-slate-500" />

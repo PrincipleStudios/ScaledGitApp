@@ -3,9 +3,15 @@ name: Build Docker
 on: pull_request
 
 env:
-  registryLoginServer: 'example.com' # TODO
+  registryLoginServer: 'principlestudios.azurecr.io'
   imageName: 'scaledgitapp'
   dockerImageTag: 'ci-${{ github.run_number }}'
+
+concurrency:
+  # Ensures this build only is running once per PR; if new commits are pushed
+  # while the previous build is still running, cancel it.
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -19,3 +25,14 @@ jobs:
           docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
           docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAzure=true" -t $registryLoginServer/$imageName:$dockerImageTag-azure --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
           docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAWS=true" -t $registryLoginServer/$imageName:$dockerImageTag-aws --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
+
+      - name: 'Log in to docker registry'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.registryLoginServer }}
+          username: ${{ secrets.AZ_CLIENT_ID }}
+          password: ${{ secrets.AZ_CLIENT_SECRET }}
+
+      - name: 'Push image'
+        run: |
+          docker push --all-tags $registryLoginServer/$imageName

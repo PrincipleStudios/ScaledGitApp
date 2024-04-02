@@ -20,7 +20,7 @@ public class ResolveTopLevelDirectoryShould
 		);
 		var target = new ResolveTopLevelDirectory();
 
-		var actual = await target.RunCommand(fixture.Create());
+		var actual = await target.Execute(fixture.Create());
 
 		Assert.Equal(expectedWorkingDirectory, actual);
 		verifiable.Verify(Times.Once);

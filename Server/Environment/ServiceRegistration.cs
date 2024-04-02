@@ -9,6 +9,7 @@ using Azure.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace PrincipleStudios.ScaledGitApp.Environment;
 
@@ -24,6 +25,12 @@ public static class ServiceRegistration
 		services.AddControllers(config =>
 		{
 			config.Filters.Add(new MvcActionTracing());
+		});
+		services.Configure<ForwardedHeadersOptions>(options =>
+		{
+			options.ForwardedHeaders = ForwardedHeaders.All;
+			options.KnownNetworks.Clear();
+			options.KnownProxies.Clear();
 		});
 
 		services.Configure<BuildOptions>(buildConfig);

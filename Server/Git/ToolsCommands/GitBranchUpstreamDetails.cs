@@ -1,39 +1,59 @@
 ﻿namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
+public record GitBranchUpstreamDetails(string BranchName, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>
 {
-	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> RunCommand(IGitToolsCommandContext pwsh)
+	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> Execute(IGitToolsCommandContext context)
 	{
-		var upstreams = await pwsh.RunCommand(new GitUpstreamData());
-		var context = new ExecutionContext(pwsh, upstreams);
-		var baseBranches = ExpandBaseBranches(context, BranchNames);
+		var upstreams = await context.RunCommand(new GitUpstreamData());
+		var executionContext = new ExecutionContext(context, upstreams);
+		var baseBranches = ExpandBaseBranches(executionContext, BranchName);
 
 		var result = new List<UpstreamBranchDetailedState>();
 		foreach (var baseBranch in baseBranches)
 		{
-			var fullBranchName = context.FullName(baseBranch);
-			var branchExists = await context.CheckBranchExists(fullBranchName);
+			var fullBranchName = executionContext.FullName(baseBranch);
+			var branchExists = await executionContext.CheckBranchExists(fullBranchName);
 
-			var entries = await LoadImmediateUpstreamInfo(context, baseBranch, branchExists);
+			var entries = await LoadImmediateUpstreamInfo(executionContext, baseBranch, branchExists);
+			var existingUpstream = branchExists
+				? await GetExistingRecursiveUpstreamBranches(upstreams, executionContext, fullBranchName, entries)
+				: Enumerable.Empty<string>();
 
 			result.Add(new(
 				Name: baseBranch,
 				Exists: branchExists,
 				NonMergeCommitCount: branchExists
-					? await pwsh.RunCommand(new GetCommitCount(
+					? await context.RunCommand(new GetCommitCount(
 						Included: [fullBranchName],
-						Excluded: from entry in entries
-								  where entry.Exists
-								  select context.FullName(entry.Name)
+						Excluded: existingUpstream
 					)) ?? 0
 					: 0,
 				Upstreams: entries.ToArray(),
-				DownstreamNames: GetDownstreamBranchNames(context, baseBranch).ToArray()
+				DownstreamNames: GetDownstreamBranchNames(executionContext, baseBranch).ToArray()
 			));
 		}
 
 		return result.AsReadOnly();
+	}
+
+	private async Task<List<string>> GetExistingRecursiveUpstreamBranches(IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams, ExecutionContext context, string fullBranchName, List<UpstreamBranchMergeInfo> entries)
+	{
+		var recursiveUpstream = ExpandBaseBranches(
+			entries.Select(e => e.Name).ToArray(),
+			(current) =>
+				upstreams.TryGetValue(current, out var configuredUpstreams)
+					? configuredUpstreams.UpstreamBranchNames
+					: Enumerable.Empty<string>(),
+			forceRecurse: true
+		);
+		var existingUpstream = new List<string>();
+		foreach (var e in recursiveUpstream.Select(context.FullName).Except([fullBranchName]))
+		{
+			if (await context.CheckBranchExists(e)) existingUpstream.Add(e);
+		}
+
+		return existingUpstream;
 	}
 
 	private static async Task<List<UpstreamBranchMergeInfo>> LoadImmediateUpstreamInfo(ExecutionContext context, string baseBranch, bool branchExists)
@@ -99,14 +119,15 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		}
 	}
 
-	private string[] ExpandBaseBranches(ExecutionContext context, IReadOnlyList<string> branchNames)
+	private string[] ExpandBaseBranches(ExecutionContext context, string branchName)
 	{
-		IEnumerable<string> result = branchNames;
+		var branchNameArray = new[] { branchName };
+		IEnumerable<string> result = branchNameArray;
 		if (IncludeDownstream)
-			result = result.Concat(ExpandBaseBranches(branchNames, (current) =>
+			result = result.Concat(ExpandBaseBranches(branchNameArray, (current) =>
 					GetDownstreamBranchNames(context, current)));
 		if (IncludeUpstream)
-			result = result.Concat(ExpandBaseBranches(branchNames, (current) =>
+			result = result.Concat(ExpandBaseBranches(branchNameArray, (current) =>
 					context.Upstreams.TryGetValue(current, out var configuredUpstreams)
 						? configuredUpstreams.UpstreamBranchNames
 						: Enumerable.Empty<string>()));

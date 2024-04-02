@@ -2,5 +2,5 @@
 
 public interface ICommand<out TResult, in TContext> where TResult : Task
 {
-	TResult RunCommand(TContext pwsh);
+	TResult Execute(TContext context);
 }

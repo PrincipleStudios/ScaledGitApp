@@ -14,7 +14,7 @@ public class GitFetchShould
 		var verifyGitFetch = SetupGitFetch(fixture.MockPowerShell);
 		var target = new GitFetch();
 
-		await target.RunCommand(fixture.Create());
+		await target.Execute(fixture.Create());
 
 		verifyGitFetch.Verify(Times.Once);
 	}
@@ -22,7 +22,7 @@ public class GitFetchShould
 	internal static VerifiableMock<IPowerShellCommandContext, Task<PowerShellInvocationResult>> SetupGitFetch(Mock<IPowerShellCommandContext> target)
 	{
 		return target.Verifiable(
-			ps => ps.PowerShellInvoker.InvokeCliAsync("git", "fetch", "--porcelain"),
+			ps => ps.PowerShellInvoker.InvokeCliAsync("git", "fetch", "--porcelain", "--prune"),
 			s => s.ReturnsAsync(PowerShellInvocationResultStubs.Empty)
 		);
 	}

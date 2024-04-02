@@ -14,7 +14,7 @@ public class GitUpstreamDataShould
 		var verifyGitRemote = SetupGitUpstreamDataFailure(fixture.MockPowerShell);
 		var target = new GitUpstreamData();
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		Assert.Empty(branches);
 		verifyGitRemote.Verify(Times.Once);
@@ -27,7 +27,7 @@ public class GitUpstreamDataShould
 		var verifyGitRemote = SetupGitUpstreamDataBranches(fixture.MockPowerShell, branchConfigurations);
 		var target = new GitUpstreamData();
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		AssertAllBranchConfigurations(branchConfigurations, branches);
 		verifyGitRemote.Verify(Times.Once);
@@ -43,7 +43,7 @@ public class GitUpstreamDataShould
 		var verifyGitRemote = SetupGitUpstreamDataBranches(fixture.MockPowerShell, branchConfigurations);
 		var target = new GitUpstreamData();
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		AssertAllBranchConfigurations(branchConfigurations, branches);
 		verifyGitRemote.Verify(Times.Once);
@@ -61,7 +61,7 @@ public class GitUpstreamDataShould
 		var verifyGitRemote = SetupGitUpstreamDataBranches(fixture.MockPowerShell, branchConfigurations);
 		var target = new GitUpstreamData();
 
-		var actualConfigurations = await target.RunCommand(fixture.Create());
+		var actualConfigurations = await target.Execute(fixture.Create());
 
 		AssertAllBranchConfigurations(branchConfigurations, actualConfigurations);
 		verifyGitRemote.Verify(Times.Once);

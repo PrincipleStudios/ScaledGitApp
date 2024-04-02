@@ -42,6 +42,9 @@ var app = builder.Build();
 
 app.UseHealthChecks("/health");
 
+app.UseForwardedHeaders();
+app.UseHttpsRedirection();
+
 app.UseRouting();
 
 app.UseAuthentication();

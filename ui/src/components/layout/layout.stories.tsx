@@ -1,6 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { HeaderPresentation } from './header.presentation';
 import { LayoutPresentation } from './layout.presentation';
+import type { HeaderPresentationalProps } from './header.presentation';
+
+function StorybookHeaderPresentation(props: HeaderPresentationalProps) {
+	return (
+		<HeaderPresentation {...props} isRefreshing={false} onRefresh={() => {}} />
+	);
+}
 
 const meta: Meta<typeof LayoutPresentation> = {
 	title: 'Components/Layout',
@@ -9,7 +16,7 @@ const meta: Meta<typeof LayoutPresentation> = {
 		layout: 'fullscreen',
 	},
 	render: (props) => (
-		<LayoutPresentation {...props} header={HeaderPresentation} />
+		<LayoutPresentation {...props} header={StorybookHeaderPresentation} />
 	),
 };
 

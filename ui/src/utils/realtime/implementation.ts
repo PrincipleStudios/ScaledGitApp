@@ -1,7 +1,7 @@
-import { neverEver } from '@/utils/never-ever';
-import { createRealtimeApiConnection } from '@/utils/realtime/realtime.signalr';
 import type { HubConnection } from '@microsoft/signalr';
 import { HubConnectionState } from '@microsoft/signalr';
+import { neverEver } from '@/utils/never-ever';
+import { createRealtimeApiConnection } from '@/utils/realtime/realtime.signalr';
 import type {
 	HubStatusMesage,
 	MessageFromServer,

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { HeaderPresentation } from './header.presentation';
-import { LayoutPresentation } from './layout.presentation';
 import type { HeaderPresentationalProps } from './header.presentation';
+import { LayoutPresentation } from './layout.presentation';
 
 function StorybookHeaderPresentation(props: HeaderPresentationalProps) {
 	return (

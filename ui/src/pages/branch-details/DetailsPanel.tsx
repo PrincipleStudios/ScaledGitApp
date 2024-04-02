@@ -2,17 +2,17 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@principlestudios/react-jotai-forms';
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
-import { BranchName } from '../../components/branch-display/BranchName';
-import { Section } from '../../components/common';
-import { Details } from '../../components/details';
-import { SelectField } from '../../components/form/select-field';
-import { translateField } from '../../components/form/utils/translations';
-import { Prose } from '../../components/text';
-import { findBranch, namesOf } from './utils';
+import { BranchName } from '@/components/branch-display/BranchName';
+import { Section } from '@/components/common';
+import { Details } from '@/components/details';
+import { SelectField } from '@/components/form/select-field';
+import { translateField } from '@/components/form/utils/translations';
+import { Prose } from '@/components/text';
 import type {
 	BranchDetails,
 	DetailedUpstreamBranch,
-} from '../../generated/api/models';
+} from '@/generated/api/models';
+import { findBranch, namesOf } from './utils';
 
 const detailsSchema = z.object({
 	mainBranch: z.string(),

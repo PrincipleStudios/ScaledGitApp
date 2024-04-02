@@ -5,7 +5,7 @@ import HttpApi, { type HttpBackendOptions } from 'i18next-http-backend';
 import MultiloadAdapter, {
 	type MultiloadBackendOptions,
 } from 'i18next-multiload-backend-adapter';
-import { constructUrl as toLocalizationUrl } from '../../generated/api/operations/getTranslationData';
+import { constructUrl as toLocalizationUrl } from '@/generated/api/operations/getTranslationData';
 
 const reportedKeys = new Set<string>();
 

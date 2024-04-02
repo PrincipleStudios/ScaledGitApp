@@ -97,7 +97,6 @@ module.exports = {
 							'parent',
 							'sibling',
 							'index',
-							'type',
 							'object',
 							'unknown',
 						],
@@ -108,8 +107,13 @@ module.exports = {
 								position: 'before',
 							},
 							{
-								pattern: '@*/**',
+								pattern: '@!(/)*/**',
 								group: 'external',
+								position: 'before',
+							},
+							{
+								pattern: '@/**',
+								group: 'internal',
 								position: 'before',
 							},
 						],

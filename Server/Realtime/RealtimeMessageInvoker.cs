@@ -3,23 +3,11 @@ using PrincipleStudios.ScaledGitApp.Commands;
 
 namespace PrincipleStudios.ScaledGitApp.Realtime;
 
-public class RealtimeMessageInvoker : IRealtimeMessageInvoker
+public class RealtimeMessageInvoker(IHubContext<FullHub> hubContext, ILogger<RealtimeMessageInvoker> logger)
+	: CommandInvoker<IRealtimeMessageContext>(logger)
 {
-	private readonly InstanceCommandInvoker<IRealtimeMessageContext> invoker;
-
-	public RealtimeMessageInvoker(IHubContext<FullHub> hubContext, ILogger<RealtimeMessageInvoker> logger)
-	{
-		invoker = new InstanceCommandInvoker<IRealtimeMessageContext>(
-			new RealtimeMessageContext(hubContext),
-			logger
-		);
-	}
-
-	public Task RunCommand(ICommand<Task, IRealtimeMessageContext> command) =>
-		invoker.RunCommand(command);
-
-	public Task<T> RunCommand<T>(ICommand<Task<T>, IRealtimeMessageContext> command) =>
-		invoker.RunCommand(command);
+	protected override Task<T> RunGenericCommand<T>(ICommand<T, IRealtimeMessageContext> command) =>
+		RunGenericCommand(command, new RealtimeMessageContext(hubContext));
 }
 
 public class RealtimeMessageContext(IHubContext<FullHub> hubContext) : IRealtimeMessageContext

@@ -6,7 +6,7 @@ public class GitFetchedMessage : ICommand<Task, IRealtimeMessageContext>
 {
 	private const string gitFetchedMessage = "GitFetched";
 
-	public Task RunCommand(IRealtimeMessageContext context)
+	public Task Execute(IRealtimeMessageContext context)
 	{
 		return context.HubContext.Clients.AuthenticatedUsers().SendCoreAsync(gitFetchedMessage, []);
 	}

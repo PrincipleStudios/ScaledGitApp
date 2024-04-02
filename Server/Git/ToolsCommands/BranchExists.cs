@@ -2,7 +2,7 @@
 
 public record BranchExists(string FullBranchName) : IPowerShellCommand<Task<bool>>
 {
-	public async Task<bool> RunCommand(IPowerShellCommandContext context)
+	public async Task<bool> Execute(IPowerShellCommandContext context)
 	{
 		var branchExistenceCheck = await context.InvokeCliAsync("git", ["rev-parse", "--verify", FullBranchName]);
 		var branchExists = !branchExistenceCheck.HadErrors;

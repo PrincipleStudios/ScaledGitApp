@@ -39,7 +39,7 @@ public class GitBranchUpstreamDetailsShould
 		var target = defaultValue;
 		SetupBaseBranchDetails(0, 0, 15);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		var actual = Assert.Single(branches);
 		Assert.Equal(baseBranchName, actual.Name);
@@ -52,7 +52,7 @@ public class GitBranchUpstreamDetailsShould
 		var target = defaultValue;
 		SetupBaseBranchDetails(incomingFromInfra: 2, incomingFromParent: 5, additionalCommits: 0);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		var actual = Assert.Single(branches);
 		Assert.Equal(baseBranchName, actual.Name);
@@ -68,7 +68,7 @@ public class GitBranchUpstreamDetailsShould
 		var target = defaultValue with { BranchNames = [infraBranchName] };
 		SetupInfraBranchDetails(incomingFromMain: 0, additionalCommits: 0);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		var actual = Assert.Single(branches);
 		Assert.Equal(infraBranchName, actual.Name);
@@ -85,7 +85,7 @@ public class GitBranchUpstreamDetailsShould
 		SetupBranchExists(infraBranchName);
 		SetupBranchExists(parentFeatureBranchName);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		var actual = Assert.Single(branches);
 		Assert.Equal(baseBranchName, actual.Name);
@@ -109,7 +109,7 @@ public class GitBranchUpstreamDetailsShould
 		// infra branch does not exist, so will not be included in this commit count
 		SetupGetCommitCount([baseBranchName], [mainBranchName, parentFeatureBranchName]).ReturnsAsync(0);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		var actual = Assert.Single(branches);
 		Assert.Equal(baseBranchName, actual.Name);
@@ -131,7 +131,7 @@ public class GitBranchUpstreamDetailsShould
 		SetupNoConflict(parentFeatureBranchName, baseBranchName);
 		SetupGetCommitCount([baseBranchName], [mainBranchName, infraBranchName, parentFeatureBranchName]).ReturnsAsync(15);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		var actual = Assert.Single(branches);
 		Assert.Equal(baseBranchName, actual.Name);
@@ -149,7 +149,7 @@ public class GitBranchUpstreamDetailsShould
 		SetupInfraBranchDetails(0, additionalCommits: 0);
 		SetupParentBranchDetails(0, additionalCommits: 0);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
 		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
@@ -166,7 +166,7 @@ public class GitBranchUpstreamDetailsShould
 
 		SetupGetCommitCount([mainBranchName], []).ReturnsAsync(1500);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
 		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
@@ -182,7 +182,7 @@ public class GitBranchUpstreamDetailsShould
 		SetupInfraBranchDetails(0, additionalCommits: 0);
 		SetupParentBranchDetails(0, additionalCommits: 0);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
 		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
@@ -199,7 +199,7 @@ public class GitBranchUpstreamDetailsShould
 
 		SetupGetCommitCount([mainBranchName], []).ReturnsAsync(1500);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
 		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);
@@ -217,7 +217,7 @@ public class GitBranchUpstreamDetailsShould
 
 		SetupGetCommitCount([mainBranchName], []).ReturnsAsync(1500);
 
-		var branches = await target.RunCommand(fixture.Create());
+		var branches = await target.Execute(fixture.Create());
 
 		Assert.Contains(branches, (branch) => branch.Name == parentFeatureBranchName);
 		Assert.Contains(branches, (branch) => branch.Name == infraBranchName);

@@ -3,7 +3,7 @@
 public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>
 {
-	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> RunCommand(IGitToolsCommandContext context)
+	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> Execute(IGitToolsCommandContext context)
 	{
 		var upstreams = await context.RunCommand(new GitUpstreamData());
 		var executionContext = new ExecutionContext(context, upstreams);

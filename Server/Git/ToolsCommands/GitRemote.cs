@@ -10,7 +10,7 @@ namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 public record GitRemote() : IPowerShellCommand<Task<GitRemoteResult>>
 {
 	private static readonly Regex gitRemoteLine = new Regex(@"^(?<alias>[^\t]+)\t(?<url>[^ ]+) \(fetch\)$");
-	public async Task<GitRemoteResult> RunCommand(IPowerShellCommandContext context)
+	public async Task<GitRemoteResult> Execute(IPowerShellCommandContext context)
 	{
 		var result = (await context.InvokeCliAsync("git", "remote", "-v")).ToResultStrings();
 

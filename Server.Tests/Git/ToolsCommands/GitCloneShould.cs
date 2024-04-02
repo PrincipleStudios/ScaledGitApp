@@ -15,7 +15,7 @@ public class GitCloneShould
 		var verifyGitClone = SetupGitClone(fixture.MockPowerShell, expectedRepository);
 		var target = new GitClone(expectedRepository);
 
-		await target.RunCommand(fixture.Create());
+		await target.Execute(fixture.Create());
 
 		verifyGitClone.Verify(Times.Once);
 	}

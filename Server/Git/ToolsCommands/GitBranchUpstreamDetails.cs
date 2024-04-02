@@ -1,13 +1,13 @@
 ﻿namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
+public record GitBranchUpstreamDetails(string BranchName, bool IncludeDownstream, bool IncludeUpstream, bool Recurse, int? Limit = null)
 	: IGitToolsCommand<Task<IReadOnlyList<UpstreamBranchDetailedState>>>
 {
 	public async Task<IReadOnlyList<UpstreamBranchDetailedState>> Execute(IGitToolsCommandContext context)
 	{
 		var upstreams = await context.RunCommand(new GitUpstreamData());
 		var executionContext = new ExecutionContext(context, upstreams);
-		var baseBranches = ExpandBaseBranches(executionContext, BranchNames);
+		var baseBranches = ExpandBaseBranches(executionContext, BranchName);
 
 		var result = new List<UpstreamBranchDetailedState>();
 		foreach (var baseBranch in baseBranches)
@@ -119,14 +119,15 @@ public record GitBranchUpstreamDetails(IReadOnlyList<string> BranchNames, bool I
 		}
 	}
 
-	private string[] ExpandBaseBranches(ExecutionContext context, IReadOnlyList<string> branchNames)
+	private string[] ExpandBaseBranches(ExecutionContext context, string branchName)
 	{
-		IEnumerable<string> result = branchNames;
+		var branchNameArray = new[] { branchName };
+		IEnumerable<string> result = branchNameArray;
 		if (IncludeDownstream)
-			result = result.Concat(ExpandBaseBranches(branchNames, (current) =>
+			result = result.Concat(ExpandBaseBranches(branchNameArray, (current) =>
 					GetDownstreamBranchNames(context, current)));
 		if (IncludeUpstream)
-			result = result.Concat(ExpandBaseBranches(branchNames, (current) =>
+			result = result.Concat(ExpandBaseBranches(branchNameArray, (current) =>
 					context.Upstreams.TryGetValue(current, out var configuredUpstreams)
 						? configuredUpstreams.UpstreamBranchNames
 						: Enumerable.Empty<string>()));

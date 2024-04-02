@@ -17,7 +17,7 @@ public class GitBranchUpstreamDetailsShould
 	public GitBranchUpstreamDetailsShould()
 	{
 		defaultValue = new GitBranchUpstreamDetails(
-			[baseBranchName],
+			baseBranchName,
 			IncludeDownstream: false,
 			IncludeUpstream: false,
 			Recurse: false
@@ -65,7 +65,7 @@ public class GitBranchUpstreamDetailsShould
 	[Fact]
 	public async Task Report_downstreams_of_target_branch()
 	{
-		var target = defaultValue with { BranchNames = [infraBranchName] };
+		var target = defaultValue with { BranchName = infraBranchName };
 		SetupInfraBranchDetails(incomingFromMain: 0, additionalCommits: 0);
 
 		var branches = await target.Execute(fixture.Create());
@@ -177,7 +177,7 @@ public class GitBranchUpstreamDetailsShould
 	[Fact]
 	public async Task Finds_downstream_branches_and_retrieves_details()
 	{
-		var target = defaultValue with { IncludeDownstream = true, BranchNames = [infraBranchName] };
+		var target = defaultValue with { IncludeDownstream = true, BranchName = infraBranchName };
 		SetupBaseBranchDetails(0, 0, additionalCommits: 0);
 		SetupInfraBranchDetails(0, additionalCommits: 0);
 		SetupParentBranchDetails(0, additionalCommits: 0);
@@ -192,7 +192,7 @@ public class GitBranchUpstreamDetailsShould
 	[Fact]
 	public async Task Finds_downstream_branches_recursively_and_retrieves_details()
 	{
-		var target = defaultValue with { IncludeDownstream = true, Recurse = true, BranchNames = [mainBranchName] };
+		var target = defaultValue with { IncludeDownstream = true, Recurse = true, BranchName = mainBranchName };
 		SetupBaseBranchDetails(0, 0, additionalCommits: 0);
 		SetupInfraBranchDetails(0, additionalCommits: 0);
 		SetupParentBranchDetails(0, additionalCommits: 0);
@@ -210,7 +210,7 @@ public class GitBranchUpstreamDetailsShould
 	[Fact]
 	public async Task Finds_upstream_and_downstream_branches_and_retrieves_details()
 	{
-		var target = defaultValue with { IncludeUpstream = true, IncludeDownstream = true, Recurse = true, BranchNames = [infraBranchName] };
+		var target = defaultValue with { IncludeUpstream = true, IncludeDownstream = true, Recurse = true, BranchName = infraBranchName };
 		SetupBaseBranchDetails(0, 0, additionalCommits: 0);
 		SetupInfraBranchDetails(0, additionalCommits: 0);
 		SetupParentBranchDetails(0, additionalCommits: 0);

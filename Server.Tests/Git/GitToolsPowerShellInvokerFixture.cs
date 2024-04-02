@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using PrincipleStudios.ScaledGitApp.Commands;
 using PrincipleStudios.ScaledGitApp.ShellUtilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PrincipleStudios.ScaledGitApp.Git;
 
@@ -19,6 +15,7 @@ public class GitToolsPowerShellInvokerFixture
 	};
 	public Mock<PowerShellFactory> MockPowerShellFactory { get; } = new Mock<PowerShellFactory>(MockBehavior.Strict);
 	public GitCloneConfiguration CloneConfiguration { get; set; } = Defaults.DefaultCloneConfiguration;
+	public Mock<StubCommandCache> CommandCache { get; } = new Mock<StubCommandCache>();
 
 	/// <param name="options">Uses `gitOptions` above if not provided</param>
 	/// <param name="mockFactoryDirectly">Prevents detecting git directory or runspace setup if true</param>
@@ -32,7 +29,8 @@ public class GitToolsPowerShellInvokerFixture
 			Options.Create(GitOptions),
 			MockPowerShellFactory.Object,
 			CloneConfiguration,
-			Mock.Of<ILogger<GitToolsCommandInvoker>>()
+			Mock.Of<ILogger<GitToolsCommandInvoker>>(),
+			CommandCache.Object
 		);
 
 		return gitToolsPowerShell;

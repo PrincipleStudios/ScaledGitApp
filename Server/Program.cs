@@ -2,6 +2,7 @@
 using dotenv.net;
 using PrincipleStudios.ScaledGitApp.Auth;
 using PrincipleStudios.ScaledGitApp.BranchingStrategy;
+using PrincipleStudios.ScaledGitApp.Commands;
 using PrincipleStudios.ScaledGitApp.Environment;
 using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Locales;
@@ -23,6 +24,7 @@ var services = builder.Services;
 
 services.RegisterAuth(builder.Configuration.GetSection("Auth"));
 services.RegisterBranchingStrategy(builder.Configuration.GetSection("Colors"));
+services.RegisterCommands();
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
 	environmentName: builder.Environment.EnvironmentName,

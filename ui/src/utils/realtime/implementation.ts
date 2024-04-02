@@ -7,7 +7,6 @@ import type {
 	MessageFromServer,
 	MessageFromApp,
 } from './messages';
-/// <reference types="vite/client" />
 
 const serverMessageHandlers: Array<(message: MessageFromServer) => void> = [];
 

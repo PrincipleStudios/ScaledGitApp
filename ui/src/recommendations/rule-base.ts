@@ -1,5 +1,6 @@
 import { type QueryClient } from '@tanstack/react-query';
 import { type Atom } from 'jotai';
+import type { Loadable } from 'jotai/vanilla/utils/loadable';
 import { type BranchDetails } from '@/generated/api/models';
 
 // Not using Jotai's Loadable<> here because it doesn't allow for partial data
@@ -30,9 +31,18 @@ export type RecommendationOutput = Recommendation & {
 	/** A relatively magic number used to prioritize recommendations. Lower is higher priority. */
 	priority: number;
 };
+export type RecommendationRuleAnalyzeResult =
+	| Promise<RecommendationOutput[]>
+	| Array<
+			| RecommendationOutput
+			| Promise<RecommendationOutput[]>
+			| Atom<Loadable<RecommendationOutput[]>>
+			| Atom<Loadable<RecommendationOutput[]>[]>
+	  >;
+
 export type RecommendationRule = {
 	analyze(
 		branches: BranchDetails[],
 		context: RecommendationContext,
-	): RecommendationOutput[] | Atom<Promise<RecommendationOutput[]>>;
+	): RecommendationRuleAnalyzeResult;
 };

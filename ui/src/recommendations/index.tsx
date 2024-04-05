@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { currentValue } from '@principlestudios/jotai-utilities/currentValue';
-import { isAtom } from '@principlestudios/jotai-utilities/isAtom';
 import { useQueryClient } from '@tanstack/react-query';
+import type { Atom } from 'jotai';
 import { atom, useAtomValue } from 'jotai';
-import { loadable } from 'jotai/utils';
 import { type Loadable } from 'jotai/vanilla/utils/loadable';
 import type { BranchDetails } from '@/generated/api/models';
 import { useSuspensePromise } from '@/utils/useSuspensePromise';
+import { flattenAnalyzeResult } from './flattenAnalyzeResult';
 import { loadAllRules } from './load-all-rules';
 import type { RecommendationOutput, RecommendationsEngine } from './rule-base';
 
@@ -17,16 +17,16 @@ export type {
 	RecommendationContext,
 } from './rule-base';
 
-type Output = RecommendationOutput[] | Loadable<RecommendationOutput[]>;
-function isLoading(output: Output): output is { state: 'loading' } {
-	return !Array.isArray(output) && output.state === 'loading';
+type LoadableOutput = Loadable<RecommendationOutput>;
+function isLoading(output: LoadableOutput): output is { state: 'loading' } {
+	return 'state' in output && output.state === 'loading';
 }
-function currentData(output: Output) {
-	return Array.isArray(output)
-		? output
-		: output.state === 'hasData'
+function currentData(output: LoadableOutput) {
+	return 'state' in output
+		? output.state === 'hasData'
 			? output.data
-			: [];
+			: []
+		: output;
 }
 
 export function useRecommendationsEngine(): RecommendationsEngine {
@@ -37,11 +37,14 @@ export function useRecommendationsEngine(): RecommendationsEngine {
 			getRecommendations(branches, context) {
 				const analysis = allRules
 					.map((rule) => rule.analyze(branches, context))
-					.map((output) => (isAtom(output) ? loadable(output) : output));
+					.flatMap<
+						LoadableOutput[] | Atom<LoadableOutput[]>
+					>((output) => flattenAnalyzeResult(output));
 				return atom((get) => {
-					const currentResults = analysis.map((v) =>
-						currentValue<Output>(v, get),
-					);
+					const currentResults = analysis.flatMap((v) => {
+						const result = currentValue(v, get);
+						return result;
+					});
 					return {
 						state: currentResults.some(isLoading) ? 'loading' : 'hasData',
 						data: currentResults

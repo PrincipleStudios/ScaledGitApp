@@ -8,7 +8,7 @@ import type { BranchDetails } from '@/generated/api/models';
 import { useSuspensePromise } from '@/utils/useSuspensePromise';
 import { flattenAnalyzeResult } from './flattenAnalyzeResult';
 import { loadAllRules } from './load-all-rules';
-import type { RecommendationOutput, RecommendationsEngine } from './rule-base';
+import type { RecommendationContext, RecommendationOutput } from './rule-base';
 
 export type {
 	RecommendationsEngine,
@@ -29,44 +29,23 @@ function currentData(output: LoadableOutput) {
 		: output;
 }
 
-export function useRecommendationsEngine(): RecommendationsEngine {
-	const allRules = useSuspensePromise(loadAllRules());
-
-	return useMemo(
-		() => ({
-			getRecommendations(branches, context) {
-				const analysis = allRules
-					.map((rule) => rule.analyze(branches, context))
-					.flatMap<
-						LoadableOutput[] | Atom<LoadableOutput[]>
-					>((output) => flattenAnalyzeResult(output));
-				return atom((get) => {
-					const currentResults = analysis.flatMap((v) => {
-						const result = currentValue(v, get);
-						return result;
-					});
-					return {
-						state: currentResults.some(isLoading) ? 'loading' : 'hasData',
-						data: currentResults
-							.flatMap(currentData)
-							.sort((a, b) => a.priority - b.priority),
-					};
-				});
-			},
-		}),
-		[allRules],
-	);
-}
-
 export function useRecommendations(branches: BranchDetails[]) {
 	const queryClient = useQueryClient();
-	const engine = useRecommendationsEngine();
-	const resultAtom = useMemo(
-		() =>
-			engine.getRecommendations(branches, {
-				queryClient,
-			}),
-		[engine, branches, queryClient],
-	);
+	const allRules = useSuspensePromise(loadAllRules());
+	const resultAtom = useMemo(() => {
+		const context: RecommendationContext = { queryClient };
+		const analysis = allRules
+			.map((rule) => rule.analyze(branches, context))
+			.flatMap<LoadableOutput[] | Atom<LoadableOutput[]>>(flattenAnalyzeResult);
+		return atom((get) => {
+			const currentResults = analysis.flatMap((v) => currentValue(v, get));
+			return {
+				state: currentResults.some(isLoading) ? 'loading' : 'hasData',
+				data: currentResults
+					.flatMap(currentData)
+					.sort((a, b) => a.priority - b.priority),
+			};
+		});
+	}, [allRules, branches, queryClient]);
 	return useAtomValue(resultAtom);
 }

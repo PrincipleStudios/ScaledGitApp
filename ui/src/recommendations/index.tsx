@@ -8,7 +8,11 @@ import type { BranchDetails } from '@/generated/api/models';
 import { useSuspensePromise } from '@/utils/useSuspensePromise';
 import { flattenAnalyzeResult } from './flattenAnalyzeResult';
 import { loadAllRules } from './load-all-rules';
-import type { RecommendationContext, RecommendationOutput } from './rule-base';
+import type {
+	LoadableRecommendations,
+	RecommendationContext,
+	RecommendationOutput,
+} from './rule-base';
 
 export type {
 	RecommendationsEngine,
@@ -37,7 +41,7 @@ export function useRecommendations(branches: BranchDetails[]) {
 		const analysis = allRules
 			.map((rule) => rule.analyze(branches, context))
 			.flatMap<LoadableOutput[] | Atom<LoadableOutput[]>>(flattenAnalyzeResult);
-		return atom((get) => {
+		return atom((get): LoadableRecommendations => {
 			const currentResults = analysis.flatMap((v) => currentValue(v, get));
 			return {
 				state: currentResults.some(isLoading) ? 'loading' : 'hasData',

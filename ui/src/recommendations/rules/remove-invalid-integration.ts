@@ -6,7 +6,7 @@ const translationKey = 'remove-invalid-integration';
 
 export default perBranch({
 	async analyze([branch], { queryClient }) {
-		// TODO: is this an integration branch?
+		if (branch.type !== 'integration') return [];
 
 		const allUpstreamData = await queryClient.fetchQuery(
 			queries.getUpstreamData,

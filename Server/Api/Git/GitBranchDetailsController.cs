@@ -4,7 +4,7 @@ using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShell, IColorConfiguration colorConfiguration) : GitBranchDetailsControllerBase
+public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchTypeLookup branchTypeLookup) : GitBranchDetailsControllerBase
 {
 	protected override async Task<GetBranchDetailsActionResult> GetBranchDetails(GetBranchDetailsRequest getBranchDetailsBody)
 	{
@@ -21,16 +21,22 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 		return GetBranchDetailsActionResult.Ok(ToBranchDetails(results.Single()));
 	}
 
-	private BranchDetails ToBranchDetails(UpstreamBranchDetailedState result) =>
-		new BranchDetails(
+	private BranchDetails ToBranchDetails(UpstreamBranchDetailedState result)
+	{
+		var type = branchTypeLookup.DetermineBranchType(result.Name);
+
+		return new BranchDetails(
 			result.Name,
-			colorConfiguration.DetermineColor(result.Name),
+			Type: type.BranchType,
+			Color: type.Color,
 			Exists: result.Exists,
 			NonMergeCommitCount: result.NonMergeCommitCount,
 			Upstream: from upstream in result.Upstreams
+					  let upstreamType = branchTypeLookup.DetermineBranchType(upstream.Name)
 					  select new DetailedUpstreamBranch(
 						  Name: upstream.Name,
-						  Color: colorConfiguration.DetermineColor(upstream.Name),
+						  Type: upstreamType.BranchType,
+						  Color: upstreamType.Color,
 						  Exists: upstream.Exists,
 						  BehindCount: upstream.BehindCount,
 						  HasConflict: upstream.HasConflict
@@ -38,4 +44,5 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 			Downstream: from downstream in result.DownstreamNames
 						select new Branch(Name: downstream)
 		);
+	}
 }

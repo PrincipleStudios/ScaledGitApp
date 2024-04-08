@@ -1,0 +1,39 @@
+name: Build Main
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  registryLoginServer: 'principlestudios.azurecr.io'
+  imageName: 'scaledgitapp'
+  dockerImageTag: 'latest'
+
+concurrency:
+  group: main
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Build image'
+        run: |
+          docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=main.${{ github.run_id }}.${{ github.run_attempt }}
+          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAzure=true" -t $registryLoginServer/$imageName:$dockerImageTag-azure --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=main.${{ github.run_id }}.${{ github.run_attempt }}
+          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAWS=true" -t $registryLoginServer/$imageName:$dockerImageTag-aws --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=main.${{ github.run_id }}.${{ github.run_attempt }}
+
+      - name: 'Log in to docker registry'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.registryLoginServer }}
+          username: ${{ secrets.AZ_CLIENT_ID }}
+          password: ${{ secrets.AZ_CLIENT_SECRET }}
+
+      - name: 'Push image'
+        run: |
+          docker push --all-tags $registryLoginServer/$imageName

@@ -1,0 +1,23 @@
+defaultBranchType: feature
+branchTypes:
+  service-line:
+    patterns:
+      - '^main$'
+      - '^master$'
+      - '^line$'
+    colors:
+      - rgb(111, 206, 31)
+  release-candidate:
+    patterns:
+      - '^rc/'
+    colors:
+      - rgb(111, 37, 111)
+  integration:
+    patterns:
+      - '^(integ|integrate|integration)/'
+    colors:
+      - rgb(98, 98, 98)
+  feature:
+    patterns: []
+    colors:
+      - rgb(55, 127, 192)

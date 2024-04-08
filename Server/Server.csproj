@@ -5,6 +5,14 @@
     <IncludeAWS Condition=" '$(IncludeAWS)' == '' AND '$(Configuration)' == 'Debug' ">true</IncludeAWS>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="branching-strategy.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="branching-strategy.yaml" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="8.0.0" />
@@ -20,6 +28,7 @@
     <PackageReference Include="PrincipleStudios.OpenApiCodegen.Json.Extensions" Version="0.14.0" />
     <PackageReference Include="PrincipleStudios.OpenApiCodegen.Server.Mvc" Version="0.14.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.0" />
+    <PackageReference Include="SharpYaml" Version="2.1.1" />
   </ItemGroup>
 
   <!-- Debug Dependencies -->

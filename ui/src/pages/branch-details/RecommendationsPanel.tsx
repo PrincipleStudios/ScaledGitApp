@@ -59,7 +59,9 @@ function RecommendationPresentation({
 		<Section.SingleColumn>
 			<Heading.Section>{t('title', opts)}</Heading.Section>
 			<HintText>{t('description', opts)}</HintText>
-			<Code>{recommendation.commands.join('\n')}</Code>
+			<Code>
+				{recommendation.commands.map((command) => `${command}\n`).join('')}
+			</Code>
 		</Section.SingleColumn>
 	);
 }

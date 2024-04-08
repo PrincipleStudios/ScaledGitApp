@@ -4,7 +4,7 @@ branchTypes:
     patterns:
       - '^main$'
       - '^master$'
-      - '^line$'
+      - '^line/'
     colors:
       - rgb(111, 206, 31)
   release-candidate:

@@ -7,7 +7,7 @@ import { BranchNode } from './BranchNode';
 
 export type BranchGraphPresentationProps = {
 	upstreamData: BranchConfiguration[];
-	onClick?: (node: Branch) => void;
+	onClick?: (node: Branch, ev: MouseEvent) => void;
 };
 
 export function BranchGraphPresentation({
@@ -31,7 +31,7 @@ export function BranchGraphPresentation({
 						key={node.id}
 						node={node}
 						onMove={restartSimulation}
-						onClick={onClick && (() => onClick(node.data))}
+						onClick={onClick && ((ev) => onClick(node.data, ev))}
 					/>
 				))}
 			</FullSizeSvg>

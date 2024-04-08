@@ -10,8 +10,8 @@ export function BranchNode({
 	onClick,
 }: {
 	node: WithAtom<BranchGraphNodeDatum>;
-	onMove?: () => void;
-	onClick?: () => void;
+	onMove?: (ev: MouseEvent) => void;
+	onClick?: (ev: MouseEvent) => void;
 }) {
 	const transform = useComputedAtom((get) => {
 		const { x, y } = get(node.atom);
@@ -26,8 +26,8 @@ export function BranchNode({
 
 function drag(
 	node: WithAtom<BranchGraphNodeDatum>,
-	onMove?: () => void,
-	onClick?: () => void,
+	onMove?: (ev: MouseEvent) => void,
+	onClick?: (ev: MouseEvent) => void,
 ) {
 	// Updates the node's position based on mouse movements.
 	// `fx`/`fy` are fixed positions - use them while moving them
@@ -44,12 +44,12 @@ function drag(
 			if (totalMovement > 5) {
 				node.fx = xOffset + ev.clientX;
 				node.fy = yOffset + ev.clientY;
-				onMove?.();
+				onMove?.(ev);
 			}
 		},
 		onMouseUp(ev, { xOffset, yOffset }, { totalMovement }) {
 			if (totalMovement <= 5) {
-				onClick?.();
+				onClick?.(ev);
 			} else {
 				if (ev.button === 0) {
 					node.y = yOffset + ev.clientY;
@@ -57,7 +57,7 @@ function drag(
 					node.fy = null;
 					node.fx = null;
 				}
-				onMove?.();
+				onMove?.(ev);
 			}
 		},
 	});

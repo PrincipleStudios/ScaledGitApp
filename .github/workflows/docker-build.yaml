@@ -5,7 +5,7 @@ on: pull_request
 env:
   registryLoginServer: 'principlestudios.azurecr.io'
   imageName: 'scaledgitapp'
-  dockerImageTag: 'ci-${{ github.run_number }}'
+  dockerImageTag: 'pr-${{ github.event.pull_request.number }}'
 
 concurrency:
   # Ensures this build only is running once per PR; if new commits are pushed
@@ -22,9 +22,9 @@ jobs:
 
       - name: 'Build image'
         run: |
-          docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
-          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAzure=true" -t $registryLoginServer/$imageName:$dockerImageTag-azure --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
-          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAWS=true" -t $registryLoginServer/$imageName:$dockerImageTag-aws --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=${{ github.run_id }}
+          docker build . -t $registryLoginServer/$imageName:$dockerImageTag --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=pr-${{ github.event.pull_request.number }}.${{ github.run_id }}.${{ github.run_attempt }}
+          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAzure=true" -t $registryLoginServer/$imageName:$dockerImageTag-azure --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=pr-${{ github.event.pull_request.number }}.${{ github.run_id }}.${{ github.run_attempt }}
+          docker build . --build-arg DOTNET_BUILD_FLAGS="-p:IncludeAWS=true" -t $registryLoginServer/$imageName:$dockerImageTag-aws --build-arg GITHASH=${{ github.sha }} --build-arg BUILDTAG=pr-${{ github.event.pull_request.number }}.${{ github.run_id }}.${{ github.run_attempt }}
 
       - name: 'Log in to docker registry'
         uses: azure/docker-login@v1

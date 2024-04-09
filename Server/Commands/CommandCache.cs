@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using System.Runtime.CompilerServices;
 
@@ -7,13 +8,15 @@ namespace PrincipleStudios.ScaledGitApp.Commands;
 public sealed class CommandCache : ICommandCache, IDisposable
 {
 	private readonly IMemoryCache memoryCache;
+	private readonly CommandCacheOptions options;
 	private IChangeToken changeToken;
 	private CancellationTokenSource cancellationSource;
 
-	public CommandCache(IMemoryCache memoryCache)
+	public CommandCache(IMemoryCache memoryCache, IOptions<CommandCacheOptions> options)
 	{
 		(cancellationSource, changeToken) = CreateChangeToken();
 		this.memoryCache = memoryCache;
+		this.options = options.Value;
 	}
 
 	private static (CancellationTokenSource, IChangeToken) CreateChangeToken()
@@ -33,6 +36,7 @@ public sealed class CommandCache : ICommandCache, IDisposable
 	public async Task<T> GetCommandResultOrInvoke<T, TContext>(ICommand<Task<T>, TContext> command, Func<Task<T>> invoke)
 	{
 		if (!IsEquatable(command)) return await invoke();
+		if (!IsCacheable(command)) return await invoke();
 
 		var result = await memoryCache.GetOrCreateAsync(command, (entry) =>
 		{
@@ -41,6 +45,14 @@ public sealed class CommandCache : ICommandCache, IDisposable
 		});
 		// Nullability seems incorrect on GetOrCreate; should use the same result as the invoke
 		return result!;
+	}
+
+	private bool IsCacheable<T, TContext>(ICommand<Task<T>, TContext> command)
+	{
+		var result = options.DefaultEnabled;
+		if (options.TypeSettings?.GetValue<bool?>(command.GetType().Name) is bool typeOverride)
+			result = typeOverride;
+		return result;
 	}
 
 	private static bool IsEquatable(object target)

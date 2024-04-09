@@ -16,7 +16,20 @@ public class BranchTypeLookup(BranchingStrategyConfiguration configuration) : IB
 	{
 		var type = FindBranchTypeName(branchName);
 		var colors = configuration.BranchTypes[type].Colors;
-		return new(type, colors[0]);
+		return new(type, GetColor(colors, branchName));
+	}
+
+	private static string GetColor(string[] colors, string branchName)
+	{
+		switch (colors)
+		{
+			case []:
+				return "rgb(55, 127, 192)";
+			case [var color]:
+				return color;
+			default:
+				return colors[branchName.GetHashCode() % colors.Length];
+		}
 	}
 
 	private string FindBranchTypeName(string branchName)

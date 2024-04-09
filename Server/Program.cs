@@ -24,7 +24,7 @@ var services = builder.Services;
 
 services.RegisterAuth(builder.Configuration.GetSection("Auth"));
 services.RegisterBranchingStrategy(builder.Configuration.GetSection("Colors"));
-services.RegisterCommands();
+services.RegisterCommands(builder.Configuration.GetSection("Command"));
 services.RegisterEnvironment(
 	isProduction: builder.Environment.IsProduction(),
 	environmentName: builder.Environment.EnvironmentName,

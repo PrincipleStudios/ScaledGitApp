@@ -50,7 +50,7 @@ public sealed class CommandCache : ICommandCache, IDisposable
 	private bool IsCacheable<T, TContext>(ICommand<Task<T>, TContext> command)
 	{
 		var result = options.DefaultEnabled;
-		if (options.TypeSettings.GetValue<bool?>(command.GetType().Name) is bool typeOverride)
+		if (options.TypeSettings?.GetValue<bool?>(command.GetType().Name) is bool typeOverride)
 			result = typeOverride;
 		return result;
 	}

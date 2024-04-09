@@ -20,6 +20,7 @@ import type { BranchInfo } from '../branch-display';
 import { forceHierarchy } from './forceHierarchy';
 import { forceWithinBoundaries } from './forceWithinBoundaries';
 import { neutralizeVelocity } from './neutralizeVelocity';
+import { updateScreen } from './updateScreen';
 import { useAnimationFrame } from './useAnimationFrame';
 
 const maxUnknownBranchPerNodeCount = 5;
@@ -54,13 +55,6 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphNodeDatum>,
 	WithAtom<BranchGraphLinkDatum>
 >;
-
-function updateScreen(nodes: BranchGraphNodeDatum[]) {
-	for (const node of nodes) {
-		if (node.x !== undefined) node.screenX = node.x;
-		if (node.y !== undefined) node.screenY = node.y;
-	}
-}
 
 export function useBranchSimulation<T extends BranchConfiguration>(
 	upstreamData: T[],

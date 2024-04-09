@@ -68,6 +68,27 @@ For example:
 AUTH__EMAILADDRESSDOMAINS__0=principlestudios.com
 ```
 
+## COMMAND__CACHE__DEFAULTENABLED
+
+Default: _true_.
+
+Specifies whether the command cache is enabled. This greatly improves response
+times but also greatly increases memory usage.
+
+```
+COMMAND__CACHE__DEFAULTENABLED=false
+```
+
+## COMMAND__CACHE__TYPESETTINGS__{typeName}
+
+Overrides caching of a specific command type, based on the name. Defaults to the
+value of `COMMAND__CACHE__DEFAULTENABLED`.
+
+For example:
+```
+COMMAND__CACHE__TYPESETTINGS__GITUPSTREAMDATA=true
+```
+
 # Common Scenarios
 
 ## Working locally

@@ -134,8 +134,12 @@ components:
         name: { type: string }
         color: { type: string }
         type: { type: string }
-        upstream: { $ref: '#/components/schemas/BranchList' }
-        downstream: { $ref: '#/components/schemas/BranchList' }
+        upstream:
+          type: array
+          items: { $ref: '#/components/schemas/Branch' }
+        downstream:
+          type: array
+          items: { $ref: '#/components/schemas/Branch' }
     BranchDetails:
       type: object
       required:
@@ -155,16 +159,19 @@ components:
         upstream:
           type: array
           items: { $ref: '#/components/schemas/DetailedUpstreamBranch' }
-        downstream: { $ref: '#/components/schemas/BranchList' }
-    BranchList:
-      type: array
-      items: { $ref: '#/components/schemas/Branch' }
+        downstream:
+          type: array
+          items: { $ref: '#/components/schemas/Branch' }
     Branch:
       type: object
-      required: [name]
+      required:
+        - name
+        - color
+        - type
       properties:
-        name:
-          type: string
+        name: { type: string }
+        color: { type: string }
+        type: { type: string }
     DetailedUpstreamBranch:
       type: object
       required:

@@ -28,7 +28,7 @@ public class BranchTypeLookup(BranchingStrategyConfiguration configuration) : IB
 			case [var color]:
 				return color;
 			default:
-				return colors[branchName.GetHashCode() % colors.Length];
+				return colors[Math.Abs(branchName.GetHashCode() % colors.Length)];
 		}
 	}
 

@@ -16,8 +16,8 @@ import type { Branch, BranchConfiguration } from '@/generated/api/models';
 import { atomWithImperativeProxy } from '@/utils/atoms/jotai-imperative-atom';
 import type { JotaiStore } from '@/utils/atoms/JotaiStore';
 import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
-import { isNumber } from '@/utils/isNumber';
 import type { BranchInfo } from '../branch-display';
+import { forceHierarchy } from './forceHierarchy';
 import { forceWithinBoundaries } from './forceWithinBoundaries';
 import { neutralizeVelocity } from './neutralizeVelocity';
 import { useAnimationFrame } from './useAnimationFrame';
@@ -30,10 +30,15 @@ const branchCountTolerance = 150;
 export type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
+// Separates screen coordinates from actual positions of nodes
+export type ScreenNodeDatum = SimulationNodeDatum & {
+	screenX: number;
+	screenY: number;
+};
 export type BranchGraphNodeDatum = {
 	id: string;
 	data: BranchInfo;
-} & SimulationNodeDatum;
+} & ScreenNodeDatum;
 export type BranchGraphLinkDatum = {
 	id: string;
 	upstreamBranchName: string;
@@ -50,71 +55,11 @@ type BranchLinkForce = ForceLink<
 	WithAtom<BranchGraphLinkDatum>
 >;
 
-function toX(node: SimulationNodeDatum) {
-	return node.fx ?? node.x;
-}
-function isNotInfinity(n: number) {
-	return n !== Number.POSITIVE_INFINITY && n !== Number.NEGATIVE_INFINITY;
-}
-function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
-	const cache = new Map<TInput, TOutput>();
-	return {
-		get(this: void, input: TInput) {
-			if (cache.has(input)) return cache.get(input) as TOutput;
-			const result = toOutput(input);
-			cache.set(input, result);
-			return result;
-		},
-		clear(this: void) {
-			cache.clear();
-		},
-	};
-}
-
-function average(values: number[]): number {
-	if (values.length === 0) return NaN;
-	return values
-		.map((v) => v / values.length)
-		.reduce((prev, next) => prev + next, 0);
-}
-
-function forceHierarchy(depthDistance: number) {
-	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
-	let links: WithAtom<BranchGraphLinkDatum>[] = [];
-	const downstreamByNode = resettableMemo((node) =>
-		links.filter((l) => l.target === node).map((l) => l.source),
-	);
-	const upstreamByNode = resettableMemo((node) =>
-		links.filter((l) => l.source === node).map((l) => l.target),
-	);
-	function update(alpha: number) {
-		for (const node of currentNodes) {
-			if (isNumber(node.fx)) continue;
-			const downstream = downstreamByNode.get(node);
-			const upstream = upstreamByNode.get(node);
-			const range = [
-				Math.max(...downstream.map(toX).filter(isNumber)) + depthDistance,
-				Math.min(...upstream.map(toX).filter(isNumber)) - depthDistance,
-			].filter(isNotInfinity);
-			if (range.length === 0) return;
-			const targetX = average(range);
-
-			const currentX = node.x ?? 0;
-			const delta = targetX - currentX;
-			const amount = delta * alpha;
-			node.vx = (node.vx ?? 0) + amount;
-		}
+function updateScreen(nodes: BranchGraphNodeDatum[]) {
+	for (const node of nodes) {
+		if (node.x !== undefined) node.screenX = node.x;
+		if (node.y !== undefined) node.screenY = node.y;
 	}
-	return Object.assign(update, {
-		initialize(nodes: WithAtom<BranchGraphNodeDatum>[]) {
-			currentNodes = nodes;
-		},
-		links(newLinks: WithAtom<BranchGraphLinkDatum>[]) {
-			links = newLinks;
-			downstreamByNode.clear();
-			upstreamByNode.clear();
-		},
-	});
 }
 
 export function useBranchSimulation<T extends BranchConfiguration>(
@@ -147,9 +92,11 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	}
 
 	const animator = useAnimationFrame(() => {
-		if (!simulationRef.current) return false;
-		simulationRef.current.tick();
-		return simulationRef.current.alpha() >= simulationRef.current.alphaMin();
+		const simulation = simulationRef.current;
+		if (!simulation) return false;
+		simulation.tick();
+		updateScreen(simulation.nodes());
+		return simulation.alpha() >= simulation.alphaMin();
 	});
 
 	const { nodes, links } = updateNodes(
@@ -242,6 +189,8 @@ function updateNodes(
 			{
 				x: width / 2,
 				y: height / 2,
+				screenX: width / 2,
+				screenY: height / 2,
 			},
 			{
 				id: entry.name,

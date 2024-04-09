@@ -22,7 +22,7 @@ export function BranchGraphPresentation({
 
 	return (
 		<section>
-			<FullSizeSvg ref={sizeDetection}>
+			<FullSizeSvg className="transition-transform" ref={sizeDetection}>
 				{links.map((link) => (
 					<BranchLink key={link.id} link={link} />
 				))}

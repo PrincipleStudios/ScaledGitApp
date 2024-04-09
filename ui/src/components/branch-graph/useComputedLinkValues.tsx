@@ -3,8 +3,8 @@ import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
 
 export function useComputedLinkValues(link: WithAtom<BranchGraphLinkDatum>) {
 	const position = useComputedAtom((get) => {
-		const { x: x1 = 0, y: y1 = 0 } = get(link.source.atom);
-		const { x: x2 = 0, y: y2 = 0 } = get(link.target.atom);
+		const { screenX: x1, screenY: y1 = 0 } = get(link.source.atom);
+		const { screenX: x2 = 0, screenY: y2 = 0 } = get(link.target.atom);
 		return { x1, x2, y1, y2 };
 	});
 	const transform = useComputedAtom((get) => {

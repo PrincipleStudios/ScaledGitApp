@@ -21,7 +21,7 @@ export function GraphSvgDefs({ children }: { children?: React.ReactNode }) {
 				height="4"
 				patternUnits="userSpaceOnUse"
 			>
-				<rect x="1" width="2" y="0" height="4" fill="#fff" />
+				<rect x="1" width="3" y="0" height="4" fill="#fff" />
 			</pattern>
 			<mask
 				id={`${idPrefix}-vertical-bars-mask`}

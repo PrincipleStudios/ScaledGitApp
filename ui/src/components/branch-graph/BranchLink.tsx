@@ -36,7 +36,7 @@ export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
 				x2={-5}
 				y2={0}
 				className="stroke-current"
-				strokeDasharray={isDetailedUpstream(targetLink) ? undefined : '3,3'}
+				strokeDasharray={isDetailedUpstream(targetLink) ? undefined : '10,3'}
 			/>
 			<path d="M-5,0l-5,3v-6z" className={'fill-current'} />
 		</JotaiG>

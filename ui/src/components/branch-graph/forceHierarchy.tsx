@@ -27,20 +27,13 @@ function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
 	};
 }
 
-function average(values: number[]): number {
-	if (values.length === 0) return NaN;
-	return values
-		.map((v) => v / values.length)
-		.reduce((prev, next) => prev + next, 0);
-}
-
 export function forceHierarchy(depthDistance: number) {
 	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
 	let links: WithAtom<BranchGraphLinkDatum>[] = [];
-	const downstreamByNode = resettableMemo((node) =>
+	const upstreamByNode = resettableMemo((node) =>
 		links.filter((l) => l.target === node).map((l) => l.source),
 	);
-	const upstreamByNode = resettableMemo((node) =>
+	const downstreamByNode = resettableMemo((node) =>
 		links.filter((l) => l.source === node).map((l) => l.target),
 	);
 	function update(alpha: number) {
@@ -49,16 +42,17 @@ export function forceHierarchy(depthDistance: number) {
 			const downstream = downstreamByNode.get(node);
 			const upstream = upstreamByNode.get(node);
 			const range = [
-				Math.max(...downstream.map(toX).filter(isNumber)) + depthDistance,
-				Math.min(...upstream.map(toX).filter(isNumber)) - depthDistance,
+				Math.min(...downstream.map(toX).filter(isNumber)) - depthDistance,
+				Math.max(...upstream.map(toX).filter(isNumber)) + depthDistance,
 			].filter(isNotInfinity);
 			if (range.length === 0) return;
-			const targetX = average(range);
+			const targetX = range[0];
 
 			const currentX = node.x ?? 0;
 			const delta = targetX - currentX;
 			const amount = delta * alpha;
 			node.vx = (node.vx ?? 0) + amount;
+			node.x = (node.x ?? 0) + amount;
 		}
 	}
 	return Object.assign(update, {

@@ -17,6 +17,7 @@ import { atomWithImperativeProxy } from '@/utils/atoms/jotai-imperative-atom';
 import type { JotaiStore } from '@/utils/atoms/JotaiStore';
 import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
 import type { BranchInfo } from '../branch-display';
+import { branchNodeRadius } from '../branch-display/BranchSvgCircle';
 import { forceHierarchy } from './forceHierarchy';
 import { forceWithinBoundaries } from './forceWithinBoundaries';
 import { neutralizeVelocity } from './neutralizeVelocity';
@@ -77,11 +78,22 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 			WithAtom<BranchGraphLinkDatum>
 		>([])
 			.alphaDecay(0.01)
+			// The "link" force keeps branches that are linked at a certain
+			// distance from each other
 			.force('link', linkingForce.current)
-			.force('collide', forceCollide(6))
+			// The "collide" force tries to push nodes away from overlapping
+			.force('collide', forceCollide(1.5 * branchNodeRadius))
+			// The "spaceAround" force repels nodes from each other up to the
+			// max distance
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
+			// The "sizing" force keeps everything within the bounds of the SVG
+			// itself
 			.force('sizing', forceWithinBoundaries(getSize))
+			// The "hierarchy" force encourages upstream left and downstream
+			// right
 			.force('hierarchy', hierarchyForce.current)
+			// The "neutral-velocity" force adjusts the net velocity of all
+			// nodes to remain 0 so that the graph doesn't "drift"
 			.force('neutral-velocity', neutralizeVelocity());
 	}
 

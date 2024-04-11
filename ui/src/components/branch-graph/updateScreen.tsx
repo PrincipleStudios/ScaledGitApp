@@ -7,9 +7,15 @@ export function updateScreen(nodes: BranchGraphNodeDatum[]) {
 	// TODO: track occupied hex locations and prevent multiple in same location
 	const occupied = new Set<string>();
 	for (const d of nodes) {
+		if (d.fx !== undefined || d.fy !== undefined) {
+			d.screenX = d.fx ?? d.x ?? 0;
+			d.screenY = d.fy ?? d.y ?? 0;
+			continue;
+		}
+
 		d.x ??= 0;
 		d.y ??= 0;
-		const hex = pixelToHex({ x: d.x, y: d.y }, gridSize);
+		const hex = pixelToHex({ x: d.fx ?? d.x, y: d.fy ?? d.y }, gridSize);
 		const hexId = `${hex.q},${hex.r}`;
 		if (!occupied.has(hexId)) {
 			occupied.add(hexId);

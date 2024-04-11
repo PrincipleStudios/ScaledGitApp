@@ -38,7 +38,6 @@ export function forceHierarchy(depthDistance: number) {
 	);
 	function update(alpha: number) {
 		for (const node of currentNodes) {
-			if (isNumber(node.fx)) continue;
 			const downstream = downstreamByNode.get(node);
 			const upstream = upstreamByNode.get(node);
 			const range = [
@@ -48,7 +47,7 @@ export function forceHierarchy(depthDistance: number) {
 			if (range.length === 0) return;
 			const targetX = range[0];
 
-			const currentX = node.x ?? 0;
+			const currentX = node.fx ?? node.x ?? 0;
 			const delta = targetX - currentX;
 			const amount = delta * alpha;
 			node.vx = (node.vx ?? 0) + amount;

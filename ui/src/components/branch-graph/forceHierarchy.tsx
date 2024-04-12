@@ -1,7 +1,6 @@
 import type { SimulationNodeDatum } from 'd3-force';
 import { isNumber } from '@/utils/isNumber';
 import type {
-	WithAtom,
 	BranchGraphNodeDatum,
 	BranchGraphLinkDatum,
 } from './branch-graph.simulation';
@@ -28,8 +27,8 @@ function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
 }
 
 export function forceHierarchy(depthDistance: number) {
-	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
-	let links: WithAtom<BranchGraphLinkDatum>[] = [];
+	let currentNodes: BranchGraphNodeDatum[] = [];
+	let links: BranchGraphLinkDatum[] = [];
 	const upstreamByNode = resettableMemo((node) =>
 		links.filter((l) => l.target === node).map((l) => l.source),
 	);
@@ -55,10 +54,10 @@ export function forceHierarchy(depthDistance: number) {
 		}
 	}
 	return Object.assign(update, {
-		initialize(nodes: WithAtom<BranchGraphNodeDatum>[]) {
+		initialize(nodes: BranchGraphNodeDatum[]) {
 			currentNodes = nodes;
 		},
-		links(newLinks: WithAtom<BranchGraphLinkDatum>[]) {
+		links(newLinks: BranchGraphLinkDatum[]) {
 			links = newLinks;
 			downstreamByNode.clear();
 			upstreamByNode.clear();

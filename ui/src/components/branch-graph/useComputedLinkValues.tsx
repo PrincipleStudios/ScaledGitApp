@@ -1,7 +1,7 @@
 import { useComputedAtom } from '@principlestudios/jotai-react-signals';
-import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
+import type { BranchGraphLinkDatum } from './branch-graph.simulation';
 
-export function useComputedLinkValues(link: WithAtom<BranchGraphLinkDatum>) {
+export function useComputedLinkValues(link: BranchGraphLinkDatum) {
 	const position = useComputedAtom((get) => {
 		const { screenX: x1, screenY: y1 = 0 } = get(link.source.atom);
 		const { screenX: x2 = 0, screenY: y2 = 0 } = get(link.target.atom);

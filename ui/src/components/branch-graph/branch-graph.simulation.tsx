@@ -29,7 +29,7 @@ const maxUnknownBranchCount = 100;
 // If the total number of branches goes over this number, do not display any non-detailed branches
 const branchCountTolerance = 150;
 
-export type WithAtom<T> = T & {
+type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
 // Separates screen coordinates from actual positions of nodes
@@ -37,34 +37,28 @@ export type ScreenNodeDatum = SimulationNodeDatum & {
 	screenX: number;
 	screenY: number;
 };
-export type BranchGraphNodeDatum = {
+export type StaticNodeDatum = {
 	id: string;
 	data: BranchInfo;
 } & ScreenNodeDatum;
-export type BranchGraphLinkDatum = {
+export type BranchGraphNodeDatum = WithAtom<StaticNodeDatum>;
+export type StaticLinkDatum = {
 	id: string;
 	upstreamBranchName: string;
 	downstreamBranchName: string;
-	source: WithAtom<BranchGraphNodeDatum>;
-	target: WithAtom<BranchGraphNodeDatum>;
-} & SimulationLinkDatum<BranchGraphNodeDatum>;
-type BranchSimulation = Simulation<
-	WithAtom<BranchGraphNodeDatum>,
-	WithAtom<BranchGraphLinkDatum>
->;
-type BranchLinkForce = ForceLink<
-	WithAtom<BranchGraphNodeDatum>,
-	WithAtom<BranchGraphLinkDatum>
->;
+	source: BranchGraphNodeDatum;
+	target: BranchGraphNodeDatum;
+} & SimulationLinkDatum<StaticNodeDatum>;
+export type BranchGraphLinkDatum = WithAtom<StaticLinkDatum>;
+type BranchSimulation = Simulation<BranchGraphNodeDatum, BranchGraphLinkDatum>;
+type BranchLinkForce = ForceLink<BranchGraphNodeDatum, BranchGraphLinkDatum>;
 
 export function useBranchSimulation<T extends BranchConfiguration>(
 	upstreamData: T[],
 	size: Atom<ElementDimensions>,
 ) {
 	const linkingForce = useRef(
-		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
-			[],
-		)
+		forceLink<BranchGraphNodeDatum, BranchGraphLinkDatum>([])
 			.distance(40)
 			.strength(0.5),
 	);
@@ -74,8 +68,8 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	const getSize = () => store.get(size);
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
-			WithAtom<BranchGraphNodeDatum>,
-			WithAtom<BranchGraphLinkDatum>
+			BranchGraphNodeDatum,
+			BranchGraphLinkDatum
 		>([])
 			.alphaDecay(0.01)
 			// The "link" force keeps branches that are linked at a certain
@@ -178,7 +172,7 @@ function updateNodes(
 	simulation: BranchSimulation,
 	linkForce: BranchLinkForce,
 	hierarchyForce: {
-		links: (newLinks: WithAtom<BranchGraphLinkDatum>[]) => void;
+		links: (newLinks: BranchGraphLinkDatum[]) => void;
 	},
 	upstreamData: BranchConfiguration[],
 	{ width = 0, height = 0 }: Pick<ElementDimensions, 'width' | 'height'>,
@@ -204,7 +198,7 @@ function updateNodes(
 			},
 		),
 	);
-	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum>>(
+	const nodeLookup = new Map<string, BranchGraphNodeDatum>(
 		newNodes.map((e) => [e.id, e] as const),
 	);
 

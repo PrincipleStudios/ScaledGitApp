@@ -1,8 +1,8 @@
-import type { WithAtom, BranchGraphNodeDatum } from './branch-graph.simulation';
+import type { BranchGraphNodeDatum } from './branch-graph.simulation';
 
 /** Keeps all nodes with a net-zero velocity */
 export function neutralizeVelocity() {
-	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
+	let currentNodes: BranchGraphNodeDatum[] = [];
 	function update() {
 		let vx = 0;
 		let vy = 0;
@@ -19,7 +19,7 @@ export function neutralizeVelocity() {
 		}
 	}
 	return Object.assign(update, {
-		initialize(nodes: WithAtom<BranchGraphNodeDatum>[]) {
+		initialize(nodes: BranchGraphNodeDatum[]) {
 			currentNodes = nodes;
 		},
 	});

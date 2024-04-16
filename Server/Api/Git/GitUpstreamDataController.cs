@@ -4,7 +4,7 @@ using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShell, IColorConfiguration ColorConfiguration) : GitUpstreamDataControllerBase
+public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShell, IBranchTypeLookup ColorConfiguration) : GitUpstreamDataControllerBase
 {
 
 	protected override async Task<GetUpstreamDataActionResult> GetUpstreamData()
@@ -13,9 +13,11 @@ public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShel
 		var noUpstreams = results.SelectMany(r => r.Value.UpstreamBranchNames).Except(results.Keys);
 		return GetUpstreamDataActionResult.Ok((
 			from kvp in results
+			let type = ColorConfiguration.DetermineBranchType(kvp.Key)
 			select new BranchConfiguration(
 				Name: kvp.Key,
-				Color: ColorConfiguration.DetermineColor(kvp.Key),
+				Type: type.BranchType,
+				Color: type.Color,
 				Upstream: kvp.Value.UpstreamBranchNames.Select(n => new Branch(Name: n)),
 				Downstream: from entry in results
 							where entry.Value.UpstreamBranchNames.Contains(kvp.Key)
@@ -23,9 +25,11 @@ public class GitUpstreamDataController(IGitToolsCommandInvoker GitToolsPowerShel
 			)
 		).Concat(
 			from branchName in noUpstreams
+			let type = ColorConfiguration.DetermineBranchType(branchName)
 			select new BranchConfiguration(
 				Name: branchName,
-				Color: ColorConfiguration.DetermineColor(branchName),
+				Type: type.BranchType,
+				Color: type.Color,
 				Upstream: Enumerable.Empty<Branch>(),
 				Downstream: from entry in results
 							where entry.Value.UpstreamBranchNames.Contains(branchName)

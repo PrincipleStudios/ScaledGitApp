@@ -4,9 +4,9 @@ namespace PrincipleStudios.ScaledGitApp.BranchingStrategy;
 
 public static class ServiceRegistration
 {
-	internal static void RegisterBranchingStrategy(this IServiceCollection services, IConfigurationSection colorConfig)
+	internal static void RegisterBranchingStrategy(this IServiceCollection services, IConfigurationSection strategyOptionsConfig)
 	{
-		services.Configure<ColorOptions>(colorConfig);
-		services.AddSingleton<IColorConfiguration, ColorConfiguration>();
+		services.Configure<BranchingStrategyOptions>(strategyOptionsConfig);
+		services.AddSingleton<IBranchTypeLookup, BranchTypeLookup>();
 	}
 }

@@ -8,10 +8,6 @@ export const HintText = elementTemplate('HintText', 'p', (T) => (
 	<T className="leading-tight text-sm italic text-opacity-100 my-4" />
 ));
 
-export const Code = elementTemplate('Code', 'pre', (T) => (
-	<T className="font-mono bg-zinc-300 dark:bg-zinc-700 text-black dark:text-white p-4 border-zinc-500 rounded my-4 overflow-x-auto" />
-));
-
 const HeadingBase = elementTemplate('Heading', 'h2', (T) => (
 	<T className="text-xl font-bold" />
 ));

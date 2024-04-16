@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Prose, HintText, Code, LargeInstructions } from './text';
+import { Prose, HintText, LargeInstructions } from './text';
 
 const meta = {
 	title: 'Components/Text/Blocks',
@@ -30,5 +30,4 @@ function themeStory(
 
 export const ProseStory = themeStory(Prose);
 export const HintTextStory = themeStory(HintText);
-export const CodeStory = themeStory(Code);
 export const LargeInstructionsStory = themeStory(LargeInstructions);

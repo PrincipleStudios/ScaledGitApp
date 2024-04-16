@@ -127,11 +127,13 @@ components:
       required:
         - name
         - color
+        - type
         - upstream
         - downstream
       properties:
         name: { type: string }
         color: { type: string }
+        type: { type: string }
         upstream: { $ref: '#/components/schemas/BranchList' }
         downstream: { $ref: '#/components/schemas/BranchList' }
     BranchDetails:
@@ -139,6 +141,7 @@ components:
       required:
         - name
         - color
+        - type
         - exists
         - nonMergeCommitCount
         - upstream
@@ -146,6 +149,7 @@ components:
       properties:
         name: { type: string }
         color: { type: string }
+        type: { type: string }
         exists: { type: boolean }
         nonMergeCommitCount: { type: integer }
         upstream:
@@ -166,12 +170,14 @@ components:
       required:
         - name
         - color
+        - type
         - exists
         - behindCount
         - hasConflict
       properties:
         name: { type: string }
         color: { type: string }
+        type: { type: string }
         exists: { type: boolean }
         behindCount: { type: integer }
         hasConflict: { type: boolean }

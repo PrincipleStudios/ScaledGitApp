@@ -73,5 +73,5 @@ support for GitHub and AzureDevOps is planned.
 [dotnet-8]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
 [codegen-dotnet-version]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
 [ps-openapi-codegen]: https://github.com/PrincipleStudios/principle-studios-openapi-generators
-[pnpm-setup]: https://pnpm.io/cli/install
+[pnpm-setup]: https://pnpm.io/installation
 [docs-env-variables]: docs/env.md

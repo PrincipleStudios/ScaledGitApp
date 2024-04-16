@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Code } from '@/components/code/Code';
 import { Section } from '@/components/common';
-import { Code, Heading, HintText } from '@/components/text';
+import { Heading, HintText } from '@/components/text';
 import type { BranchDetails } from '@/generated/api/models';
 import { useRecommendationsEngine } from '@/recommendations';
 import type { RecommendationsEngine, Recommendation } from '@/recommendations';
@@ -58,7 +59,9 @@ function RecommendationPresentation({
 		<Section.SingleColumn>
 			<Heading.Section>{t('title', opts)}</Heading.Section>
 			<HintText>{t('description', opts)}</HintText>
-			<Code>{recommendation.commands.join('\n')}</Code>
+			<Code>
+				{recommendation.commands.map((command) => `${command}\n`).join('')}
+			</Code>
 		</Section.SingleColumn>
 	);
 }

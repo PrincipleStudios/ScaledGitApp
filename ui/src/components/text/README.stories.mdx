@@ -1,6 +1,6 @@
 import { Meta, Unstyled } from '@storybook/blocks';
 import { H1, H2, H3, H4, H5, H6 } from './headings';
-import { Prose, HintText, Code } from './text';
+import { Prose, HintText } from './text';
 
 <Meta title="Components/Text" />
 <Unstyled>
@@ -26,12 +26,12 @@ import { Prose, HintText, Code } from './text';
 	When leveraging these components as building blocks, consider using the
 	`.extend` functionality to create new standard styles.
 </Prose>
-{/* MDX auto-formats and syntax highlights this in various odd ways, so I'm
-explicitly using the `children` prop here, although it is not necessary. */}
-<Code children={`const ErrorMessage = Prose.extend(
+```tsx
+const ErrorMessage = Prose.extend(
 	'ErrorMessage', 
 	(T) => <T className="text-red-800 dark:text-red-200" />
-);`}/>
+);
+```
 <HintText>
 	Using this technique, you can keep your presentational components clean
 	and encapsulate styles in a more reusable way.

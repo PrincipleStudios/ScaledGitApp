@@ -20,6 +20,14 @@
 		<NoWarn>$(NoWarn),CA1304,CA1305,CA1310,CA1311</NoWarn>
 	</PropertyGroup>
 
+	<!-- The following are debug supressions -->
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<!--
+			NU1901,NU1902,NU1903,NU1904 - disallows known security vulnerabilities, low to critical
+		-->
+		<NoWarn>$(NoWarn),NU1901,NU1902,NU1903,NU1904</NoWarn>
+	</PropertyGroup>
+
 	<!-- The following are test assembly supressions -->
 	<PropertyGroup Condition=" $(AssemblyName.EndsWith('.Tests')) ">
 		<!--

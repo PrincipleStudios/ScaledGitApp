@@ -1,5 +1,6 @@
 import type { Branch, BranchConfiguration } from '@/generated/api/models';
 import { useResizeDetector } from '@/utils/atoms/useResizeDetector';
+import { GraphSvgDefs } from '../branch-display/BranchSvgDefs';
 import { FullSizeSvg } from '../svg/full-size-svg';
 import { useBranchSimulation } from './branch-graph.simulation';
 import { BranchLink } from './BranchLink';
@@ -22,18 +23,20 @@ export function BranchGraphPresentation({
 
 	return (
 		<section>
-			<FullSizeSvg ref={sizeDetection}>
-				{links.map((link) => (
-					<BranchLink key={link.id} link={link} />
-				))}
-				{nodes.map((node) => (
-					<BranchNode
-						key={node.id}
-						node={node}
-						onMove={restartSimulation}
-						onClick={onClick && (() => onClick(node.data))}
-					/>
-				))}
+			<FullSizeSvg className="transition-transform" ref={sizeDetection}>
+				<GraphSvgDefs>
+					{links.map((link) => (
+						<BranchLink key={link.id} link={link} />
+					))}
+					{nodes.map((node) => (
+						<BranchNode
+							key={node.id}
+							node={node}
+							onMove={restartSimulation}
+							onClick={onClick && (() => onClick(node.data))}
+						/>
+					))}
+				</GraphSvgDefs>
 			</FullSizeSvg>
 		</section>
 	);

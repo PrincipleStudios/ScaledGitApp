@@ -4,9 +4,14 @@ import type {
 	BranchDetails,
 } from '@/generated/api/models';
 
-export type BranchInfo = Branch &
-	(Partial<BranchConfiguration> | Partial<BranchDetails>);
+export type BranchInfo = Branch | BranchConfiguration | BranchDetails;
 
 export function isDetailed(branch: Branch): branch is BranchDetails {
-	return branch ? 'nonMergeCommitCount' in branch : false;
+	return 'nonMergeCommitCount' in branch;
+}
+
+export function isBasic(
+	branch: Branch,
+): branch is BranchConfiguration | BranchDetails {
+	return 'upstream' in branch;
 }

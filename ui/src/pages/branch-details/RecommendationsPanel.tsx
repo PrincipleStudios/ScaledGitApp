@@ -1,10 +1,15 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Code } from '@/components/code/Code';
 import { Section } from '@/components/common';
-import { Code, Heading, HintText } from '@/components/text';
+import { LoadingSection } from '@/components/layout/LoadingSection';
+import { Heading, HintText } from '@/components/text';
 import type { BranchDetails } from '@/generated/api/models';
-import { useRecommendationsEngine } from '@/recommendations';
-import type { RecommendationsEngine, Recommendation } from '@/recommendations';
+import { useRecommendations } from '@/recommendations';
+import type {
+	Recommendation,
+	LoadableRecommendations,
+} from '@/recommendations';
 
 export type RecommendationsPanelComponent = React.FC<{
 	branches: BranchDetails[];
@@ -12,29 +17,29 @@ export type RecommendationsPanelComponent = React.FC<{
 
 export function useRecommendationsPanel(): RecommendationsPanelComponent {
 	return useCallback(function RecommendationsPanelContainer({ branches }) {
-		const engine = useRecommendationsEngine();
-		return (
-			<RecommendationsPanel
-				branches={branches}
-				recommendationsEngine={engine}
-			/>
-		);
+		const recommendations = useRecommendations(branches);
+		return <RecommendationsPanel recommendations={recommendations} />;
 	}, []);
 }
 
 export function RecommendationsPanel({
-	branches,
-	recommendationsEngine,
+	recommendations: { state, data: recommendations },
 }: {
-	branches: BranchDetails[];
-	recommendationsEngine: RecommendationsEngine;
+	recommendations: LoadableRecommendations;
 }) {
 	const { t } = useTranslation('recommendations');
-	const recommendations = recommendationsEngine.getRecommendations(branches);
-	if (recommendations.length === 0) return t('none');
+	if (recommendations.length === 0) {
+		if (state === 'loading') return <LoadingSection />;
+		return t('none');
+	}
 
 	return (
 		<ul>
+			{state === 'loading' ? (
+				<li>
+					<LoadingSection />
+				</li>
+			) : null}
 			{recommendations.map((recommendation, index) => (
 				<li key={index}>
 					<RecommendationPresentation recommendation={recommendation} />
@@ -58,7 +63,9 @@ function RecommendationPresentation({
 		<Section.SingleColumn>
 			<Heading.Section>{t('title', opts)}</Heading.Section>
 			<HintText>{t('description', opts)}</HintText>
-			<Code>{recommendation.commands.join('\n')}</Code>
+			<Code>
+				{recommendation.commands.map((command) => `${command}\n`).join('')}
+			</Code>
 		</Section.SingleColumn>
 	);
 }

@@ -16,10 +16,12 @@ import type { Branch, BranchConfiguration } from '@/generated/api/models';
 import { atomWithImperativeProxy } from '@/utils/atoms/jotai-imperative-atom';
 import type { JotaiStore } from '@/utils/atoms/JotaiStore';
 import type { ElementDimensions } from '@/utils/atoms/useResizeDetector';
-import { isNumber } from '@/utils/isNumber';
 import type { BranchInfo } from '../branch-display';
+import { branchNodeRadius } from '../branch-display/BranchSvgCircle';
+import { forceHierarchy } from './forceHierarchy';
 import { forceWithinBoundaries } from './forceWithinBoundaries';
 import { neutralizeVelocity } from './neutralizeVelocity';
+import { updateScreen } from './updateScreen';
 import { useAnimationFrame } from './useAnimationFrame';
 
 const maxUnknownBranchPerNodeCount = 5;
@@ -27,104 +29,36 @@ const maxUnknownBranchCount = 100;
 // If the total number of branches goes over this number, do not display any non-detailed branches
 const branchCountTolerance = 150;
 
-export type WithAtom<T> = T & {
+type WithAtom<T> = T & {
 	atom: Atom<T>;
 };
-export type BranchGraphNodeDatum = {
+// Separates screen coordinates from actual positions of nodes
+export type ScreenNodeDatum = SimulationNodeDatum & {
+	screenX: number;
+	screenY: number;
+};
+export type StaticNodeDatum = {
 	id: string;
 	data: BranchInfo;
-} & SimulationNodeDatum;
-export type BranchGraphLinkDatum = {
+} & ScreenNodeDatum;
+export type BranchGraphNodeDatum = WithAtom<StaticNodeDatum>;
+export type StaticLinkDatum = {
 	id: string;
 	upstreamBranchName: string;
 	downstreamBranchName: string;
-	source: WithAtom<BranchGraphNodeDatum>;
-	target: WithAtom<BranchGraphNodeDatum>;
-} & SimulationLinkDatum<BranchGraphNodeDatum>;
-type BranchSimulation = Simulation<
-	WithAtom<BranchGraphNodeDatum>,
-	WithAtom<BranchGraphLinkDatum>
->;
-type BranchLinkForce = ForceLink<
-	WithAtom<BranchGraphNodeDatum>,
-	WithAtom<BranchGraphLinkDatum>
->;
-
-function toX(node: SimulationNodeDatum) {
-	return node.fx ?? node.x;
-}
-function isNotInfinity(n: number) {
-	return n !== Number.POSITIVE_INFINITY && n !== Number.NEGATIVE_INFINITY;
-}
-function resettableMemo<TInput, TOutput>(toOutput: (input: TInput) => TOutput) {
-	const cache = new Map<TInput, TOutput>();
-	return {
-		get(this: void, input: TInput) {
-			if (cache.has(input)) return cache.get(input) as TOutput;
-			const result = toOutput(input);
-			cache.set(input, result);
-			return result;
-		},
-		clear(this: void) {
-			cache.clear();
-		},
-	};
-}
-
-function average(values: number[]): number {
-	if (values.length === 0) return NaN;
-	return values
-		.map((v) => v / values.length)
-		.reduce((prev, next) => prev + next, 0);
-}
-
-function forceHierarchy(depthDistance: number) {
-	let currentNodes: WithAtom<BranchGraphNodeDatum>[] = [];
-	let links: WithAtom<BranchGraphLinkDatum>[] = [];
-	const downstreamByNode = resettableMemo((node) =>
-		links.filter((l) => l.target === node).map((l) => l.source),
-	);
-	const upstreamByNode = resettableMemo((node) =>
-		links.filter((l) => l.source === node).map((l) => l.target),
-	);
-	function update(alpha: number) {
-		for (const node of currentNodes) {
-			if (isNumber(node.fx)) continue;
-			const downstream = downstreamByNode.get(node);
-			const upstream = upstreamByNode.get(node);
-			const range = [
-				Math.max(...downstream.map(toX).filter(isNumber)) + depthDistance,
-				Math.min(...upstream.map(toX).filter(isNumber)) - depthDistance,
-			].filter(isNotInfinity);
-			if (range.length === 0) return;
-			const targetX = average(range);
-
-			const currentX = node.x ?? 0;
-			const delta = targetX - currentX;
-			const amount = delta * alpha;
-			node.vx = (node.vx ?? 0) + amount;
-		}
-	}
-	return Object.assign(update, {
-		initialize(nodes: WithAtom<BranchGraphNodeDatum>[]) {
-			currentNodes = nodes;
-		},
-		links(newLinks: WithAtom<BranchGraphLinkDatum>[]) {
-			links = newLinks;
-			downstreamByNode.clear();
-			upstreamByNode.clear();
-		},
-	});
-}
+	source: BranchGraphNodeDatum;
+	target: BranchGraphNodeDatum;
+} & SimulationLinkDatum<StaticNodeDatum>;
+export type BranchGraphLinkDatum = WithAtom<StaticLinkDatum>;
+type BranchSimulation = Simulation<BranchGraphNodeDatum, BranchGraphLinkDatum>;
+type BranchLinkForce = ForceLink<BranchGraphNodeDatum, BranchGraphLinkDatum>;
 
 export function useBranchSimulation<T extends BranchConfiguration>(
 	upstreamData: T[],
 	size: Atom<ElementDimensions>,
 ) {
 	const linkingForce = useRef(
-		forceLink<WithAtom<BranchGraphNodeDatum>, WithAtom<BranchGraphLinkDatum>>(
-			[],
-		)
+		forceLink<BranchGraphNodeDatum, BranchGraphLinkDatum>([])
 			.distance(40)
 			.strength(0.5),
 	);
@@ -134,22 +68,35 @@ export function useBranchSimulation<T extends BranchConfiguration>(
 	const getSize = () => store.get(size);
 	if (simulationRef.current === undefined) {
 		simulationRef.current = forceSimulation<
-			WithAtom<BranchGraphNodeDatum>,
-			WithAtom<BranchGraphLinkDatum>
+			BranchGraphNodeDatum,
+			BranchGraphLinkDatum
 		>([])
 			.alphaDecay(0.01)
+			// The "link" force keeps branches that are linked at a certain
+			// distance from each other
 			.force('link', linkingForce.current)
-			.force('collide', forceCollide(6))
+			// The "collide" force tries to push nodes away from overlapping
+			.force('collide', forceCollide(1.5 * branchNodeRadius))
+			// The "spaceAround" force repels nodes from each other up to the
+			// max distance
 			.force('spaceAround', forceManyBody().distanceMax(100).strength(-100))
+			// The "sizing" force keeps everything within the bounds of the SVG
+			// itself
 			.force('sizing', forceWithinBoundaries(getSize))
+			// The "hierarchy" force encourages upstream left and downstream
+			// right
 			.force('hierarchy', hierarchyForce.current)
+			// The "neutral-velocity" force adjusts the net velocity of all
+			// nodes to remain 0 so that the graph doesn't "drift"
 			.force('neutral-velocity', neutralizeVelocity());
 	}
 
 	const animator = useAnimationFrame(() => {
-		if (!simulationRef.current) return false;
-		simulationRef.current.tick();
-		return simulationRef.current.alpha() >= simulationRef.current.alphaMin();
+		const simulation = simulationRef.current;
+		if (!simulation) return false;
+		simulation.tick();
+		updateScreen(simulation.nodes());
+		return simulation.alpha() >= simulation.alphaMin();
 	});
 
 	const { nodes, links } = updateNodes(
@@ -225,7 +172,7 @@ function updateNodes(
 	simulation: BranchSimulation,
 	linkForce: BranchLinkForce,
 	hierarchyForce: {
-		links: (newLinks: WithAtom<BranchGraphLinkDatum>[]) => void;
+		links: (newLinks: BranchGraphLinkDatum[]) => void;
 	},
 	upstreamData: BranchConfiguration[],
 	{ width = 0, height = 0 }: Pick<ElementDimensions, 'width' | 'height'>,
@@ -242,6 +189,8 @@ function updateNodes(
 			{
 				x: width / 2,
 				y: height / 2,
+				screenX: width / 2,
+				screenY: height / 2,
 			},
 			{
 				id: entry.name,
@@ -249,7 +198,7 @@ function updateNodes(
 			},
 		),
 	);
-	const nodeLookup = new Map<string, WithAtom<BranchGraphNodeDatum>>(
+	const nodeLookup = new Map<string, BranchGraphNodeDatum>(
 		newNodes.map((e) => [e.id, e] as const),
 	);
 

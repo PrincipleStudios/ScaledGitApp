@@ -2,7 +2,7 @@ import { twMerge } from 'tailwind-merge';
 import type { Branch, DetailedUpstreamBranch } from '@/generated/api/models';
 import { isDetailed } from '../branch-display';
 import { JotaiG, JotaiLine } from '../svg/atom-elements';
-import type { BranchGraphLinkDatum, WithAtom } from './branch-graph.simulation';
+import type { BranchGraphLinkDatum } from './branch-graph.simulation';
 import { useComputedLinkValues } from './useComputedLinkValues';
 
 function isDetailedUpstream(
@@ -11,7 +11,7 @@ function isDetailedUpstream(
 	return branch ? 'behindCount' in branch : false;
 }
 
-export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
+export function BranchLink({ link }: { link: BranchGraphLinkDatum }) {
 	const { transform, negativeLen } = useComputedLinkValues(link);
 
 	const targetLink = isDetailed(link.target.data)
@@ -36,6 +36,7 @@ export function BranchLink({ link }: { link: WithAtom<BranchGraphLinkDatum> }) {
 				x2={-5}
 				y2={0}
 				className="stroke-current"
+				strokeDasharray={isDetailedUpstream(targetLink) ? undefined : '10,3'}
 			/>
 			<path d="M-5,0l-5,3v-6z" className={'fill-current'} />
 		</JotaiG>

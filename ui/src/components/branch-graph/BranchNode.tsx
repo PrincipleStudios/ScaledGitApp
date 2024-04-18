@@ -2,20 +2,20 @@ import { useComputedAtom } from '@principlestudios/jotai-react-signals';
 import { setupDragHandler } from '@/utils/dragging';
 import { BranchSvgCircle } from '../branch-display';
 import { JotaiG } from '../svg/atom-elements';
-import type { BranchGraphNodeDatum, WithAtom } from './branch-graph.simulation';
+import type { BranchGraphNodeDatum } from './branch-graph.simulation';
 
 export function BranchNode({
 	node,
 	onMove,
 	onClick,
 }: {
-	node: WithAtom<BranchGraphNodeDatum>;
+	node: BranchGraphNodeDatum;
 	onMove?: (ev: MouseEvent) => void;
 	onClick?: (ev: MouseEvent) => void;
 }) {
 	const transform = useComputedAtom((get) => {
-		const { x, y } = get(node.atom);
-		return `translate(${(x ?? 0).toFixed(1)}px, ${(y ?? 0).toFixed(1)}px)`;
+		const { screenX, screenY } = get(node.atom);
+		return `translate(${screenX.toFixed(1)}px, ${screenY.toFixed(1)}px)`;
 	});
 	return (
 		<JotaiG style={{ transform: transform }} {...drag(node, onMove, onClick)}>
@@ -25,7 +25,7 @@ export function BranchNode({
 }
 
 function drag(
-	node: WithAtom<BranchGraphNodeDatum>,
+	node: BranchGraphNodeDatum,
 	onMove?: (ev: MouseEvent) => void,
 	onClick?: (ev: MouseEvent) => void,
 ) {

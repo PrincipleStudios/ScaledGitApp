@@ -2,6 +2,10 @@
 	"none": "No recommendations could be found for the selected branch(es).",
 	"remove-unused-branch": {
 		"title": "Remove unused branch",
-		"description": "The branch '{{branch}}' has no commits ahead of its single parent; if it is unused, it may be removed."
+		"description": "The branch '{{branch}}' has no commits ahead of upstreams, and has a single parent; if it is unused, it may be removed."
+	},
+	"remove-invalid-integration": {
+		"title": "Remove invalid integration branch",
+		"description": "The integration branch only has one upstream (or all other upstreams are upstream of that one). It should be removed."
 	}
 }

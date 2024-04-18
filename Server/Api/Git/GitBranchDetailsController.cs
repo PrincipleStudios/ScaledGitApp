@@ -42,7 +42,8 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 						  HasConflict: upstream.HasConflict
 					  ),
 			Downstream: from downstream in result.DownstreamNames
-						select new Branch(Name: downstream)
+						let downstreamType = branchTypeLookup.DetermineBranchType(downstream)
+						select new Branch(Name: downstream, Color: downstreamType.Color, Type: downstreamType.BranchType)
 		);
 	}
 }

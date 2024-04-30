@@ -3,6 +3,10 @@ import { perBranch } from '../per-branch-rule';
 const translationKey = 'pull-upstream';
 const conflictTranslationKey = 'pull-upstream.conflict';
 
+// Should be lower than "this is unused", but higher than many other
+// recommendations.
+const pullUpstreamPriority = 10;
+
 export default perBranch({
 	analyze([branch]) {
 		if (!branch.upstream.some((u) => u.behindCount > 0)) return [];
@@ -12,7 +16,7 @@ export default perBranch({
 				.filter((u) => u.hasConflict)
 				.map(({ name }) => ({
 					recommendationKey: `${conflictTranslationKey}-${branch.name}-${name}`,
-					priority: 10,
+					priority: pullUpstreamPriority,
 					translationKey: conflictTranslationKey,
 					commands: [`git checkout ${branch.name}`, `git merge origin/${name}`],
 					translationParameters: {
@@ -26,7 +30,7 @@ export default perBranch({
 		return [
 			{
 				recommendationKey: `${translationKey}-${branch.name}`,
-				priority: 10,
+				priority: pullUpstreamPriority,
 				translationKey,
 				commands,
 				translationParameters: {

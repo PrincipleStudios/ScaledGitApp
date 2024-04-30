@@ -1,5 +1,13 @@
 {
 	"none": "No recommendations could be found for the selected branch(es).",
+	"pull-upstream": {
+		"title": "Out of date",
+		"description": "The branch '{{branch}}' is out of date with at least one upstream.",
+		"conflict": {
+			"title": "Incoming conflicts",
+			"description": "The branch '{{branch}}' is out of date with '{{incoming}}', which has conflicts."
+		}
+	},
 	"remove-unused-branch": {
 		"title": "Remove unused branch",
 		"description": "The branch '{{branch}}' has no commits ahead of upstreams, and has a single parent; if it is unused, it may be removed."

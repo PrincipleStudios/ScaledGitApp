@@ -6,6 +6,11 @@
 		"conflict": {
 			"title": "Incoming conflicts",
 			"description": "The branch '{{branch}}' is out of date with '{{incoming}}', which has conflicts."
+		},
+		"conflict-upstream": {
+			"title": "Upstream conflicts",
+			"description": "The branch '{{branch}}' further upstream has conflicts. Resolve those before continuing.",
+			"seeAlso": "Branch {{branch}}"
 		}
 	},
 	"remove-unused-branch": {

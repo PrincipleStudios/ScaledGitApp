@@ -117,6 +117,34 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/BranchDetails' }
+  /api/git/detect-conflicts:
+    post:
+      x-dotnet-mvc-server-controller: GitDetectConflicts
+      operationId: getConflictDetails
+      security:
+        - AuthenticatedUser: []
+      summary: Gets the conflict details between two branches
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branches:
+                  type: array
+                  minItems: 1
+                  items: { type: string }
+              required:
+                - branches
+      responses:
+        200:
+          description: Conflict detection results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ConflictDetails' }
 components:
   schemas:
     BranchConfiguration:
@@ -169,6 +197,20 @@ components:
         name: { type: string }
         color: { type: string }
         type: { type: string }
+    ConflictDetails:
+      type: object
+      required:
+        - branches
+        - files
+      properties:
+        branches:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/Branch' }
+        files:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/FileConflictDetails' }
     DetailedUpstreamBranch:
       type: object
       required:
@@ -185,6 +227,12 @@ components:
         exists: { type: boolean }
         behindCount: { type: integer }
         hasConflict: { type: boolean }
+    FileConflictDetails:
+      type: object
+      required:
+        - path
+      properties:
+        path: { type: string }
 
   securitySchemes:
     AuthenticatedUser:

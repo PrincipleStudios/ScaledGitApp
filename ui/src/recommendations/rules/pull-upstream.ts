@@ -1,12 +1,19 @@
-import type { BranchDetails } from '@/generated/api/models';
+import type { QueryClient } from '@tanstack/react-query';
+import type {
+	Branch,
+	BranchDetails,
+	UpstreamBranches,
+} from '@/generated/api/models';
 import { getLocalData } from '@/logic/getLocalData';
 import { getRecursiveUpstream } from '@/logic/recursive-upstream';
 import { queries } from '@/utils/api/queries';
 import { perBranch } from '../per-branch-rule';
+import type { RecommendationOutput } from '../rule-base';
 
 const translationKey = 'pull-upstream';
 const conflictTranslationKey = 'pull-upstream.conflict';
 const upstreamConflictTranslationKey = 'pull-upstream.conflict-upstream';
+const reintegrateTranslationKey = 'pull-upstream.reintegrate';
 
 // Should be lower than "this is unused", but higher than many other
 // recommendations.
@@ -39,10 +46,19 @@ export default perBranch({
 
 		// If there are conflicts with only the current branch, report how to resolve those.
 		if (isArrayOfCurrentBranch(conflicts)) {
-			// TODO: if there is an integration branch downstream, and its other
-			// upstreams are all merged into this branch's upstreams, then
-			// recommend reusing the integration branch. (This behavior is worth
-			// an `await`.)
+			// First, look for an integration branch directly downstream, whose
+			// upstreams have no changes.
+			const reintegrationCandidates = await getReintegrationCandidates(
+				branch,
+				allUpstreamData,
+				queryClient,
+			);
+
+			if (reintegrationCandidates.length > 0) {
+				return reintegrationCandidates.map(({ name }) =>
+					suggestReintegration(branch.name, name),
+				);
+			}
 
 			return branch.upstream
 				.filter((u) => u.hasConflict)
@@ -67,7 +83,60 @@ export default perBranch({
 	},
 });
 
-function reportConflictWithMainBranch(target: string, incoming: string) {
+async function getReintegrationCandidates(
+	branch: BranchDetails,
+	allUpstreamData: UpstreamBranches,
+	queryClient: QueryClient,
+) {
+	// If there is an integration branch downstream, and its other upstreams are
+	// all merged into this branch's upstreams, then recommend reusing the
+	// integration branch.
+	const integrationBranches = await Promise.all(
+		branch.downstream
+			.filter((d) => d.type === 'integration')
+			.map(async (integ): Promise<null | Branch> => {
+				const otherUpstreams =
+					allUpstreamData
+						.find((d) => d.name === integ.name)
+						?.upstream.filter((u) => u.name !== branch.name) ?? [];
+				const otherUpstreamData = await Promise.all(
+					otherUpstreams.map((u) =>
+						queryClient.fetchQuery(queries.getBranchDetails(u.name)),
+					),
+				);
+				// TODO: this verifies that these branches were merged into
+				// _their_ upstreams, not our original branch's upstreams. This
+				// works correctly only under circumstances where the
+				// conflicting branches were merged into a common upstream.
+				if (otherUpstreamData.some((d) => d.nonMergeCommitCount > 0))
+					return null;
+
+				return integ;
+			}),
+	);
+	return integrationBranches.filter((t): t is NonNullable<typeof t> => !!t);
+}
+
+function suggestReintegration(
+	target: string,
+	integration: string,
+): RecommendationOutput {
+	return {
+		recommendationKey: `${reintegrateTranslationKey}-${target}-${integration}`,
+		priority: pullUpstreamPriority,
+		translationKey: reintegrateTranslationKey,
+		commands: [`git checkout ${target}`, `git merge origin/${integration}`],
+		translationParameters: {
+			branch: target,
+			integration: integration,
+		},
+	};
+}
+
+function reportConflictWithMainBranch(
+	target: string,
+	incoming: string,
+): RecommendationOutput {
 	return {
 		recommendationKey: `${conflictTranslationKey}-${target}-${incoming}`,
 		priority: pullUpstreamPriority,
@@ -80,7 +149,10 @@ function reportConflictWithMainBranch(target: string, incoming: string) {
 	};
 }
 
-function reportConflictInUpstreamBranch(target: string, name: string) {
+function reportConflictInUpstreamBranch(
+	target: string,
+	name: string,
+): RecommendationOutput {
 	return {
 		recommendationKey: `${upstreamConflictTranslationKey}-${target}-${name}`,
 		priority: pullUpstreamPriority,
@@ -101,7 +173,10 @@ function reportConflictInUpstreamBranch(target: string, name: string) {
 	};
 }
 
-function reportStandardPullUpstream(target: string, recurse: boolean) {
+function reportStandardPullUpstream(
+	target: string,
+	recurse: boolean,
+): RecommendationOutput {
 	return {
 		recommendationKey: `${translationKey}-${target}`,
 		priority: pullUpstreamPriority,

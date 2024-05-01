@@ -11,6 +11,10 @@
 			"title": "Upstream conflicts",
 			"description": "The branch '{{branch}}' further upstream has conflicts. Resolve those before continuing.",
 			"seeAlso": "Branch {{branch}}"
+		},
+		"reintegrate": {
+			"title": "Reintegrate integration branch",
+			"description": "An integration branch '{{integration}}' is downstream from a branch with incoming conflicts '{{branch}}'. Merging the integration branch may resolve those conflicts."
 		}
 	},
 	"remove-unused-branch": {

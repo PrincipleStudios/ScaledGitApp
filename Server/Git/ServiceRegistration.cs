@@ -18,6 +18,11 @@ public static class ServiceRegistration
 			var factory = () => sp.GetRequiredService<GitCloneService>().DetectedConfigurationTask;
 			return ActivatorUtilities.CreateInstance<GitToolsCommandInvoker>(sp, factory);
 		});
+		services.AddSingleton<IGitConfigurationService>(sp =>
+		{
+			var factory = () => sp.GetRequiredService<GitCloneService>().DetectedConfigurationTask;
+			return ActivatorUtilities.CreateInstance<GitConfigurationService>(sp, factory);
+		});
 		services.AddSingleton<IPowerShellCommandInvoker, PowerShellCommandInvoker>();
 	}
 }

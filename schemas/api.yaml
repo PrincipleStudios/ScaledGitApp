@@ -145,6 +145,12 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/ConflictDetails' }
+        400:
+          description: Bad Request
+        409:
+          description: >-
+            Git conflicts could not be determined; the given branches must have
+            all branches up-to-date with their upstreams for accurate results.
 components:
   schemas:
     BranchConfiguration:

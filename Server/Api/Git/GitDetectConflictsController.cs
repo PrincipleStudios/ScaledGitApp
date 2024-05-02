@@ -10,7 +10,7 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 	{
 		var branches = getConflictDetailsBody.Branches.ToArray();
 		if (branches.Length != 2)
-			return GetConflictDetailsActionResult.Unsafe(BadRequest());
+			return GetConflictDetailsActionResult.BadRequest();
 
 		// TODO: check to see if updates need to be pulled for any of the provided branches before checking for conflicts
 		// TODO: map the branches passed in to the full path or fix the command

@@ -1,9 +1,10 @@
 ﻿using PrincipleStudios.ScaledGitApp.BranchingStrategy;
+using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchTypeLookup branchTypeLookup) : GitDetectConflictsControllerBase
+public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchTypeLookup branchTypeLookup, IGitConfigurationService gitConfiguration) : GitDetectConflictsControllerBase
 {
 	protected override async Task<GetConflictDetailsActionResult> GetConflictDetails(GetConflictDetailsRequest getConflictDetailsBody)
 	{
@@ -23,7 +24,11 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 
 	private async Task<ConflictDetails?> GetConflictDetails(string leftBranch, string rightBranch)
 	{
-		var result = await gitToolsPowerShell.RunCommand(new GetConflictingFiles(leftBranch, rightBranch));
+		var leftFullBranchName = await gitConfiguration.ToLocalTrackingBranchName(leftBranch);
+		var rightFullBranchName = await gitConfiguration.ToLocalTrackingBranchName(rightBranch);
+		if (leftFullBranchName == null || rightFullBranchName == null) return null;
+
+		var result = await gitToolsPowerShell.RunCommand(new GetConflictingFiles(leftFullBranchName, rightFullBranchName));
 		if (!result.HasConflict) return null;
 
 

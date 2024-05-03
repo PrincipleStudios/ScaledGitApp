@@ -21,15 +21,15 @@ public class BranchDetailsMapper(IBranchTypeLookup branchTypeLookup) : IBranchDe
 			Exists: state.Exists,
 			NonMergeCommitCount: state.NonMergeCommitCount,
 		Upstream: from upstream in state.Upstreams
-					  let upstreamType = branchTypeLookup.DetermineBranchType(upstream.Name)
-					  select new DetailedUpstreamBranch(
-						  Name: upstream.Name,
-						  Type: upstreamType.BranchType,
-						  Color: upstreamType.Color,
-						  Exists: upstream.Exists,
-						  BehindCount: upstream.BehindCount,
-						  HasConflict: upstream.HasConflict
-					  ),
+				  let upstreamType = branchTypeLookup.DetermineBranchType(upstream.Name)
+				  select new DetailedUpstreamBranch(
+					  Name: upstream.Name,
+					  Type: upstreamType.BranchType,
+					  Color: upstreamType.Color,
+					  Exists: upstream.Exists,
+					  BehindCount: upstream.BehindCount,
+					  HasConflict: upstream.HasConflict
+				  ),
 			Downstream: from downstream in state.DownstreamNames
 						let downstreamType = branchTypeLookup.DetermineBranchType(downstream)
 						select new Branch(Name: downstream, Color: downstreamType.Color, Type: downstreamType.BranchType)

@@ -1,10 +1,9 @@
-﻿using PrincipleStudios.OpenApiCodegen.Json.Extensions;
-using PrincipleStudios.ScaledGitApp.BranchingStrategy;
+﻿using PrincipleStudios.ScaledGitApp.Api.Git.Conversions;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchTypeLookup branchTypeLookup) : GitBranchDetailsControllerBase
+public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchDetailsMapper branchDetailsMapper) : GitBranchDetailsControllerBase
 {
 	protected override async Task<GetBranchDetailsActionResult> GetBranchDetails(GetBranchDetailsRequest getBranchDetailsBody)
 	{
@@ -18,32 +17,6 @@ public class GitBranchDetailsController(IGitToolsCommandInvoker gitToolsPowerShe
 			)
 		);
 
-		return GetBranchDetailsActionResult.Ok(ToBranchDetails(results.Single()));
-	}
-
-	private BranchDetails ToBranchDetails(UpstreamBranchDetailedState result)
-	{
-		var type = branchTypeLookup.DetermineBranchType(result.Name);
-
-		return new BranchDetails(
-			result.Name,
-			Type: type.BranchType,
-			Color: type.Color,
-			Exists: result.Exists,
-			NonMergeCommitCount: result.NonMergeCommitCount,
-			Upstream: from upstream in result.Upstreams
-					  let upstreamType = branchTypeLookup.DetermineBranchType(upstream.Name)
-					  select new DetailedUpstreamBranch(
-						  Name: upstream.Name,
-						  Type: upstreamType.BranchType,
-						  Color: upstreamType.Color,
-						  Exists: upstream.Exists,
-						  BehindCount: upstream.BehindCount,
-						  HasConflict: upstream.HasConflict
-					  ),
-			Downstream: from downstream in result.DownstreamNames
-						let downstreamType = branchTypeLookup.DetermineBranchType(downstream)
-						select new Branch(Name: downstream, Color: downstreamType.Color, Type: downstreamType.BranchType)
-		);
+		return GetBranchDetailsActionResult.Ok(branchDetailsMapper.ToBranchDetails(results.Single()));
 	}
 }

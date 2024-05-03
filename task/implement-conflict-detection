@@ -1,2 +1,3 @@
 task/define-conflict-detection-api
 infra/git-configuration-service
+infra/branch-details-mapper

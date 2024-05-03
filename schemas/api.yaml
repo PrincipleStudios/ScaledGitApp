@@ -151,6 +151,14 @@ paths:
           description: >-
             Git conflicts could not be determined; the given branches must have
             all branches up-to-date with their upstreams for accurate results.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: >-
+                  Contains the upstream branch details for branches that must be
+                  updated before other conflicts may be detected.
+                items: { $ref: '#/components/schemas/BranchDetails' }
 components:
   schemas:
     BranchConfiguration:

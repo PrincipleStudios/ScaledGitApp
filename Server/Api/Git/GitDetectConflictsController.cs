@@ -9,20 +9,18 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 {
 	protected override async Task<GetConflictDetailsActionResult> GetConflictDetails(GetConflictDetailsRequest getConflictDetailsBody)
 	{
-		var branches = getConflictDetailsBody.Branches.ToArray();
-		if (branches.Length != 2)
+		IReadOnlyList<string> branches = getConflictDetailsBody.Branches.Order().ToArray();
+		if (branches.Count == 0)
 			return GetConflictDetailsActionResult.BadRequest();
 
 		var upstreams = await gitToolsPowerShell.RunCommand(new GitUpstreamData());
+		// If only one branch was provided, we probably need to find conflicts with 
+		if (branches is [string originalBranch] && upstreams.TryGetValue(originalBranch, out var originalUpstreams))
+			branches = originalUpstreams.UpstreamBranchNames.Order().ToArray();
+		if (branches.Count < 2)
+			return GetConflictDetailsActionResult.BadRequest();
 
-		// Determine the upstream relevant branches - if there are fully-shared
-		// upstreams, they aren't relevant. (An infra branch shared by all
-		// branches specified won't cause new conflicts.)
-		var allUpstreamLookup = branches.ToDictionary(b => b, b => GetAllUpstream(b, upstreams));
-		var commonUpstreams = allUpstreamLookup.Values.Aggregate((IEnumerable<string> prev, IEnumerable<string> next) => prev.Intersect(next)).ToArray();
-		var relevantUpstreamLookup = allUpstreamLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Except(commonUpstreams).ToArray());
-
-		var relevantBranches = relevantUpstreamLookup.Values.SelectMany(b => b).Distinct();
+		var relevantBranches = GetRelevantBranches(branches, upstreams);
 
 		// Check to see if updates need to be pulled for any of the relevant
 		// branches before checking for conflicts. Not having everything
@@ -32,11 +30,43 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		if (outOfDate.Length > 0) return GetConflictDetailsActionResult.Conflict(outOfDate.Select(branchDetailsMapper.ToBranchDetails));
 
 		// Determine if the named branches actually have conflicts
-		var conflictDetails = await GetConflictDetails(branches[0], branches[1]);
-		if (conflictDetails == null) return GetConflictDetailsActionResult.Ok(Enumerable.Empty<ConflictDetails>());
+		var conflicts = new List<ConflictDetails>();
+		for (var i = 0; i < branches.Count - 1; i++)
+			for (var j = i + 1; j < branches.Count; j++)
+			{
+				var initialBranch = branches[i];
+				var secondBranch = branches[j];
+				if (initialBranch == secondBranch) continue;
+				var conflictDetails = await GetConflictDetails(initialBranch, secondBranch);
+				if (conflictDetails != null) conflicts.Add(conflictDetails);
+			}
+		if (conflicts.Count == 0) return GetConflictDetailsActionResult.Ok(Enumerable.Empty<ConflictDetails>());
 
 		// TODO: Naive implementation; needs to check upstreams
-		return GetConflictDetailsActionResult.Ok([conflictDetails]);
+		return GetConflictDetailsActionResult.Ok(conflicts);
+	}
+
+	/// <summary>
+	/// Determine the upstream relevant branches - if there are fully-shared
+	/// upstreams, they aren't relevant. (An infra branch shared by all branches
+	/// specified won't cause new conflicts.)
+	///
+	/// Given the following (upstream->downstream) structure: [main->infra,
+	/// infra->feature-1, infra->feature-2, feature-1->task-123,
+	/// feature-1->task-124, feature-2->task-456]
+	///
+	/// If 'task-123', 'task-124', and 'task-456' are passed in, then the return
+	/// results will be: ['feature-1', 'task-123', 'task-124', 'feature-2',
+	/// 'task-456']
+	/// </summary>
+	private IEnumerable<string> GetRelevantBranches(IReadOnlyList<string> branches, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)
+	{
+		var allUpstreamLookup = branches.ToDictionary(b => b, b => GetAllUpstream(b, upstreams));
+		var commonUpstreams = allUpstreamLookup.Values.Aggregate((IEnumerable<string> prev, IEnumerable<string> next) => prev.Intersect(next)).ToArray();
+		var relevantUpstreamLookup = allUpstreamLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Except(commonUpstreams).ToArray());
+
+		var relevantBranches = relevantUpstreamLookup.Values.SelectMany(b => b).Distinct();
+		return relevantBranches;
 	}
 
 	private string[] GetAllUpstream(string branch, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)

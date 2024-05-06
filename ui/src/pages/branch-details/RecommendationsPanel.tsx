@@ -63,9 +63,22 @@ function RecommendationPresentation({
 		<Section.SingleColumn>
 			<Heading.Section>{t('title', opts)}</Heading.Section>
 			<HintText>{t('description', opts)}</HintText>
-			<Code>
-				{recommendation.commands.map((command) => `${command}\n`).join('')}
-			</Code>
+			{recommendation.commands ? (
+				<Code>
+					{recommendation.commands.map((command) => `${command}\n`).join('')}
+				</Code>
+			) : null}
+			{recommendation.seeAlso ? (
+				<ul>
+					{recommendation.seeAlso.map((s) => (
+						<li key={s.key}>
+							<a className="text-blue-800 underline" href={s.url}>
+								{t(s.translationKey, { replace: s.translationParameters })}
+							</a>
+						</li>
+					))}
+				</ul>
+			) : null}
 		</Section.SingleColumn>
 	);
 }

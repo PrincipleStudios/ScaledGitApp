@@ -5,7 +5,7 @@ using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
 
-public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchTypeLookup branchTypeLookup, IGitConfigurationService gitConfiguration, IBranchDetailsMapper branchDetailsMapper) : GitDetectConflictsControllerBase
+public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerShell, IBranchTypeLookup branchTypeLookup, IBranchDetailsMapper branchDetailsMapper, IConflictLocator conflictLocator) : GitDetectConflictsControllerBase
 {
 	protected override async Task<GetConflictDetailsActionResult> GetConflictDetails(GetConflictDetailsRequest getConflictDetailsBody)
 	{
@@ -30,20 +30,9 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		if (outOfDate.Length > 0) return GetConflictDetailsActionResult.Conflict(outOfDate.Select(branchDetailsMapper.ToBranchDetails));
 
 		// Determine if the named branches actually have conflicts
-		var conflicts = new List<ConflictDetails>();
-		for (var i = 0; i < branches.Count - 1; i++)
-			for (var j = i + 1; j < branches.Count; j++)
-			{
-				var initialBranch = branches[i];
-				var secondBranch = branches[j];
-				if (initialBranch == secondBranch) continue;
-				var conflictDetails = await GetConflictDetails(initialBranch, secondBranch);
-				if (conflictDetails != null) conflicts.Add(conflictDetails);
-			}
-		if (conflicts.Count == 0) return GetConflictDetailsActionResult.Ok(Enumerable.Empty<ConflictDetails>());
+		var conflicts = await conflictLocator.FindConflictsWithin(branches);
 
-		// TODO: Naive implementation; needs to check upstreams
-		return GetConflictDetailsActionResult.Ok(conflicts);
+		return GetConflictDetailsActionResult.Ok(conflicts.Select(ToConflictDetails));
 	}
 
 	/// <summary>
@@ -78,17 +67,12 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		return result.ToArray();
 	}
 
-	private async Task<ConflictDetails?> GetConflictDetails(string leftBranch, string rightBranch)
+	private ConflictDetails ToConflictDetails(IdentifiedConflict source)
 	{
-		var leftFullBranchName = await gitConfiguration.ToLocalTrackingBranchName(leftBranch);
-		var rightFullBranchName = await gitConfiguration.ToLocalTrackingBranchName(rightBranch);
-		if (leftFullBranchName == null || rightFullBranchName == null) return null;
-
-		var result = await gitToolsPowerShell.RunCommand(new GetConflictingFiles(leftFullBranchName, rightFullBranchName));
-		if (!result.HasConflict) return null;
-
-
-		return new ConflictDetails(new[] { leftBranch, rightBranch }.Select(ToBranch), result.ConflictingFileNames.Select(ToFileDetails));
+		return new ConflictDetails(
+			Branches: new[] { source.Branches.LeftBranch, source.Branches.RightBranch }.Select(ToBranch),
+			Files: source.ConflictingFiles.ConflictingFileNames.Select(ToFileDetails)
+		);
 	}
 
 	private Branch ToBranch(string branchName)
@@ -97,7 +81,7 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		return new Branch(Name: branchName, Color: info.Color, Type: info.BranchType);
 	}
 
-	private FileConflictDetails ToFileDetails(string path)
+	private static FileConflictDetails ToFileDetails(string path)
 	{
 		return new FileConflictDetails(Path: path);
 	}

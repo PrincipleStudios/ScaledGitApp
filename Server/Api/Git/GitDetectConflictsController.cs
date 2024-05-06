@@ -59,32 +59,14 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 	/// results will be: ['feature-1', 'task-123', 'task-124', 'feature-2',
 	/// 'task-456']
 	/// </summary>
-	private IEnumerable<string> GetRelevantBranches(IReadOnlyList<string> branches, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)
+	private static IEnumerable<string> GetRelevantBranches(IReadOnlyList<string> branches, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)
 	{
-		var allUpstreamLookup = branches.ToDictionary(b => b, b => GetAllUpstream(b, upstreams));
+		var allUpstreamLookup = branches.ToDictionary(b => b, b => upstreams.GetAllUpstream(b).Append(b));
 		var commonUpstreams = allUpstreamLookup.Values.Aggregate((IEnumerable<string> prev, IEnumerable<string> next) => prev.Intersect(next)).ToArray();
 		var relevantUpstreamLookup = allUpstreamLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Except(commonUpstreams).ToArray());
 
 		var relevantBranches = relevantUpstreamLookup.Values.SelectMany(b => b).Distinct();
 		return relevantBranches;
-	}
-
-	private string[] GetAllUpstream(string branch, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)
-	{
-		var allBranches = new HashSet<string>([branch]);
-		var stack = new Stack<string>([branch]);
-		while (stack.TryPop(out var current))
-		{
-			if (!upstreams.TryGetValue(current, out var upstreamConfig)) continue;
-			foreach (var upstream in upstreamConfig.UpstreamBranchNames)
-			{
-				if (allBranches.Contains(upstream)) continue;
-
-				allBranches.Add(upstream);
-				stack.Push(upstream);
-			}
-		}
-		return allBranches.ToArray();
 	}
 
 	private async Task<UpstreamBranchDetailedState[]> GetBranchDetails(IEnumerable<string> branches)

@@ -2,13 +2,15 @@
 
 namespace PrincipleStudios.ScaledGitApp.BranchingStrategy;
 
+using AllUpstreamConfiguration = IReadOnlyDictionary<string, UpstreamBranchConfiguration>;
+
 /// <summary>
 /// A suite of extension methods to work with upstream data. These cases are
 /// well-reasoned and unit tested, so do not need to be mocked.
 /// </summary>
 public static class UpstreamUtilities
 {
-	public static string[] GetAllUpstream(this IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams, string branch)
+	public static string[] GetAllUpstream(this AllUpstreamConfiguration upstreams, string branch)
 	{
 		var allBranches = new HashSet<string>();
 		var stack = new Stack<string>([branch]);
@@ -24,5 +26,12 @@ public static class UpstreamUtilities
 			}
 		}
 		return allBranches.ToArray();
+	}
+
+	public static string[] GetCommonUpstream(this AllUpstreamConfiguration upstreams, IEnumerable<string> branches)
+	{
+		var allUpstreamLookup = branches.ToDictionary(b => b, b => upstreams.GetAllUpstream(b).Append(b));
+		var commonUpstreams = allUpstreamLookup.Values.Aggregate((prev, next) => prev.Intersect(next)).ToArray();
+		return commonUpstreams;
 	}
 }

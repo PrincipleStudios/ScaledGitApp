@@ -61,12 +61,8 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 	/// </summary>
 	private static IEnumerable<string> GetRelevantBranches(IReadOnlyList<string> branches, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)
 	{
-		var allUpstreamLookup = branches.ToDictionary(b => b, b => upstreams.GetAllUpstream(b).Append(b));
-		var commonUpstreams = allUpstreamLookup.Values.Aggregate((IEnumerable<string> prev, IEnumerable<string> next) => prev.Intersect(next)).ToArray();
-		var relevantUpstreamLookup = allUpstreamLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Except(commonUpstreams).ToArray());
-
-		var relevantBranches = relevantUpstreamLookup.Values.SelectMany(b => b).Distinct();
-		return relevantBranches;
+		var commonUpstreams = upstreams.GetCommonUpstream(branches);
+		return branches.Concat(branches.SelectMany(upstreams.GetAllUpstream)).Except(commonUpstreams).Distinct();
 	}
 
 	private async Task<UpstreamBranchDetailedState[]> GetBranchDetails(IEnumerable<string> branches)

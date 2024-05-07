@@ -3,6 +3,9 @@ import { queries } from '@/utils/api/queries';
 import { perBranch } from '../per-branch-rule';
 
 const translationKey = 'remove-invalid-integration';
+// Invalid checks for integration branches should be ranked low; conflicts are
+// difficult work and should not be trashed lightly.
+const invalidIntegrationOrder = 100;
 
 export default perBranch({
 	async analyze([branch], { queryClient }) {
@@ -28,7 +31,7 @@ export default perBranch({
 				if (branch.exists) commands.push(`git push origin :${branch.name}`);
 				return {
 					recommendationKey: `${translationKey}-${branch.name}`,
-					priority: 0,
+					priority: invalidIntegrationOrder,
 					translationKey,
 					commands,
 					translationParameters: {

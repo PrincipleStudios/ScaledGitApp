@@ -20,12 +20,29 @@ export type RecommendationContext = {
 	queryClient: QueryClient;
 };
 
-export type Recommendation = {
-	recommendationKey: string;
+export type TranslationMeta = {
 	translationKey: string;
-	commands: string[];
 	translationParameters?: Record<string, string | number>;
 };
+
+export type RecommendationSeeAlso = {
+	key: string;
+	url: string;
+} & TranslationMeta;
+
+export type Recommendation = {
+	recommendationKey: string;
+} & TranslationMeta &
+	(
+		| {
+				commands?: undefined;
+				seeAlso: RecommendationSeeAlso[];
+		  }
+		| {
+				commands: string[];
+				seeAlso?: undefined;
+		  }
+	);
 
 export type RecommendationOutput = Recommendation & {
 	/** A relatively magic number used to prioritize recommendations. Lower is higher priority. */

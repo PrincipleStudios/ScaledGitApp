@@ -29,6 +29,9 @@ public class BranchPair
 		return LeftBranch.GetHashCode() ^ RightBranch.GetHashCode();
 	}
 
+	public bool Includes(string branch) =>
+		LeftBranch == branch || RightBranch == branch;
+
 	public string OtherBranch(string branch) =>
 		branch switch
 		{

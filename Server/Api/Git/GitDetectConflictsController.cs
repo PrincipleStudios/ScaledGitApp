@@ -32,7 +32,7 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		// Determine if the named branches actually have conflicts
 		var conflicts = await conflictLocator.FindConflictsWithin(branches);
 
-		return GetConflictDetailsActionResult.Ok(conflicts.Select(ToConflictDetails));
+		return GetConflictDetailsActionResult.Ok(conflicts.Select(conflict => ToConflictDetails(conflict, upstreams)));
 	}
 
 	/// <summary>
@@ -67,11 +67,14 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		return result.ToArray();
 	}
 
-	private ConflictDetails ToConflictDetails(IdentifiedConflict source)
+	private ConflictDetails ToConflictDetails(IdentifiedConflict source, IReadOnlyDictionary<string, UpstreamBranchConfiguration> upstreams)
 	{
 		return new ConflictDetails(
 			Branches: new[] { source.Branches.LeftBranch, source.Branches.RightBranch }.Select(ToBranch),
-			Files: source.ConflictingFiles.ConflictingFiles.Select((file) => ToFileDetails(file))
+			Files: source.ConflictingFiles.ConflictingFiles.Select(ToFileDetails),
+			CandidateIntegrationBranch: from kvp in upstreams
+										where kvp.Value.UpstreamBranchNames.Count == 2 && kvp.Value.UpstreamBranchNames.All(source.Branches.Includes)
+										select ToBranch(kvp.Key)
 		);
 	}
 
@@ -83,6 +86,16 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 
 	private static FileConflictDetails ToFileDetails(ScaledGitApp.Git.ToolsCommands.FileConflictDetails fileConflictDetails)
 	{
-		return new FileConflictDetails(Path: fileConflictDetails.FilePath);
+		return new FileConflictDetails(
+			Path: fileConflictDetails.FilePath,
+			MergeBase: ToFileSnapshot(fileConflictDetails.CommonAncestor),
+			Left: ToFileSnapshot(fileConflictDetails.Left),
+			Right: ToFileSnapshot(fileConflictDetails.Right)
+		);
+	}
+
+	private static FileSnapshot ToFileSnapshot(GitFileInfo info)
+	{
+		return new FileSnapshot(Mode: info.Mode, Hash: info.Hash);
 	}
 }

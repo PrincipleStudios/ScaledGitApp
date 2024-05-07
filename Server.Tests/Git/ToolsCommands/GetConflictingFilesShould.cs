@@ -11,7 +11,11 @@ public class GetConflictingFilesShould
 	private readonly PowerShellFixture fixture = new();
 
 
+	/// <summary>
+	/// This test runs actual git commands based on the git repository at the time this was checked into. 
+	/// </summary>
 	[Fact]
+	[Trait("git-history", "required")]
 	public async Task Work_with_actual_git_commands()
 	{
 		// This shows an actual merge that was fixed in this project's history:

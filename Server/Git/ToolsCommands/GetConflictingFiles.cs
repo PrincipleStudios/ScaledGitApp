@@ -23,7 +23,9 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 		// The entries will always end with a blank string since the response from git will end with a '\0'
 
 		var treeHash = entries[0];
-		var fileInfo = entries.Skip(1).TakeWhile(s => s.Length > 0)
+		var fileInfoSection = entries[1..Array.FindIndex(entries, 1, entries.Length - 1, string.IsNullOrEmpty)];
+
+		var fileInfo = fileInfoSection
 			.Select(line => fileInfoRegex.Match(line))
 			.Select(match => !match.Success ? throw new InvalidOperationException("Unable to parse git merge-tree result") : match)
 			.GroupBy(match => match.Groups["path"].Value)
@@ -31,7 +33,7 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 			.ToArray();
 
 		var conflictMessages = new List<ConflictRecord>();
-		for (var i = fileInfo.Length * 3 + 2; i < entries.Length - 1;)
+		for (var i = fileInfoSection.Length + 2; i < entries.Length - 1;)
 		{
 			var pathCount = int.Parse(entries[i]);
 			var paths = entries[(i + 1)..(i + pathCount + 1)];
@@ -55,10 +57,17 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 	{
 		return new FileConflictDetails(
 			FilePath: grouping.Key,
-			CommonAncestor: ToGitFileInfo(grouping.Single(m => m.Groups["stage"].Value == commonAncestorStage)),
-			Left: ToGitFileInfo(grouping.Single(m => m.Groups["stage"].Value == leftStage)),
-			Right: ToGitFileInfo(grouping.Single(m => m.Groups["stage"].Value == rightStage))
+			MergeBase: ToGitFileInfoSafe(grouping, commonAncestorStage),
+			Left: ToGitFileInfoSafe(grouping, leftStage),
+			Right: ToGitFileInfoSafe(grouping, rightStage)
 		);
+	}
+
+	private static GitFileInfo? ToGitFileInfoSafe(IGrouping<string, Match> grouping, string stage)
+	{
+		return grouping.SingleOrDefault(m => m.Groups["stage"].Value == stage) is Match match
+			? ToGitFileInfo(match)
+			: null;
 	}
 
 	private static GitFileInfo ToGitFileInfo(Match match)
@@ -68,6 +77,6 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 }
 
 public record GitFileInfo(string Mode, string Hash);
-public record FileConflictDetails(string FilePath, GitFileInfo CommonAncestor, GitFileInfo Left, GitFileInfo Right);
+public record FileConflictDetails(string FilePath, GitFileInfo? MergeBase, GitFileInfo? Left, GitFileInfo? Right);
 public record ConflictRecord(IReadOnlyList<string> FilePaths, string ConflictType, string Message);
 public record GetConflictingFilesResult(bool HasConflict, string ResultTreeHash, IReadOnlyList<FileConflictDetails> ConflictingFiles, IReadOnlyList<ConflictRecord> ConflictMessages);

@@ -249,9 +249,6 @@ components:
       type: object
       required:
         - path
-        - mergeBase
-        - left
-        - right
       properties:
         path: { type: string }
         mergeBase: { $ref: '#/components/schemas/FileSnapshot' }

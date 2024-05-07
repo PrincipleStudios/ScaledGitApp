@@ -35,12 +35,12 @@ public class GetConflictingFilesShould
 			conflictingFile =>
 			{
 				Assert.Equal("ui/src/pages/branch-details/index.tsx", conflictingFile.FilePath);
-				Assert.Equal("100644", conflictingFile.Left.Mode);
-				Assert.Equal("100644", conflictingFile.Right.Mode);
-				Assert.Equal("100644", conflictingFile.CommonAncestor.Mode);
-				Assert.Equal("52c2aa8fd873b3e75d7752b33f27e92b6ceaa323", conflictingFile.Left.Hash);
-				Assert.Equal("01a6b2584577f1521ad1ec6dc816969add67d997", conflictingFile.Right.Hash);
-				Assert.Equal("709107784099844e065eab8aa2d822fca39bf4d9", conflictingFile.CommonAncestor.Hash);
+				Assert.Equal("100644", conflictingFile.Left?.Mode);
+				Assert.Equal("100644", conflictingFile.Right?.Mode);
+				Assert.Equal("100644", conflictingFile.MergeBase?.Mode);
+				Assert.Equal("52c2aa8fd873b3e75d7752b33f27e92b6ceaa323", conflictingFile.Left?.Hash);
+				Assert.Equal("01a6b2584577f1521ad1ec6dc816969add67d997", conflictingFile.Right?.Hash);
+				Assert.Equal("709107784099844e065eab8aa2d822fca39bf4d9", conflictingFile.MergeBase?.Hash);
 			});
 		Assert.Collection(actual.ConflictMessages,
 			(message) =>

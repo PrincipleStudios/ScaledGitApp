@@ -1,4 +1,5 @@
-﻿using PrincipleStudios.ScaledGitApp.Api.Git.Conversions;
+﻿using PrincipleStudios.OpenApiCodegen.Json.Extensions;
+using PrincipleStudios.ScaledGitApp.Api.Git.Conversions;
 using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
@@ -88,14 +89,14 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 	{
 		return new FileConflictDetails(
 			Path: fileConflictDetails.FilePath,
-			MergeBase: ToFileSnapshot(fileConflictDetails.CommonAncestor),
+			MergeBase: ToFileSnapshot(fileConflictDetails.MergeBase),
 			Left: ToFileSnapshot(fileConflictDetails.Left),
 			Right: ToFileSnapshot(fileConflictDetails.Right)
 		);
 	}
 
-	private static FileSnapshot ToFileSnapshot(GitFileInfo info)
+	private static Optional<FileSnapshot>? ToFileSnapshot(GitFileInfo? info)
 	{
-		return new FileSnapshot(Mode: info.Mode, Hash: info.Hash);
+		return info == null ? null : Optional.Create(new FileSnapshot(Mode: info.Mode, Hash: info.Hash));
 	}
 }

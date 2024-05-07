@@ -215,11 +215,15 @@ components:
       type: object
       required:
         - branches
+        - candidateIntegrationBranch
         - files
       properties:
         branches:
           type: array
           minItems: 1
+          items: { $ref: '#/components/schemas/Branch' }
+        candidateIntegrationBranch:
+          type: array
           items: { $ref: '#/components/schemas/Branch' }
         files:
           type: array
@@ -245,8 +249,22 @@ components:
       type: object
       required:
         - path
+        - mergeBase
+        - left
+        - right
       properties:
         path: { type: string }
+        mergeBase: { $ref: '#/components/schemas/FileSnapshot' }
+        left: { $ref: '#/components/schemas/FileSnapshot' }
+        right: { $ref: '#/components/schemas/FileSnapshot' }
+    FileSnapshot:
+      type: object
+      required:
+        - mode
+        - hash
+      properties:
+        mode: { type: string }
+        hash: { type: string }
 
   securitySchemes:
     AuthenticatedUser:

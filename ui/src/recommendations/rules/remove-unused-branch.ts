@@ -6,6 +6,8 @@ export default perBranch({
 	analyze([branch]) {
 		if (branch.nonMergeCommitCount > 0) return [];
 		if (branch.upstream.length !== 1) return [];
+		// integration branches have their own checks to see if they are invalid
+		if (branch.type === 'integration') return [];
 
 		const commands = [
 			`git refactor-upstream -source ${branch.name} -target ${branch.upstream[0].name} -remove`,

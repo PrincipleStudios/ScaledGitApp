@@ -280,13 +280,13 @@ public class GitBranchUpstreamDetailsShould
 	private void SetupNoConflict(string branch1, string branch2)
 	{
 		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new GetConflictingFiles(ToFullName(branch1), ToFullName(branch2))))
-			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: false, ResultTreeHash: "unused", []));
+			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: false, ResultTreeHash: "unused", [/*unused*/], [/*unused*/]));
 	}
 
 	private void SetupConflict(string branch1, string branch2, string[] conflictingFileNames)
 	{
 		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new GetConflictingFiles(ToFullName(branch1), ToFullName(branch2))))
-			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: true, ResultTreeHash: "unused", conflictingFileNames));
+			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: true, ResultTreeHash: "unused", [/*unused*/], [/*unused*/]));
 	}
 
 }

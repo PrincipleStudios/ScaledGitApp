@@ -71,7 +71,7 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 	{
 		return new ConflictDetails(
 			Branches: new[] { source.Branches.LeftBranch, source.Branches.RightBranch }.Select(ToBranch),
-			Files: source.ConflictingFiles.ConflictingFileNames.Select(ToFileDetails)
+			Files: source.ConflictingFiles.ConflictingFiles.Select((file) => ToFileDetails(file))
 		);
 	}
 
@@ -81,8 +81,8 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		return new Branch(Name: branchName, Color: info.Color, Type: info.BranchType);
 	}
 
-	private static FileConflictDetails ToFileDetails(string path)
+	private static FileConflictDetails ToFileDetails(ScaledGitApp.Git.ToolsCommands.FileConflictDetails fileConflictDetails)
 	{
-		return new FileConflictDetails(Path: path);
+		return new FileConflictDetails(Path: fileConflictDetails.FilePath);
 	}
 }

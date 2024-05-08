@@ -29,6 +29,7 @@
 		<WarningsAsErrors />
 	</PropertyGroup>
 
+	<Import Project="$(RepositoryEngineeringDir)TestingUtils.props" />
 	<Import Project="Directory.Build.local.props" Condition="exists('$(MSBuildThisFileDirectory)Directory.Build.local.props')" />
 
 	<PropertyGroup>

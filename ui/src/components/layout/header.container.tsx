@@ -12,6 +12,7 @@ export function useHeader(): React.ComponentType<HeaderPresentationalProps> {
 		return (
 			<HeaderPresentation
 				{...props}
+				onSearch={() => {}}
 				onRefresh={() => !fetch.isPending && fetch.mutate()}
 				isRefreshing={fetch.isPending}
 			/>

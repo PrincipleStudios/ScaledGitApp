@@ -103,8 +103,8 @@ public class GitBranchUpstreamDetailsShould
 		SetupBranchExists(mainBranchName);
 		SetupBranchDoesNotExist(infraBranchName);
 		SetupBranchExists(parentFeatureBranchName);
-		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync((int?)null);
-		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupGetCommitCount([infraBranchName], [baseBranchName], excludeMergeCommits: false).ReturnsAsync((int?)null);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName], excludeMergeCommits: false).ReturnsAsync(0);
 		SetupNoConflict(parentFeatureBranchName, baseBranchName);
 		// infra branch does not exist, so will not be included in this commit count
 		SetupGetCommitCount([baseBranchName], [mainBranchName, parentFeatureBranchName]).ReturnsAsync(0);
@@ -125,9 +125,9 @@ public class GitBranchUpstreamDetailsShould
 		SetupBranchExists(infraBranchName);
 		SetupBranchExists(parentFeatureBranchName);
 		SetupBranchExists(mainBranchName);
-		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupGetCommitCount([infraBranchName], [baseBranchName], excludeMergeCommits: false).ReturnsAsync(0);
 		SetupConflict(infraBranchName, baseBranchName, ["readme.md"]);
-		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(0);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName], excludeMergeCommits: false).ReturnsAsync(0);
 		SetupNoConflict(parentFeatureBranchName, baseBranchName);
 		SetupGetCommitCount([baseBranchName], [mainBranchName, infraBranchName, parentFeatureBranchName]).ReturnsAsync(15);
 
@@ -231,9 +231,9 @@ public class GitBranchUpstreamDetailsShould
 		SetupBranchExists(infraBranchName);
 		SetupBranchExists(parentFeatureBranchName);
 		SetupBranchExists(mainBranchName);
-		SetupGetCommitCount([infraBranchName], [baseBranchName]).ReturnsAsync(incomingFromInfra);
+		SetupGetCommitCount([infraBranchName], [baseBranchName], excludeMergeCommits: false).ReturnsAsync(incomingFromInfra);
 		SetupNoConflict(infraBranchName, baseBranchName);
-		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName]).ReturnsAsync(incomingFromParent);
+		SetupGetCommitCount([parentFeatureBranchName], [baseBranchName], excludeMergeCommits: false).ReturnsAsync(incomingFromParent);
 		SetupNoConflict(parentFeatureBranchName, baseBranchName);
 		SetupGetCommitCount([baseBranchName], [mainBranchName, infraBranchName, parentFeatureBranchName]).ReturnsAsync(additionalCommits);
 	}
@@ -242,7 +242,7 @@ public class GitBranchUpstreamDetailsShould
 	{
 		SetupBranchExists(infraBranchName);
 		SetupBranchExists(mainBranchName);
-		SetupGetCommitCount([mainBranchName], [infraBranchName]).ReturnsAsync(incomingFromMain);
+		SetupGetCommitCount([mainBranchName], [infraBranchName], excludeMergeCommits: false).ReturnsAsync(incomingFromMain);
 		SetupNoConflict(mainBranchName, infraBranchName);
 		SetupGetCommitCount([infraBranchName], [mainBranchName]).ReturnsAsync(additionalCommits);
 	}
@@ -252,7 +252,7 @@ public class GitBranchUpstreamDetailsShould
 		SetupBranchExists(parentFeatureBranchName);
 		SetupBranchExists(infraBranchName);
 		SetupBranchExists(mainBranchName);
-		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName]).ReturnsAsync(incomingFromInfra);
+		SetupGetCommitCount([infraBranchName], [parentFeatureBranchName], excludeMergeCommits: false).ReturnsAsync(incomingFromInfra);
 		SetupNoConflict(infraBranchName, parentFeatureBranchName);
 		SetupGetCommitCount([parentFeatureBranchName], [mainBranchName, infraBranchName]).ReturnsAsync(additionalCommits);
 	}
@@ -267,14 +267,14 @@ public class GitBranchUpstreamDetailsShould
 		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new BranchExists(ToFullName(branchName)))).ReturnsAsync(false);
 	}
 
-	private ISetup<IPowerShellCommandInvoker, Task<int?>> SetupGetCommitCount(string[] included, string[] excluded)
+	private ISetup<IPowerShellCommandInvoker, Task<int?>> SetupGetCommitCount(string[] included, string[] excluded, bool excludeMergeCommits = true)
 	{
-		return fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(It.Is<GetCommitCount>(cmd => MatchGetCommitCount(cmd, included, excluded))));
+		return fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(It.Is<GetCommitCount>(cmd => MatchGetCommitCount(cmd, included, excluded, excludeMergeCommits))));
 	}
 
-	private bool MatchGetCommitCount(GetCommitCount cmd, string[] included, string[] excluded)
+	private bool MatchGetCommitCount(GetCommitCount cmd, string[] included, string[] excluded, bool excludeMergeCommits)
 	{
-		return cmd.Included.SequenceEqual(included.Select(ToFullName)) && cmd.Excluded.Order().SequenceEqual(excluded.Select(ToFullName).Order());
+		return cmd.ExcludeMergeCommits == excludeMergeCommits && cmd.Included.SequenceEqual(included.Select(ToFullName)) && cmd.Excluded.Order().SequenceEqual(excluded.Select(ToFullName).Order());
 	}
 
 	private void SetupNoConflict(string branch1, string branch2)

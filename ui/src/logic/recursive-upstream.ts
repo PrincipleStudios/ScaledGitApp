@@ -1,8 +1,8 @@
-import type { UpstreamBranches } from '@/generated/api/models';
+import type { BranchConfiguration } from '@/generated/api/models';
 
 export function getRecursiveUpstream(
 	target: string,
-	upstreamData: UpstreamBranches,
+	upstreamData: BranchConfiguration[],
 ) {
 	const result = new Set<string>();
 	const stack = [target];

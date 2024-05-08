@@ -10,5 +10,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/workflows/parts/cache/
       - name: 'Run tests'
+        # Run tests that do not require git history. See https://learn.microsoft.com/en-us/dotnet/core/testing/selective-unit-tests?pivots=mstest
         run: |
-          dotnet test
+          dotnet test --filter:"git-history!=required"

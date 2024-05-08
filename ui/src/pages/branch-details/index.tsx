@@ -1,12 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import type { NavigateFunction } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useSuspenseQueries } from '@tanstack/react-query';
 import { BranchGraphPresentation } from '@/components/branch-graph/branch-graph.presentation';
 import { Container } from '@/components/common';
 import { LoadingSection } from '@/components/layout/LoadingSection';
 import { Tab } from '@/components/tabs';
-import type { BranchDetails } from '@/generated/api/models';
+import type { Branch, BranchDetails } from '@/generated/api/models';
 import { queries } from '@/utils/api/queries';
 import styles from './branch-details.module.css';
 import { DetailsPanel } from './DetailsPanel';
@@ -24,24 +23,34 @@ export function BranchDetailsComponent({ name }: { name: string[] }) {
 	const RecommendationsPanel = useRecommendationsPanel();
 	return (
 		<BranchDetailsComponentPresentation
-			navigate={navigate}
 			mainBranchDetails={mainBranchDetails}
 			allBranchDetails={allBranchDetails}
 			RecommendationsPanel={RecommendationsPanel}
+			onClickNode={onClickNode}
 		/>
 	);
+
+	function onClickNode(node: Branch, ev: MouseEvent) {
+		if (ev.ctrlKey || ev.shiftKey) {
+			navigate({
+				search: `?name=${[...name, node.name].map(encodeURIComponent).join('&name=')}`,
+			});
+		} else {
+			navigate({ search: `?name=${encodeURIComponent(node.name)}` });
+		}
+	}
 }
 
 function BranchDetailsComponentPresentation({
-	navigate,
 	mainBranchDetails,
 	allBranchDetails,
 	RecommendationsPanel,
+	onClickNode,
 }: {
-	navigate: NavigateFunction;
 	mainBranchDetails: BranchDetails[];
 	allBranchDetails: BranchDetails[];
 	RecommendationsPanel: RecommendationsPanelComponent;
+	onClickNode?: (node: Branch, ev: MouseEvent) => void;
 }) {
 	const { t } = useTranslation('branch-details');
 	return (
@@ -53,7 +62,7 @@ function BranchDetailsComponentPresentation({
 				</Tab.List>
 				<BranchGraphPresentation
 					upstreamData={allBranchDetails}
-					onClick={(node) => navigate({ search: `?name=${node.name}` })}
+					onClick={onClickNode}
 				/>
 
 				{/* Key forces remount of all panels when main branches change */}

@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import type {
 	Branch,
 	BranchDetails,
-	UpstreamBranches,
+	BranchConfiguration,
 } from '@/generated/api/models';
 import { getLocalData } from '@/logic/getLocalData';
 import { getRecursiveUpstream } from '@/logic/recursive-upstream';
@@ -85,7 +85,7 @@ export default perBranch({
 
 async function getReintegrationCandidates(
 	branch: BranchDetails,
-	allUpstreamData: UpstreamBranches,
+	allUpstreamData: BranchConfiguration[],
 	queryClient: QueryClient,
 ) {
 	// If there is an integration branch downstream, and its other upstreams are

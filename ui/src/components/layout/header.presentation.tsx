@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Button } from '../common';
+import { HiArrowPath } from 'react-icons/hi2';
+import { IconButton } from '../common';
 import { elementTemplate } from '../templating';
 import styles from './layout.module.css';
 
@@ -23,9 +24,16 @@ export function HeaderPresentation({ isRefreshing, onRefresh }: HeaderProps) {
 		<Header className={styles.header}>
 			<Link to="/">{t('title')}</Link>
 			<span className="flex-grow" />
-			<Button onClick={onRefresh} disabled={isRefreshing}>
-				{t('refresh')}
-			</Button>
+			<IconButton
+				title={t('refresh')}
+				onClick={onRefresh}
+				disabled={isRefreshing}
+			>
+				<HiArrowPath
+					title={t('refresh')}
+					className={isRefreshing ? 'animate-spin' : ''}
+				/>
+			</IconButton>
 		</Header>
 	);
 }

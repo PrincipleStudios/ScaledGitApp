@@ -1,5 +1,4 @@
 task/define-conflict-detection-api
 infra/git-configuration-service
 infra/branch-details-mapper
-bugfix/include-unmerged-merge-commits
 infra/detailed-conflict-info

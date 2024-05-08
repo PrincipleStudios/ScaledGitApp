@@ -1,11 +1,12 @@
+import { useBranchListing } from '@/components/branch-listing';
 import { Container } from '@/components/common';
-import { useBranchListing } from './branch-listing';
+import { BranchLink } from './branch-link';
 
 export function OverviewComponent() {
 	const BranchListing = useBranchListing();
 	return (
 		<Container.Flow>
-			<BranchListing />
+			<BranchListing branchItem={BranchLink} />
 		</Container.Flow>
 	);
 }

@@ -5,14 +5,21 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
-import { BulletList, Link, Section } from '@/components/common';
+import { BulletList, Section } from '@/components/common';
 import type { StandardField } from '@/components/form/FieldProps';
 import { TextField } from '@/components/form/text-field';
+import type { BranchConfiguration } from '@/generated/api/models';
 import { queries } from '@/utils/api/queries';
 
 const branchListingSearchSchema = z.object({
 	branchName: z.string(),
 });
+
+export type BranchItemProps = { branch: BranchConfiguration };
+
+export type BranchListingProps = {
+	branchItem: React.ComponentType<BranchItemProps>;
+};
 
 export function useBranchListing() {
 	const { t } = useTranslation('branch-listing', { keyPrefix: 'form' });
@@ -27,27 +34,24 @@ export function useBranchListing() {
 	const response = useSuspenseQuery(queries.getUpstreamData).data;
 
 	const BranchListing = useCallback(
-		function BranchListing() {
+		function BranchListing(props: BranchListingProps) {
 			const branchName = useAtomValue(form.fields.branchName.value);
 			if (branchName.length === 0) return null;
-			const branches = response
-				.filter((r) => r.name.includes(branchName))
-				.map((r) => r.name)
-				.filter((r, i) => i < 100);
-			return <BranchListingPresentation branches={branches} />;
+			const branches = response.filter((r) => r.name.includes(branchName));
+			return <BranchListingPresentation branches={branches} {...props} />;
 		},
 		[response, form.fields.branchName.value],
 	);
 
 	return useCallback(
-		function FullBranchListingPresentation() {
+		function FullBranchListingPresentation(props: BranchListingProps) {
 			return (
 				<>
 					<BranchListingForm
 						branchName={form.fields.branchName}
 						translation={t}
 					/>
-					<BranchListing />
+					<BranchListing {...props} />
 				</>
 			);
 		},
@@ -73,15 +77,16 @@ function BranchListingForm({
 
 export function BranchListingPresentation({
 	branches,
+	branchItem: BranchItem,
 }: {
-	branches: string[];
-}) {
+	branches: BranchConfiguration[];
+} & BranchListingProps) {
 	return (
 		<Section.SingleColumn>
 			<BulletList>
 				{branches.map((b) => (
-					<BulletList.Item key={b}>
-						<Link to={`/branch?name=${b}`}>{b}</Link>
+					<BulletList.Item key={b.name}>
+						<BranchItem branch={b} />
 					</BulletList.Item>
 				))}
 			</BulletList>

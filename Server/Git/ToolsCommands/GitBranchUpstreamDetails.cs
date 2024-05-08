@@ -79,7 +79,7 @@ public record GitBranchUpstreamDetails(string BranchName, bool IncludeDownstream
 				continue;
 			}
 
-			var behind = await context.Pwsh.RunCommand(new GetCommitCount(Included: [fullUpstream], Excluded: [fullBranchName]));
+			var behind = await context.Pwsh.RunCommand(new GetCommitCount(Included: [fullUpstream], Excluded: [fullBranchName], ExcludeMergeCommits: false));
 			entries.Add(new UpstreamBranchMergeInfo(
 				Name: shortUpstream,
 				Exists: behind.HasValue,

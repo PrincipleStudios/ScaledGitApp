@@ -92,7 +92,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpstreamBranches'
+                type: array
+                items: { $ref: '#/components/schemas/BranchConfiguration' }
   /api/git/branch-details:
     post:
       x-dotnet-mvc-server-controller: GitBranchDetails
@@ -118,10 +119,6 @@ paths:
               schema: { $ref: '#/components/schemas/BranchDetails' }
 components:
   schemas:
-    UpstreamBranches:
-      type: array
-      items:
-        $ref: '#/components/schemas/BranchConfiguration'
     BranchConfiguration:
       type: object
       required:

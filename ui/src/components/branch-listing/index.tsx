@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@principlestudios/react-jotai-forms';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
+import type { Atom } from 'jotai';
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
-import { BulletList, Section } from '@/components/common';
 import type { StandardField } from '@/components/form/FieldProps';
 import { TextField } from '@/components/form/text-field';
 import type { BranchConfiguration } from '@/generated/api/models';
@@ -18,7 +18,7 @@ const branchListingSearchSchema = z.object({
 export type BranchItemProps = { branch: BranchConfiguration };
 
 export type BranchListingProps = {
-	branchItem: React.ComponentType<BranchItemProps>;
+	children: (branches: BranchConfiguration[]) => JSX.Element;
 };
 
 export function useBranchListing() {
@@ -31,31 +31,22 @@ export function useBranchListing() {
 		},
 		preSubmit: 'all',
 	});
-	const response = useSuspenseQuery(queries.getUpstreamData).data;
-
-	const BranchListing = useCallback(
-		function BranchListing(props: BranchListingProps) {
-			const branchName = useAtomValue(form.fields.branchName.value);
-			if (branchName.length === 0) return null;
-			const branches = response.filter((r) => r.name.includes(branchName));
-			return <BranchListingPresentation branches={branches} {...props} />;
-		},
-		[response, form.fields.branchName.value],
-	);
 
 	return useCallback(
-		function FullBranchListingPresentation(props: BranchListingProps) {
+		function FullBranchListingPresentation({ children }: BranchListingProps) {
 			return (
 				<>
 					<BranchListingForm
 						branchName={form.fields.branchName}
 						translation={t}
 					/>
-					<BranchListing {...props} />
+					<BranchListing branchNameAtom={form.fields.branchName.value}>
+						{children}
+					</BranchListing>
 				</>
 			);
 		},
-		[form.fields.branchName, BranchListing, t],
+		[form.fields.branchName, t],
 	);
 }
 
@@ -67,29 +58,19 @@ function BranchListingForm({
 	translation: TFunction;
 }) {
 	return (
-		<Section.SingleColumn>
-			<form onSubmit={(e) => e.preventDefault()}>
-				<TextField field={branchName} translation={t} />
-			</form>
-		</Section.SingleColumn>
+		<form onSubmit={(e) => e.preventDefault()}>
+			<TextField field={branchName} translation={t} />
+		</form>
 	);
 }
 
-export function BranchListingPresentation({
-	branches,
-	branchItem: BranchItem,
-}: {
-	branches: BranchConfiguration[];
-} & BranchListingProps) {
-	return (
-		<Section.SingleColumn>
-			<BulletList>
-				{branches.map((b) => (
-					<BulletList.Item key={b.name}>
-						<BranchItem branch={b} />
-					</BulletList.Item>
-				))}
-			</BulletList>
-		</Section.SingleColumn>
-	);
+function BranchListing({
+	branchNameAtom,
+	children,
+}: BranchListingProps & { branchNameAtom: Atom<string> }) {
+	const response = useSuspenseQuery(queries.getUpstreamData).data;
+	const branchName = useAtomValue(branchNameAtom);
+	if (branchName.length === 0) return null;
+	const branches = response.filter((r) => r.name.includes(branchName));
+	return children(branches);
 }

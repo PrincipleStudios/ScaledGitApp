@@ -1,8 +1,9 @@
 import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import type { To } from 'react-router-dom';
 import { useLocation, type Location } from 'react-router-dom';
 import without from 'lodash/without';
-import { BulletList, Button, Link, Section } from '@/components/common';
+import { BulletList, Button, LinkButton, Section } from '@/components/common';
 import { ModalDialogLayout } from '@/components/modals/modal-dialog';
 import type { BranchConfiguration } from '@/generated/api/models';
 import type { ModalContentsProps } from '@/utils/modal/modal-service';
@@ -11,7 +12,9 @@ import { BranchName } from '../branch-display/BranchName';
 import type { BranchListingProps } from '../branch-listing';
 import { useBranchListing } from '../branch-listing';
 
-export function SearchDialog({ resolve }: ModalContentsProps<void, never>) {
+export function SearchDialog({
+	resolve,
+}: ModalContentsProps<null | To, never>) {
 	const BranchListing = useBranchListing();
 	const location = useLocation();
 
@@ -19,7 +22,7 @@ export function SearchDialog({ resolve }: ModalContentsProps<void, never>) {
 		<SearchDialogPresentation
 			BranchListing={BranchListing}
 			location={location}
-			onClose={() => resolve()}
+			onClose={resolve}
 		/>
 	);
 }
@@ -31,14 +34,14 @@ function SearchDialogPresentation({
 }: {
 	location: Location;
 	BranchListing: React.ComponentType<BranchListingProps>;
-	onClose: () => void;
+	onClose: (next: null | To) => void;
 }) {
 	const { t } = useTranslation(['app'], { keyPrefix: 'search-dialog' });
 	const queryString = parseSearchString(location.search);
 
 	return (
 		<ModalDialogLayout
-			buttons={<Button onClick={onClose}>{t('ok')}</Button>}
+			buttons={<Button onClick={() => onClose(null)}>{t('ok')}</Button>}
 			title={t('title')}
 		>
 			<BranchListing>{listBranches}</BranchListing>
@@ -54,12 +57,13 @@ function SearchDialogPresentation({
 						return (
 							<Fragment key={branch.name}>
 								<BulletList.Item>
-									<Link
-										to={`/branch?name=${encodeURIComponent(branch.name)}`}
-										onClick={onClose}
+									<LinkButton
+										onClick={() =>
+											onClose(`/branch?name=${encodeURIComponent(branch.name)}`)
+										}
 									>
 										<BranchName data={branch} />
-									</Link>{' '}
+									</LinkButton>{' '}
 								</BulletList.Item>
 								{extraLink && (
 									<BulletList.Item className="ml-8">
@@ -82,19 +86,20 @@ function SearchDialogPresentation({
 			: [...queryString['name'], branch.name];
 		const i18nKey = removing ? 'remove' : 'add';
 		return (
-			<Link
-				to={{
-					...location,
-					search: toSearchString({ ...queryString, name }),
-				}}
-				onClick={onClose}
+			<LinkButton
+				onClick={() =>
+					onClose({
+						...location,
+						search: toSearchString({ ...queryString, name }),
+					})
+				}
 			>
 				<Trans
 					t={t}
 					i18nKey={i18nKey}
 					components={{ Branch: <>{branch.name}</> }}
 				/>
-			</Link>
+			</LinkButton>
 		);
 	}
 }

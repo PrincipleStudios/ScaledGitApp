@@ -39,7 +39,7 @@ function InspectConflicts({ branches }: ActionComponentProps) {
 	return (
 		<>
 			TODO
-			{t('see conflicts')}
+			{t('see-conflicts')}
 			{JSON.stringify(conflictDetails)}
 		</>
 	);

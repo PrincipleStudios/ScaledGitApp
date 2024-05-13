@@ -1,4 +1,8 @@
+import { useForm } from '@principlestudios/react-jotai-forms';
+import { useAtomValue } from 'jotai';
+import { z } from 'zod';
 import { Code } from '@/components/code/Code';
+import { TextField } from '@/components/form/text-field';
 import { HintText } from '@/components/text';
 import type {
 	ActionComponentProps,
@@ -20,12 +24,32 @@ const provider: BranchActionProvider = {
 	},
 };
 
+const newBranchNameSchema = z.object({
+	branchName: z.string().regex(/^[a-zA-Z0-9_/-]*$/),
+});
+
 function NewBranchFromHere({ branches }: ActionComponentProps) {
 	const { t } = useBranchActionTranslation(translationKey);
+	const form = useForm({
+		defaultValue: { branchName: '' },
+		schema: newBranchNameSchema,
+		fields: {
+			branchName: ['branchName'],
+		},
+		preSubmit: 'all',
+	});
+
+	const newBranchName = useAtomValue(form.fields.branchName.atom);
+	const branchList = branches.map((b) => b.name).join(',');
+
 	return (
 		<>
 			<HintText>{t('how-to-use')}</HintText>
-			<Code>{`git new -u ${branches.map((b) => b.name).join(',')}`}</Code>
+			<form onSubmit={(e) => e.preventDefault()}>
+				<TextField field={form.fields.branchName} translation={t} />
+			</form>
+			{newBranchName ? null : <HintText>{t('prompt')}</HintText>}
+			<Code>{`git new${newBranchName ? ' ' + newBranchName : ''} -upstreamBranches ${branchList}`}</Code>
 		</>
 	);
 }

@@ -18,7 +18,7 @@ const branchListingSearchSchema = z.object({
 export type BranchItemProps = { branch: BranchConfiguration };
 
 export type BranchListingProps = {
-	children: (branches: BranchConfiguration[]) => JSX.Element;
+	children: (branches: BranchConfiguration[], query: string) => JSX.Element;
 };
 
 export function useBranchListing() {
@@ -70,7 +70,9 @@ function BranchListing({
 }: BranchListingProps & { branchNameAtom: Atom<string> }) {
 	const response = useSuspenseQuery(queries.getUpstreamData).data;
 	const branchName = useAtomValue(branchNameAtom);
-	if (branchName.length === 0) return null;
-	const branches = response.filter((r) => r.name.includes(branchName));
-	return children(branches);
+	const branches =
+		branchName.length === 0
+			? []
+			: response.filter((r) => r.name.includes(branchName));
+	return children(branches, branchName);
 }

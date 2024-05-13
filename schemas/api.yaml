@@ -117,6 +117,48 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/BranchDetails' }
+  /api/git/detect-conflicts:
+    post:
+      x-dotnet-mvc-server-controller: GitDetectConflicts
+      operationId: getConflictDetails
+      security:
+        - AuthenticatedUser: []
+      summary: Gets the conflict details between two branches
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branches:
+                  type: array
+                  minItems: 1
+                  items: { type: string }
+              required:
+                - branches
+      responses:
+        200:
+          description: Conflict detection results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ConflictDetails' }
+        400:
+          description: Bad Request
+        409:
+          description: >-
+            Git conflicts could not be determined; the given branches must have
+            all branches up-to-date with their upstreams for accurate results.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: >-
+                  Contains the upstream branch details for branches that must be
+                  updated before other conflicts may be detected.
+                items: { $ref: '#/components/schemas/BranchDetails' }
 components:
   schemas:
     BranchConfiguration:
@@ -169,6 +211,24 @@ components:
         name: { type: string }
         color: { type: string }
         type: { type: string }
+    ConflictDetails:
+      type: object
+      required:
+        - branches
+        - candidateIntegrationBranch
+        - files
+      properties:
+        branches:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/Branch' }
+        candidateIntegrationBranch:
+          type: array
+          items: { $ref: '#/components/schemas/Branch' }
+        files:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/FileConflictDetails' }
     DetailedUpstreamBranch:
       type: object
       required:
@@ -185,6 +245,23 @@ components:
         exists: { type: boolean }
         behindCount: { type: integer }
         hasConflict: { type: boolean }
+    FileConflictDetails:
+      type: object
+      required:
+        - path
+      properties:
+        path: { type: string }
+        mergeBase: { $ref: '#/components/schemas/FileSnapshot' }
+        left: { $ref: '#/components/schemas/FileSnapshot' }
+        right: { $ref: '#/components/schemas/FileSnapshot' }
+    FileSnapshot:
+      type: object
+      required:
+        - mode
+        - hash
+      properties:
+        mode: { type: string }
+        hash: { type: string }
 
   securitySchemes:
     AuthenticatedUser:

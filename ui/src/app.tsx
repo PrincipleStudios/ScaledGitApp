@@ -7,6 +7,7 @@ import { BranchDetailsComponent } from './pages/branch-details';
 import { LoginComponent } from './pages/login';
 import { OverviewComponent } from './pages/overview';
 import './utils/i18n/setup';
+import { Modals } from './utils/modal';
 
 const withSearchParamsName = withSearchParamsValue('name');
 const withSearchParamsReturnUrl = withSearchParamsValue('returnUrl');
@@ -34,6 +35,7 @@ function AppProviders() {
 	return (
 		<HashRouter future={{ v7_startTransition: true }}>
 			<App />
+			<Modals />
 		</HashRouter>
 	);
 }

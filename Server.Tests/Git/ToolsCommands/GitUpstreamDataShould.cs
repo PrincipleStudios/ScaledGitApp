@@ -91,14 +91,13 @@ public class GitUpstreamDataShould
 
 	internal static VerifiableMock<IPowerShell, Task<PowerShellInvocationResult>> SetupGitUpstreamDataBranches(Mock<IPowerShell> target, Dictionary<string, string[]> expectedResult)
 	{
-		var entries = expectedResult.Select(kvp => (Path: kvp.Key, Hash: string.Join('\n', kvp.Value).GetHashCode().ToString("X40"), Branches: kvp.Value));
+		var entries = expectedResult.Select(kvp => (Path: kvp.Key, Hash: Sha1Hash(string.Join('\n', kvp.Value)), Branches: kvp.Value));
 
+		var bulkResultLines = (from e in entries.DistinctBy(e => e.Hash)
+							   from line in e.Branches.Prepend($"\t{e.Hash}").Append("")
+							   select line).Prepend("").ToArray();
 		target.Setup(ps => ps.InvokeCliAsync("git", It.IsAny<PSDataCollection<string>>(), It.Is<IEnumerable<string>>(s => s.First() == "cat-file" && s.ElementAt(1) == "--batch=\t%(objectname)")))
-			.ReturnsAsync(PowerShellInvocationResultStubs.WithResults(
-				(from e in entries
-				 from line in e.Branches.Prepend($"\t{e.Hash}").Append("")
-				 select line).Distinct().Prepend("").ToArray()
-			));
+			.ReturnsAsync(PowerShellInvocationResultStubs.WithResults(bulkResultLines));
 
 		return target.Verifiable(
 			ps => ps.InvokeCliAsync("git", "ls-tree", "-r", "refs/remotes/origin/_upstream", "--format=%(objectname) %(path)"),
@@ -107,4 +106,11 @@ public class GitUpstreamDataShould
 			))
 		);
 	}
+
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
+	private static string Sha1Hash(string contents)
+	{
+		return Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(System.Text.Encoding.UTF8.GetBytes(contents)));
+	}
+#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
 }

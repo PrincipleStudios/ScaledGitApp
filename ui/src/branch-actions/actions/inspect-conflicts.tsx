@@ -1,5 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { Link } from '@/components/common';
+import { Prose } from '@/components/text';
 import { queries } from '@/utils/api/queries';
+import { toSearchString } from '@/utils/search-string';
 import type {
 	ActionComponentProps,
 	BranchActionProvider,
@@ -35,12 +38,19 @@ function InspectConflicts({ branches }: ActionComponentProps) {
 	const conflictDetails = useSuspenseQuery(
 		queries.getConflictDetails(branches.map((b) => b.name)),
 	).data;
+	const branchNames = branches.map((b) => b.name);
 
 	return (
 		<>
-			TODO
-			{t('see-conflicts')}
-			{JSON.stringify(conflictDetails)}
+			<Prose>{t('conflict-count', { count: conflictDetails.length })}</Prose>
+			<Link
+				to={{
+					pathname: '/branch/conflicts',
+					search: toSearchString({ name: branchNames }),
+				}}
+			>
+				{t('see-conflicts')}
+			</Link>
 		</>
 	);
 }

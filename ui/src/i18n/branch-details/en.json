@@ -1,7 +1,8 @@
 {
 	"tabs": {
 		"details": "Details",
-		"recommendations": "Recommendations"
+		"recommendations": "Recommendations",
+		"branch-actions": "Actions"
 	},
 	"fields": {
 		"mainBranch": {

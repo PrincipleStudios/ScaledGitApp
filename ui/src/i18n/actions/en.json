@@ -1,0 +1,16 @@
+{
+	"new-branch-from-here": {
+		"title": "New branch with Selection",
+		"description": "Create a new branch with the selected branches upstream.",
+		"how-to-use": "Run the following command using the Scalable Git Branching Tools to create a new branch with your selection.",
+		"prompt": "You will be prompted for the new branch name.",
+		"fields": {
+			"branchName": {
+				"label": "New branch name",
+				"errors": {
+					"invalid_string": "Provide a valid branch name"
+				}
+			}
+		}
+	}
+}

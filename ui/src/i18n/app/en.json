@@ -1,4 +1,9 @@
 {
 	"title": "ScaledGitApp",
-	"refresh": "Refresh"
+	"refresh": "Refresh",
+	"search": "Search for Branches",
+	"search-dialog": {
+		"title": "Search for Branches",
+		"ok": "Dismiss"
+	}
 }

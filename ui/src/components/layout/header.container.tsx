@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { queries } from '@/utils/api/queries';
 import { useLaunchModal } from '@/utils/modal';
@@ -15,6 +15,7 @@ export function useHeader(): React.ComponentType<HeaderPresentationalProps> {
 		const { t } = useTranslation(['app']);
 		const launchModal = useLaunchModal();
 		const navigate = useNavigate();
+		const location = useLocation();
 		const fetch = useMutation(queries.requestGitFetch);
 		return (
 			<HeaderPresentation
@@ -29,6 +30,7 @@ export function useHeader(): React.ComponentType<HeaderPresentationalProps> {
 			const destination = await launchModal({
 				ModalContents: SearchDialog,
 				label: t('search-for-branches'),
+				additional: { location },
 			});
 			if (destination) navigate(destination);
 		}

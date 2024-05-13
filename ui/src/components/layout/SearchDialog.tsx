@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import type { To } from 'react-router-dom';
-import { useLocation, type Location } from 'react-router-dom';
+import { type Location } from 'react-router-dom';
 import without from 'lodash/without';
 import { BulletList, Button, LinkButton, Section } from '@/components/common';
 import { ModalDialogLayout } from '@/components/modals/modal-dialog';
@@ -14,9 +14,9 @@ import { useBranchListing } from '../branch-listing';
 
 export function SearchDialog({
 	resolve,
-}: ModalContentsProps<null | To, never>) {
+	additional: { location },
+}: ModalContentsProps<null | To, { location: Location }>) {
 	const BranchListing = useBranchListing();
-	const location = useLocation();
 
 	return (
 		<SearchDialogPresentation

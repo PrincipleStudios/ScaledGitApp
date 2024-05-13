@@ -3,6 +3,7 @@ import { HashRouter, Navigate, useRoutes } from 'react-router-dom';
 import { Layout, useHeader } from './components/layout';
 import { withErrorBoundary, withSearchParamsValue } from './components/router';
 import { AboutComponent } from './pages/about';
+import { BranchConflictsComponent } from './pages/branch-conflicts';
 import { BranchDetailsComponent } from './pages/branch-details';
 import { LoginComponent } from './pages/login';
 import { OverviewComponent } from './pages/overview';
@@ -22,6 +23,12 @@ const mainRoute: RouteObject[] = [
 	{
 		path: 'branch/',
 		Component: withErrorBoundary(withSearchParamsName(BranchDetailsComponent)),
+	},
+	{
+		path: 'branch/conflicts',
+		Component: withErrorBoundary(
+			withSearchParamsName(BranchConflictsComponent),
+		),
 	},
 	{ path: '/', element: <Navigate to="/overview" replace={true} /> },
 ];

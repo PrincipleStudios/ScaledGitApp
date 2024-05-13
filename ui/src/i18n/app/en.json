@@ -4,6 +4,8 @@
 	"search": "Search for Branches",
 	"search-dialog": {
 		"title": "Search for Branches",
-		"ok": "Dismiss"
+		"ok": "Dismiss",
+		"remove": "Remove <Branch /> from current page",
+		"add": "Add <Branch /> to current page"
 	}
 }

@@ -24,7 +24,7 @@ const provider: BranchActionProvider = {
 				translationKey,
 				ActionComponent: InspectConflicts,
 			};
-		} catch (ex) {
+		} catch (_ex) {
 			return null;
 		}
 	},

@@ -25,7 +25,7 @@ const mainRoute: RouteObject[] = [
 		Component: withErrorBoundary(withSearchParamsName(BranchDetailsComponent)),
 	},
 	{
-		path: 'branch/conflicts',
+		path: 'branch/conflicts/*',
 		Component: withErrorBoundary(
 			withSearchParamsName(BranchConflictsComponent),
 		),

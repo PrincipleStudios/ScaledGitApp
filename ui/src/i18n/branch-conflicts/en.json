@@ -2,7 +2,8 @@
 	"conflict-analysis": "Conflict Analysis for the following branches: <Branches/>",
 	"conflict": {
 		"branches-label": "Conflicting branches:",
-		"files-label": "Conflicting files:"
+		"files-label": "Conflicting files:",
+		"inspect": "Inspect conflicts"
 	},
 	"to-branch-graph": "Back to Branch Graph"
 }

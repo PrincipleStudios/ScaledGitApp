@@ -1,4 +1,3 @@
-import type React from 'react';
 import { createElement, forwardRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { identity } from './identity';
@@ -61,6 +60,8 @@ export function elementTemplate<
 		},
 	} = templateResolver(originalType as PartialElement<TProps>);
 	const useProps: (props: TBaseProps) => TProps = options?.useProps ?? identity;
+	// Display name is set via the Object.assign, below
+	// eslint-disable-next-line react/display-name
 	const base = forwardRef(
 		({ children, className, style, ...props }: TProps, ref) =>
 			createElement(

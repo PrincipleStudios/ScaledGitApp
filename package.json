@@ -7,10 +7,10 @@
 		"start": "cd Server && dotnet watch",
 		"lint": "npm run typecheck && npm run eslint && npm run prettier",
 		"lint:fix": "npm run typecheck && npm run eslint:fix && npm run prettier:fix",
-		"eslint": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\"",
-		"eslint:fix": "eslint \"**/*.{cjs,mjs,js,ts,tsx}\" --fix",
-		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
-		"prettier:fix": "prettier --write \"**/*.{cjs,mjs,js,ts,tsx,yaml,json}\"",
+		"eslint": "eslint \"**/*.{cjs,mjs,js,mts,cts,ts,tsx}\"",
+		"eslint:fix": "eslint \"**/*.{cjs,mjs,js,mts,cts,ts,tsx}\" --fix",
+		"prettier": "prettier --list-different \"**/*.{cjs,mjs,js,mts,cts,ts,tsx,yaml,json}\"",
+		"prettier:fix": "prettier --write \"**/*.{cjs,mjs,js,mts,cts,ts,tsx,yaml,json}\"",
 		"typecheck": "dotnet build -t:PrepareForBuild && tsc -b",
 		"storybook": "pnpm --filter scaledgitapp-ui storybook"
 	},
@@ -24,8 +24,6 @@
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
-		"eslint-plugin-react-hooks": "^4.6.0",
-		"eslint-plugin-storybook": "^0.6.15",
 		"prettier": "^3.2.5",
 		"typescript": "^5.3.3"
 	},

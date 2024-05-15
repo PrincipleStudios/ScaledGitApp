@@ -6,7 +6,7 @@ import { ErrorScreen } from '../errors';
 export function withErrorBoundary(
 	Component: React.ComponentType,
 ): React.ComponentType {
-	return () => {
+	function WithErrorBoundary() {
 		const location = useLocation();
 		const { t } = useTranslation(['generic']);
 		return (
@@ -17,5 +17,8 @@ export function withErrorBoundary(
 				<Component />
 			</ErrorBoundary>
 		);
-	};
+	}
+	if (Component.displayName)
+		WithErrorBoundary.displayName = `${Component.displayName}WithErrorBoundary`;
+	return WithErrorBoundary;
 }

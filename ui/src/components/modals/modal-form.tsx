@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FormEventHandler, ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 import { Button } from '@/components/common';
 import { ModalDialogLayout } from './modal-dialog';
@@ -11,12 +11,12 @@ export function ModalForm({
 	onSubmit,
 	onCancel,
 }: {
-	children?: React.ReactNode;
-	title?: React.ReactNode;
-	onSubmit?: React.FormEventHandler<HTMLFormElement>;
+	children?: ReactNode;
+	title?: ReactNode;
+	onSubmit?: FormEventHandler<HTMLFormElement>;
 	onCancel?: () => void;
 	translation: TFunction;
-	additionalButtons?: React.ReactNode;
+	additionalButtons?: ReactNode;
 }) {
 	return (
 		<form onSubmit={onSubmit}>

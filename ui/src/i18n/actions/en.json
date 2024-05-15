@@ -12,5 +12,10 @@
 				}
 			}
 		}
+	},
+	"inspect-conflicts": {
+		"title": "Resolve conflicts",
+		"description": "Conflicts have been detected with your branches (or between its upstreams).",
+		"see-conflicts": "See conflict details"
 	}
 }

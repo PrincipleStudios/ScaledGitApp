@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { twMerge } from 'tailwind-merge';
 import { Tab } from '.';
 
 const categories = {
@@ -87,14 +86,6 @@ const meta: Meta = {
 										<li>&middot;</li>
 										<li>{post.shareCount} shares</li>
 									</ul>
-
-									<a
-										href="#"
-										className={twMerge(
-											'absolute inset-0 rounded-md',
-											'ring-blue-400 focus:z-10 focus:outline-none focus:ring-2',
-										)}
-									/>
 								</li>
 							))}
 						</ul>

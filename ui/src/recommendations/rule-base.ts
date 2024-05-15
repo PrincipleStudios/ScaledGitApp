@@ -54,7 +54,7 @@ export type RecommendationRuleAnalyzeResult =
 			| RecommendationOutput
 			| Promise<RecommendationOutput[]>
 			| Atom<Loadable<RecommendationOutput[]>>
-			| Atom<Loadable<RecommendationOutput[]>[]>
+			| Atom<Array<Loadable<RecommendationOutput[]>>>
 	  >;
 
 export type RecommendationRule = {

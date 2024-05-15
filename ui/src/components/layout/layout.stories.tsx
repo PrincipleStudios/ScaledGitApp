@@ -5,7 +5,12 @@ import { LayoutPresentation } from './layout.presentation';
 
 function StorybookHeaderPresentation(props: HeaderPresentationalProps) {
 	return (
-		<HeaderPresentation {...props} isRefreshing={false} onRefresh={() => {}} />
+		<HeaderPresentation
+			{...props}
+			isRefreshing={false}
+			onRefresh={() => {}}
+			onSearch={() => {}}
+		/>
 	);
 }
 

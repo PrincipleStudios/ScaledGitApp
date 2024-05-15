@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { HiArrowPath } from 'react-icons/hi2';
+import { HiArrowPath, HiMagnifyingGlass } from 'react-icons/hi2';
 import { IconButton } from '../common';
 import { elementTemplate } from '../templating';
 import styles from './layout.module.css';
@@ -11,19 +11,27 @@ export type HeaderPresentationalProps = {
 
 export type HeaderProps = HeaderPresentationalProps & {
 	isRefreshing: boolean;
+	onSearch: () => void;
 	onRefresh: () => void;
 };
 
 const Header = elementTemplate('Header', 'header', (T) => (
-	<T className="bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-white shadow-sm flex flex-row items-center gap-4 h-12 p-1" />
+	<T className="bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-white shadow-sm flex flex-row items-center gap-4 h-12 py-1 px-4" />
 ));
 
-export function HeaderPresentation({ isRefreshing, onRefresh }: HeaderProps) {
+export function HeaderPresentation({
+	isRefreshing,
+	onSearch,
+	onRefresh,
+}: HeaderProps) {
 	const { t } = useTranslation(['app']);
 	return (
 		<Header className={styles.header}>
 			<Link to="/">{t('title')}</Link>
 			<span className="flex-grow" />
+			<IconButton onClick={onSearch}>
+				<HiMagnifyingGlass title={t('search')} />
+			</IconButton>
 			<IconButton
 				title={t('refresh')}
 				onClick={onRefresh}

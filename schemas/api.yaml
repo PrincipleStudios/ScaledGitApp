@@ -159,6 +159,35 @@ paths:
                   Contains the upstream branch details for branches that must be
                   updated before other conflicts may be detected.
                 items: { $ref: '#/components/schemas/BranchDetails' }
+  /api/git/object/{objectish}:
+    get:
+      x-dotnet-mvc-server-controller: GitRetrieveObject
+      operationId: retrieveGitObject
+      security:
+        - AuthenticatedUser: []
+      summary: Gets the specified object
+      parameters:
+        - in: path
+          name: objectish
+          schema: { type: string }
+          required: true
+      responses:
+        200:
+          description: The full contents of the requested object
+          content:
+            application/json:
+              schema:
+                type: string
+        206:
+          description: >-
+            Partial contents of the requested object. Returned if the requested
+            object is too large.
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: Object not found
 components:
   schemas:
     BranchConfiguration:

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/heading-has-content */
 import { elementTemplate } from '../templating';
 
 const heading = elementTemplate('heading', 'h1', (T) => (

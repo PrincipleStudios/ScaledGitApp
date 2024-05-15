@@ -129,7 +129,7 @@ function toLookups(upstreamData: BranchConfiguration[]) {
 	);
 	const dataLookup: Record<string, BranchInfo> = { ...configsByName };
 	const extraBranches: Record<string, BranchInfo> = { ...configsByName };
-	const configuredLinks: { upstream: string; downstream: string }[] = [];
+	const configuredLinks: Array<{ upstream: string; downstream: string }> = [];
 	// fill in missing data - both missing upstream/downstream nodes and links
 	const branchCount = upstreamData.length;
 	let unknownBranchCount = 0;
@@ -238,7 +238,7 @@ function updateNodes(
 // Finds or creates an item in the list with an atom produced by a proxy
 function findOrCreate<T, TKeys extends keyof T>(
 	store: JotaiStore,
-	previous: WithAtom<T>[],
+	previous: Array<WithAtom<T>>,
 	match: (value: T) => boolean,
 	initial: Pick<T, TKeys>,
 	updates: Omit<T, TKeys>,

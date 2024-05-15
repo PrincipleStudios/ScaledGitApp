@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */
+// Click events and key events are handled via a global handler in Modals with
+// the escape key.
 import { Fragment, forwardRef, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import { useAsAtom } from '@principlestudios/jotai-react-signals';

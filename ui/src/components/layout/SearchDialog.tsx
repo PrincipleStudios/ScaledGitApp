@@ -14,8 +14,9 @@ import { useBranchListing } from '../branch-listing';
 
 export function SearchDialog({
 	resolve,
+	reject,
 	additional: { location },
-}: ModalContentsProps<null | To, { location: Location }>) {
+}: ModalContentsProps<To, { location: Location }>) {
 	const BranchListing = useBranchListing();
 
 	return (
@@ -23,6 +24,7 @@ export function SearchDialog({
 			BranchListing={BranchListing}
 			location={location}
 			onClose={resolve}
+			onDismiss={() => reject('dismiss')}
 		/>
 	);
 }
@@ -31,17 +33,19 @@ function SearchDialogPresentation({
 	location,
 	BranchListing,
 	onClose,
+	onDismiss,
 }: {
 	location: Location;
 	BranchListing: React.ComponentType<BranchListingProps>;
-	onClose: (next: null | To) => void;
+	onClose: (next: To) => void;
+	onDismiss: () => void;
 }) {
 	const { t } = useTranslation(['app'], { keyPrefix: 'search-dialog' });
 	const queryString = parseSearchString(location.search);
 
 	return (
 		<ModalDialogLayout
-			buttons={<Button onClick={() => onClose(null)}>{t('ok')}</Button>}
+			buttons={<Button onClick={() => onDismiss()}>{t('ok')}</Button>}
 			title={t('title')}
 		>
 			<BranchListing>{listBranches}</BranchListing>

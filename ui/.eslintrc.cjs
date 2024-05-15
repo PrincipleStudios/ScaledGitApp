@@ -18,6 +18,7 @@ module.exports = {
 				'plugin:react/jsx-runtime',
 				'plugin:react-hooks/recommended',
 				'plugin:storybook/recommended',
+				'plugin:jsx-a11y/recommended',
 			],
 			parserOptions: {
 				project: './tsconfig.json',

@@ -29,6 +29,7 @@
 		"@types/react": "^18.2.54",
 		"@vitejs/plugin-react": "^4.2.1",
 		"d3-force": "^3.0.0",
+		"eslint-plugin-jsx-a11y": "^6.8.0",
 		"eslint-plugin-react": "^7.34.1",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-storybook": "^0.6.15",

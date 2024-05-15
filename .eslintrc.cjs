@@ -33,6 +33,7 @@ module.exports = {
 				'plugin:@typescript-eslint/recommended',
 			],
 			rules: {
+				'@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
 				'@typescript-eslint/consistent-type-imports': [
 					'error',
 					{

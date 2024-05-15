@@ -10,7 +10,7 @@ import type {
 } from './rule-base';
 
 type Input = RecommendationRuleAnalyzeResult;
-type RecommendationAtom = Atom<Loadable<RecommendationOutput>[]>;
+type RecommendationAtom = Atom<Array<Loadable<RecommendationOutput>>>;
 
 const asLoadable = new WeakMap<Promise<unknown>, RecommendationAtom>();
 
@@ -36,7 +36,7 @@ function toLoaded<T>(data: Awaited<T>): Loadable<T> {
  * usability. This function flattens the result into a single standard type. */
 export function flattenAnalyzeResult(
 	returnValue: Input,
-): Loadable<RecommendationOutput>[] | RecommendationAtom {
+): Array<Loadable<RecommendationOutput>> | RecommendationAtom {
 	const asArray = Array.isArray(returnValue) ? returnValue : [returnValue];
 	if (isArrayOfType(asArray, isRecommendationOutput)) {
 		return asArray.map(toLoaded);
@@ -52,7 +52,8 @@ export function flattenAnalyzeResult(
 		} else if (isAtom(entry)) {
 			return atom((get) => {
 				const results = get<
-					Loadable<RecommendationOutput[]> | Loadable<RecommendationOutput[]>[]
+					| Loadable<RecommendationOutput[]>
+					| Array<Loadable<RecommendationOutput[]>>
 				>(entry);
 				const asArray = Array.isArray(results) ? results : [results];
 				return asArray;
@@ -65,7 +66,9 @@ export function flattenAnalyzeResult(
 		return loadableAtoms.flatMap((entry) => {
 			if (!isAtom(entry)) return [toLoaded(entry)];
 			const currentValue =
-				get<Loadable<RecommendationOutput | RecommendationOutput[]>[]>(entry);
+				get<Array<Loadable<RecommendationOutput | RecommendationOutput[]>>>(
+					entry,
+				);
 
 			const result = currentValue.flatMap<Loadable<RecommendationOutput>>(
 				(entry) => {
@@ -84,7 +87,7 @@ function unwrapLoadableAtom(
 ): RecommendationAtom {
 	return atom((get) => {
 		const current = get<
-			Loadable<RecommendationOutput[]> | Loadable<RecommendationOutput[]>[]
+			Loadable<RecommendationOutput[]> | Array<Loadable<RecommendationOutput[]>>
 		>(source);
 		const asArray = Array.isArray(current) ? current : [current];
 		const flattened = asArray.flatMap<Loadable<RecommendationOutput>>(

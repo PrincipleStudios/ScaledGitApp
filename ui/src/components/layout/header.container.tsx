@@ -15,8 +15,8 @@ export function useHeader(): React.ComponentType<HeaderPresentationalProps> {
 		const { t } = useTranslation(['app']);
 		const launchModal = useLaunchModal();
 		const navigate = useNavigate();
-		const location = useLocation();
 		const fetch = useMutation(queries.requestGitFetch);
+		const location = useLocation();
 		return (
 			<HeaderPresentation
 				{...props}
@@ -32,7 +32,7 @@ export function useHeader(): React.ComponentType<HeaderPresentationalProps> {
 				label: t('search-for-branches'),
 				additional: { location },
 			});
-			if (destination) navigate(destination);
+			navigate(destination);
 		}
 	}, []);
 }

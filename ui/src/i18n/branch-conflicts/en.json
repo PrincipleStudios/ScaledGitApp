@@ -5,5 +5,14 @@
 		"files-label": "Conflicting files:",
 		"inspect": "Inspect conflicts"
 	},
-	"to-branch-graph": "Back to Branch Graph"
+	"to-branch-graph": "Back to Branch Graph",
+	"inspect": {
+		"list": "Showing conflicts for:",
+		"files-header": "Conflicting Files",
+		"fields": {
+			"filePath": {
+				"label": "Conflicting File"
+			}
+		}
+	}
 }

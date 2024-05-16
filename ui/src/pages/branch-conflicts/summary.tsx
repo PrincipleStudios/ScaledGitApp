@@ -1,17 +1,12 @@
-import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import type { Location } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query';
-import { BranchName } from '@/components/branch-display/BranchName';
 import { BulletList, Container, Link, Section } from '@/components/common';
 import { Prose } from '@/components/text';
-import type {
-	Branch,
-	BranchDetails,
-	ConflictDetails,
-} from '@/generated/api/models';
+import type { BranchDetails, ConflictDetails } from '@/generated/api/models';
 import { queries } from '@/utils/api/queries';
+import { BranchNamesList } from './components/BranchNamesList';
 
 export function BranchConflictsSummary({ name }: { name: string[] }) {
 	const conflictDetails = useSuspenseQuery(
@@ -49,7 +44,7 @@ export function BranchConflictsSummaryPresentation({
 						i18nKey="conflict-analysis"
 						t={t}
 						components={{
-							Branches: branchNamesList(branches),
+							Branches: <BranchNamesList branches={branches} />,
 						}}
 					/>
 				</Prose>
@@ -76,16 +71,20 @@ export function BranchConflictsSummaryPresentation({
 	);
 }
 
-export function ConflictSummary({ conflict }: { conflict: ConflictDetails }) {
+function ConflictSummary({ conflict }: { conflict: ConflictDetails }) {
 	const { t } = useTranslation('branch-conflicts');
 	return (
 		<dl>
 			<dt>{t('conflict.branches-label')}</dt>
-			<dd>{branchNamesList(conflict.branches)}</dd>
+			<dd>
+				<BranchNamesList branches={conflict.branches} />
+			</dd>
 			{conflict.candidateIntegrationBranch.length > 0 && (
 				<>
 					<dt>{t('conflict.suggested-integration')}</dt>
-					<dd>{branchNamesList(conflict.candidateIntegrationBranch)}</dd>
+					<dd>
+						<BranchNamesList branches={conflict.candidateIntegrationBranch} />
+					</dd>
 				</>
 			)}
 			<dt>{t('conflict.files-label')}</dt>
@@ -97,17 +96,5 @@ export function ConflictSummary({ conflict }: { conflict: ConflictDetails }) {
 				</BulletList>
 			</dd>
 		</dl>
-	);
-}
-
-function branchNamesList(branches: Branch[]) {
-	return (
-		<>
-			{branches.map((b) => (
-				<Fragment key={b.name}>
-					<BranchName data={b} />{' '}
-				</Fragment>
-			))}
-		</>
 	);
 }

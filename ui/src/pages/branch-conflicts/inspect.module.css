@@ -1,0 +1,31 @@
+
+.container {
+	grid-template-areas: 'fileselector' 'details';
+	grid-template-rows: auto 1fr;
+	grid-template-columns: 1fr;
+}
+
+.fileselector {
+	grid-area: fileselector;
+}
+
+.details {
+	grid-area: details;
+}
+
+@media screen(md) {
+	.container {
+		grid-template-areas: 'filelist details';
+		grid-template-rows: 1fr;
+		grid-template-columns: minmax(20vw, 200px) 1fr;
+	}
+
+	.fileselector {
+		display: none;
+	}
+
+	.filelist {
+		display: block;
+		grid-area: filelist;
+	}
+}

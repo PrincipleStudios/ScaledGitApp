@@ -20,3 +20,5 @@ export const queries = {
 	getConflictDetails,
 	retrieveGitObject,
 } satisfies { [K in keyof typeof operations]: unknown };
+
+console.log(queries);

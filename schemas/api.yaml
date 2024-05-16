@@ -175,7 +175,7 @@ paths:
         200:
           description: The full contents of the requested object
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         206:
@@ -183,7 +183,7 @@ paths:
             Partial contents of the requested object. Returned if the requested
             object is too large.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         404:

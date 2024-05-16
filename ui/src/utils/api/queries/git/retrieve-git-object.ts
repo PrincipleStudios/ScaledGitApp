@@ -1,5 +1,6 @@
 import type { QueryOptions } from '@tanstack/react-query';
 import { api } from '../../fetch-api';
+import { responseToString } from '../../response-to-string';
 
 export const retrieveGitObject = (objectish: string) =>
 	({
@@ -8,8 +9,12 @@ export const retrieveGitObject = (objectish: string) =>
 			const response = await api.retrieveGitObject({
 				params: { objectish },
 			});
-			if (response.statusCode !== 200 && response.statusCode !== 206)
+			if (response.response.status !== 200 && response.response.status !== 206)
 				return Promise.reject(response);
-			return { status: response.statusCode, data: response.data };
+
+			return {
+				status: response.response.status,
+				data: await responseToString(response.response),
+			};
 		},
 	}) satisfies QueryOptions;

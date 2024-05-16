@@ -162,9 +162,15 @@ importers:
       '@testing-library/react':
         specifier: ^14.2.1
         version: 14.2.1(react-dom@18.2.0)(react@18.2.0)
+      '@types/content-type':
+        specifier: ^1.1.8
+        version: 1.1.8
       autoprefixer:
         specifier: ^10.4.17
         version: 10.4.17(postcss@8.4.34)
+      content-type:
+        specifier: ^1.0.5
+        version: 1.0.5
       jsdom:
         specifier: ^24.0.0
         version: 24.0.0
@@ -3793,6 +3799,10 @@ packages:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
       '@types/node': 20.11.16
+    dev: true
+
+  /@types/content-type@1.1.8:
+    resolution: {integrity: sha512-1tBhmVUeso3+ahfyaKluXe38p+94lovUZdoVfQ3OnJo9uJC42JT7CBoN3k9HYhAae+GwiBYmHu+N9FZhOG+2Pg==}
     dev: true
 
   /@types/cross-spawn@6.0.6:

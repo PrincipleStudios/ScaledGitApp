@@ -15,7 +15,7 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 			return GetConflictDetailsActionResult.BadRequest();
 
 		var upstreams = await gitToolsPowerShell.RunCommand(new GitUpstreamData());
-		// If only one branch was provided, we probably need to find conflicts with 
+		// If only one branch was provided, we probably need to find conflicts with that branch's upstreams
 		if (branches is [string originalBranch] && upstreams.TryGetValue(originalBranch, out var originalUpstreams))
 			branches = originalUpstreams.UpstreamBranchNames.Order().ToArray();
 		if (branches.Count < 2)

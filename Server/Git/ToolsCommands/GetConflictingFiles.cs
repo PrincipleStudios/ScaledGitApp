@@ -16,7 +16,7 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 	private static readonly Regex fileInfoRegex = new(@"^(?<mode>[^ ]+) (?<hash>[^ ]+) (?<stage>[^\t]+)\t(?<path>.+)$");
 	public async Task<GetConflictingFilesResult> Execute(IPowerShellCommandContext context)
 	{
-		var cliResults = await context.InvokeCliAsync("git", "merge-tree", "-z", LeftBranch, RightBranch);
+		var cliResults = await context.InvokeCliAsync("git", "merge-tree", "-z", "--write-tree", LeftBranch, RightBranch);
 		var fullOutput = string.Join('\n', cliResults.ToResultStrings(allowErrors: true));
 		if (string.IsNullOrEmpty(fullOutput)) throw GitException.From(cliResults);
 		var entries = fullOutput.Split('\0').ToArray();

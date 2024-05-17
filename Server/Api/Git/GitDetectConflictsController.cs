@@ -33,7 +33,10 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 		// Determine if the named branches actually have conflicts
 		var conflicts = await conflictLocator.FindConflictsWithin(branches);
 
-		return GetConflictDetailsActionResult.Ok(conflicts.Select(conflict => ToConflictDetails(conflict, upstreams)));
+		return GetConflictDetailsActionResult.Ok(new ConflictAnalysis(
+			Branches: branches.Select(ToBranch),
+			Conflicts: conflicts.Select(conflict => ToConflictDetails(conflict, upstreams))
+		));
 	}
 
 	/// <summary>
@@ -75,7 +78,9 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 			Files: source.ConflictingFiles.ConflictingFiles.Select(ToFileDetails),
 			CandidateIntegrationBranch: from kvp in upstreams
 										where kvp.Value.UpstreamBranchNames.Count == 2 && kvp.Value.UpstreamBranchNames.All(source.Branches.Includes)
-										select ToBranch(kvp.Key)
+										select ToBranch(kvp.Key),
+			MergeTree: source.ConflictingFiles.ResultTreeHash,
+			Messages: source.ConflictingFiles.ConflictMessages.Select(m => m.Message)
 		);
 	}
 

@@ -19,7 +19,7 @@ const provider: BranchActionProvider = {
 			);
 
 			// No conflicts!
-			if (conflictDetails.length === 0) return null;
+			if (conflictDetails.conflicts.length === 0) return null;
 
 			return {
 				actionKey: translationKey,

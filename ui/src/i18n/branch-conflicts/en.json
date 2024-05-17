@@ -3,7 +3,8 @@
 	"conflict": {
 		"branches-label": "Conflicting branches:",
 		"files-label": "Conflicting files:",
-		"inspect": "Inspect conflicts"
+		"inspect": "Inspect conflicts",
+		"suggested-integration": "Suggested Integration branches:"
 	},
 	"to-branch-graph": "Back to Branch Graph",
 	"inspect": {

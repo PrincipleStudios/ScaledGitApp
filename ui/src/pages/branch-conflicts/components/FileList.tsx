@@ -19,7 +19,7 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 			<Heading.Section className="my-4">{t('files-header')}</Heading.Section>
 			<ul>
 				{conflict.files.map((f) => (
-					<li key={f.path}>
+					<li key={f.path} className="my-2">
 						<Link
 							to={{ ...location, pathname: `./${f.path}` }}
 							relative="route"

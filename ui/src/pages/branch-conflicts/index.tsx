@@ -20,7 +20,7 @@ export function BranchConflictsComponent({ name }: { name: string[] }) {
 		useMemo(
 			() => [
 				{ path: '/', Component: branchConflictsSummary },
-				...conflictDetails.map(
+				...conflictDetails.conflicts.map(
 					(conflict, i): RouteObject => ({
 						path: `/inspect/${i}`,
 						Component: withParam('conflict', conflict)(InspectConflictDetails),

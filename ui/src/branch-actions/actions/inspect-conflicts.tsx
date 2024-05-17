@@ -42,7 +42,9 @@ function InspectConflicts({ branches }: ActionComponentProps) {
 
 	return (
 		<>
-			<Prose>{t('conflict-count', { count: conflictDetails.length })}</Prose>
+			<Prose>
+				{t('conflict-count', { count: conflictDetails.conflicts.length })}
+			</Prose>
 			<Link
 				to={{
 					pathname: '/branch/conflicts',

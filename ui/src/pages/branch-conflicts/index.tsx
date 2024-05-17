@@ -26,7 +26,7 @@ export function BranchConflictsComponent({ name }: { name: string[] }) {
 		useMemo(
 			() => [
 				{ path: '/', Component: branchConflictsSummary },
-				...conflictDetails.flatMap((conflict, i): RouteObject[] => [
+				...conflictDetails.conflicts.flatMap((conflict, i): RouteObject[] => [
 					{
 						path: `/inspect/${i}/*`,
 						Component: withParam('conflict', conflict)(inspectConflictDetails),

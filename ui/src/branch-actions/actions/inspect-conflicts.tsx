@@ -19,7 +19,7 @@ const provider: BranchActionProvider = {
 			);
 
 			// No conflicts!
-			if (conflictDetails.length === 0) return null;
+			if (conflictDetails.conflicts.length === 0) return null;
 
 			return {
 				actionKey: translationKey,
@@ -42,7 +42,9 @@ function InspectConflicts({ branches }: ActionComponentProps) {
 
 	return (
 		<>
-			<Prose>{t('conflict-count', { count: conflictDetails.length })}</Prose>
+			<Prose>
+				{t('conflict-count', { count: conflictDetails.conflicts.length })}
+			</Prose>
 			<Link
 				to={{
 					pathname: '/branch/conflicts',

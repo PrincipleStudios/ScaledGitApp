@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query';
 import { BulletList, Container, Link, Section } from '@/components/common';
 import { Prose } from '@/components/text';
-import type { BranchDetails, ConflictDetails } from '@/generated/api/models';
+import type { Branch, ConflictDetails } from '@/generated/api/models';
 import { queries } from '@/utils/api/queries';
 import { BranchNamesList } from './components/BranchNamesList';
 
@@ -13,14 +13,16 @@ export function BranchConflictsSummary({ name }: { name: string[] }) {
 		queries.getConflictDetails(name),
 	).data;
 	const branches = useSuspenseQueries({
-		queries: name.map((branchName) => queries.getBranchDetails(branchName)),
+		queries: conflictDetails.branches.map((branch) =>
+			queries.getBranchDetails(branch.name),
+		),
 	}).map((result) => result.data);
 	const location = useLocation();
 
 	return (
 		<BranchConflictsSummaryPresentation
 			branches={branches}
-			conflictDetails={conflictDetails}
+			conflictDetails={conflictDetails.conflicts}
 			location={location}
 		/>
 	);
@@ -31,7 +33,7 @@ export function BranchConflictsSummaryPresentation({
 	conflictDetails,
 	location,
 }: {
-	branches: BranchDetails[];
+	branches: Branch[];
 	conflictDetails: ConflictDetails[];
 	location: Location;
 }) {
@@ -79,6 +81,14 @@ function ConflictSummary({ conflict }: { conflict: ConflictDetails }) {
 			<dd>
 				<BranchNamesList branches={conflict.branches} />
 			</dd>
+			<dt>{t('conflict.messages-label')}</dt>
+			<dd>
+				<BulletList>
+					{conflict.messages.map((msg, index) => (
+						<BulletList.Item key={index}>{msg}</BulletList.Item>
+					))}
+				</BulletList>
+			</dd>
 			{conflict.candidateIntegrationBranch.length > 0 && (
 				<>
 					<dt>{t('conflict.suggested-integration')}</dt>
@@ -87,14 +97,6 @@ function ConflictSummary({ conflict }: { conflict: ConflictDetails }) {
 					</dd>
 				</>
 			)}
-			<dt>{t('conflict.files-label')}</dt>
-			<dd>
-				<BulletList>
-					{conflict.files.map((f) => (
-						<BulletList.Item key={f.path}>{f.path}</BulletList.Item>
-					))}
-				</BulletList>
-			</dd>
 		</dl>
 	);
 }

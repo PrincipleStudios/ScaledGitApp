@@ -8,5 +8,6 @@ public static class ServiceRegistration
 	{
 		services.Configure<BranchingStrategyOptions>(strategyOptionsConfig);
 		services.AddSingleton<IBranchTypeLookup, BranchTypeLookup>();
+		services.AddSingleton<IConflictLocator, ConflictLocator>();
 	}
 }

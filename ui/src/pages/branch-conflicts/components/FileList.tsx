@@ -23,7 +23,7 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 						<Link
 							to={{ ...location, pathname: `./${f.path}` }}
 							relative="route"
-							className={f.path === selected ? 'font-bold' : undefined}
+							className={f.path === selected ? 'font-bold' : 'font-normal'}
 						>
 							{f.path}
 						</Link>

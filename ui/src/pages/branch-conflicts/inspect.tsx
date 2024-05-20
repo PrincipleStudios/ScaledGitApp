@@ -14,8 +14,8 @@ export function InspectConflictDetails({
 	conflict: ConflictDetails;
 	filePath?: string | undefined;
 }) {
-	const actualFilePath = filePath ?? conflict.files[0].path;
-	const selectedFile = conflict.files.find((f) => f.path === actualFilePath);
+	const selectedFile =
+		conflict.files.find((f) => f.path === filePath) ?? conflict.files[0];
 
 	// TODO - don't use the summary, but instead use a monaco editor
 	return (

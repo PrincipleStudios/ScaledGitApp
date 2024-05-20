@@ -99,24 +99,39 @@ export function useLaunchModal(): ModalLauncher {
 				// When the abort signal passed is already signalled, immediately reject
 				return Promise.reject(AbortRejection);
 			}
+			// The shouldShow atom indicates desired state; a change in the
+			// value of the shouldShow atom indicates theeither to animating to
+			// visible, or to begin animating to hidden.
 			const shouldShow = atom(true);
+
+			// The modalDisplaying AbortController is going to be "aborted" when
+			// the modal is no longer displayed; it will be non-aborted while
+			// the modal may be displayed.
+			const modalDisplaying = new AbortController();
+			modalDisplaying.signal.addEventListener(
+				'abort',
+				removeActiveModalFromStack,
+			);
+
+			// The modalStackEntry represents the actual modal in the
+			// modalStack.
 			const modalStackEntry: ModalStackEntry = {
-				contents: null,
 				id: Math.random(),
 				shouldShow,
 				label: label ?? '',
+				onReadyToUnmount: () => modalDisplaying.abort(),
+				// The following properties cannot be set until the
+				// resolve/reject parameters are determined.
+				contents: null,
 				onAbortModal: noop,
-				onReadyToUnmount: noop,
 				onBackdropCancel: noop,
 				onEscapePressed: noop,
 			};
-			const modalFinished = new Promise<void>((resolve) => {
-				modalStackEntry.onReadyToUnmount = resolve;
-			});
 			abort?.addEventListener('abort', abortModal);
 
 			return new Promise<T>((resolve, reject) => {
-				// Update modalStackEntry with details only available within promise, such as resolve/reject functions
+				// Update modalStackEntry with details only available within
+				// promise, such as resolve/reject functions
 				const allProps: ModalContentsProps<T, TProps> = {
 					resolve,
 					reject,
@@ -131,21 +146,41 @@ export function useLaunchModal(): ModalLauncher {
 					(onEscapePressed ?? rejectViaEscape)(allProps);
 				modalStackEntry.contents = <ModalContents {...allProps} />;
 
+				if (abort?.aborted || modalDisplaying.signal.aborted) {
+					// When the abort signal passed is already signalled,
+					// immediately reject. This can't happen in Chrome as of
+					// this writing, but may be possible in other Promise
+					// implementations.
+					modalDisplaying.abort();
+					reject(AbortRejection);
+					return;
+				}
+
 				// Add new modal to the stack so it displays
 				store.set(activeModalStack, (modals) => [...modals, modalStackEntry]);
 			}).finally(() => {
 				abort?.removeEventListener('abort', abortModal);
 				store.set(shouldShow, false);
-				void modalFinished.finally(() =>
-					store.set(activeModalStack, (modals) =>
-						modals.filter((m) => m !== modalStackEntry),
-					),
-				);
 			});
 
-			// This function is declared separately so it may be referenced both by `addEventListener` and `removeEventListener`
+			// This function is declared separately so it may be referenced both
+			// by `addEventListener` and `removeEventListener`
 			function abortModal() {
 				modalStackEntry.onAbortModal();
+			}
+
+			// This function is called after the modal finishes animating away
+			// (if mounted) or immediately (if not mounted.) It is declared
+			// separately so it may be referenced both by `addEventListener` and
+			// `removeEventListener`.
+			function removeActiveModalFromStack() {
+				store.set(activeModalStack, (modals) =>
+					modals.filter((m) => m !== modalStackEntry),
+				);
+				modalDisplaying.signal.removeEventListener(
+					'abort',
+					removeActiveModalFromStack,
+				);
 			}
 		},
 		[store],

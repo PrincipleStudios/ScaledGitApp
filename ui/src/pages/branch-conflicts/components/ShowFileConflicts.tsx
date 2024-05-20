@@ -1,4 +1,5 @@
-import { DiffEditor } from '@monaco-editor/react';
+import { useRef } from 'react';
+import { DiffEditor, type MonacoDiffEditor } from '@monaco-editor/react';
 import type { UseSuspenseQueryOptions } from '@tanstack/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { twMerge } from 'tailwind-merge';
@@ -44,6 +45,7 @@ export function ShowFileConflicts({
 	file: FileConflictDetails;
 	className?: string;
 }) {
+	const editorRef = useRef<MonacoDiffEditor>();
 	const left = useFileSnapshot(file.left);
 	const right = useFileSnapshot(file.right);
 	// const mergeBase = useFileSnapshot(file.mergeBase);
@@ -52,6 +54,12 @@ export function ShowFileConflicts({
 
 	// TODO - handle missing, deleted, different modes, etc.
 
+	if (editorRef.current) {
+		// The DiffEditor is not controlled; we must manually update it on rerenders.
+		editorRef.current.getOriginalEditor().setValue(left.data ?? '');
+		editorRef.current.getModifiedEditor().setValue(right.data ?? '');
+	}
+
 	return (
 		<div className={twMerge('z-0', className)}>
 			<DiffEditor
@@ -59,6 +67,12 @@ export function ShowFileConflicts({
 				modified={right.data}
 				originalLanguage={language}
 				modifiedLanguage={language}
+				onMount={(editor) => (editorRef.current = editor)}
+				options={{
+					automaticLayout: true,
+					wordWrap: 'on',
+					readOnly: true,
+				}}
 			/>
 		</div>
 	);

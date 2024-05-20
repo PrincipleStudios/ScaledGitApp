@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from '@principlestudios/react-jotai-forms';
-import { useAtomValue } from 'jotai';
+import type { PrimitiveAtom } from 'jotai';
+import { useStore } from 'jotai';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import { SelectField } from '@/components/form/select-field';
 import type { ConflictDetails } from '@/generated/api/models';
+import { useAtomEffect } from '@/utils/atoms/useAtomEffect';
 import styles from '../inspect.module.css';
 
 export type FileSelectorProps = {
@@ -17,8 +19,6 @@ const filePathSelectorSchema = z.object({
 	filePath: z.string(),
 });
 export function FileSelector({ conflict, selected }: FileSelectorProps) {
-	const navigate = useNavigate();
-	const location = useLocation();
 	const { t } = useTranslation('branch-conflicts', { keyPrefix: 'inspect' });
 	const form = useForm({
 		schema: filePathSelectorSchema,
@@ -30,10 +30,7 @@ export function FileSelector({ conflict, selected }: FileSelectorProps) {
 		},
 	});
 
-	const actual = useAtomValue(form.fields.filePath.atom);
-	if (actual !== selected) {
-		navigate({ ...location, pathname: `./${actual}` });
-	}
+	useLocationAtom(form.fields.filePath.atom, selected);
 
 	return (
 		<div className={twMerge('p-4 md:hidden', styles.fileselector)}>
@@ -46,4 +43,26 @@ export function FileSelector({ conflict, selected }: FileSelectorProps) {
 			</SelectField>
 		</div>
 	);
+}
+
+// Keeps the location path synced in this atom
+function useLocationAtom(
+	atom: PrimitiveAtom<string>,
+	selected: string | undefined,
+) {
+	const navigate = useNavigate();
+	const location = useLocation();
+	// Ensure form and URL stay in sync
+	useAtomEffect(atom, (path) => {
+		if (selected === path) return;
+		navigate({
+			...location,
+			pathname: `./${path}`,
+		});
+	});
+	const store = useStore();
+	const actual = store.get(atom);
+	if (actual !== selected && selected) {
+		setTimeout(() => store.set(atom, selected), 0);
+	}
 }

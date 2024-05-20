@@ -26,7 +26,11 @@ export function InspectConflictDetails({
 			<FileSelector conflict={conflict} selected={selectedFile?.path} />
 
 			{selectedFile ? (
-				<ShowFileConflicts file={selectedFile} className={styles.details} />
+				<ShowFileConflicts
+					conflict={conflict}
+					file={selectedFile}
+					className={styles.details}
+				/>
 			) : (
 				<UnknownFile className={styles.details} />
 			)}

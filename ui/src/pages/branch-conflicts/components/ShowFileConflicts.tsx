@@ -1,19 +1,13 @@
 import { useRef } from 'react';
-import { DiffEditor, type MonacoDiffEditor } from '@monaco-editor/react';
-import type { UseSuspenseQueryOptions } from '@tanstack/react-query';
+import { Editor } from '@monaco-editor/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { type editor } from 'monaco-editor';
 import { twMerge } from 'tailwind-merge';
-import type { FileConflictDetails, FileSnapshot } from '@/generated/api/models';
+import type {
+	ConflictDetails,
+	FileConflictDetails,
+} from '@/generated/api/models';
 import { queries } from '@/utils/api/queries';
-
-const allowedFileModes: ReadonlyArray<string | undefined> = [
-	'100644',
-	'100755',
-];
-const unknownBlob = {
-	queryKey: ['unknown-blob'],
-	queryFn: () => Promise.resolve(null),
-} satisfies UseSuspenseQueryOptions;
 
 const fileExtension = /\.(?<extension>[^./]+)$/;
 const fileTypes: Readonly<Record<string, string>> = {
@@ -25,48 +19,42 @@ const fileTypes: Readonly<Record<string, string>> = {
 	ts: 'typescript',
 };
 
-function useFileSnapshot(file: FileSnapshot | undefined) {
+function useFile(tree: string, path: string) {
 	const fileData = useSuspenseQuery(
-		allowedFileModes.includes(file?.mode)
-			? queries.retrieveGitObject(file?.hash ?? '')
-			: unknownBlob,
+		queries.retrieveGitObject(`${tree}:${path}`),
 	).data;
 
-	return {
-		mode: file?.mode,
-		...fileData,
-	};
+	return fileData;
 }
 
+type EditorInstance = editor.IStandaloneCodeEditor;
+
 export function ShowFileConflicts({
+	conflict,
 	file,
 	className,
 }: {
+	conflict: ConflictDetails;
 	file: FileConflictDetails;
 	className?: string;
 }) {
-	const editorRef = useRef<MonacoDiffEditor>();
-	const left = useFileSnapshot(file.left);
-	const right = useFileSnapshot(file.right);
-	// const mergeBase = useFileSnapshot(file.mergeBase);
+	const editorRef = useRef<EditorInstance>();
+	const diff = useFile(conflict.mergeTree, file.path);
 	const languageMatch = fileExtension.exec(file.path);
 	const language = fileTypes[languageMatch?.groups?.['extension'] ?? ''];
 
 	// TODO - handle missing, deleted, different modes, etc.
 
 	if (editorRef.current) {
-		// The DiffEditor is not controlled; we must manually update it on rerenders.
-		editorRef.current.getOriginalEditor().setValue(left.data ?? '');
-		editorRef.current.getModifiedEditor().setValue(right.data ?? '');
+		// The Editor is not controlled; we must manually update it on rerenders.
+		editorRef.current.setValue(diff.data);
 	}
 
 	return (
 		<div className={twMerge('z-0', className)}>
-			<DiffEditor
-				original={left.data}
-				modified={right.data}
-				originalLanguage={language}
-				modifiedLanguage={language}
+			<Editor
+				value={diff.data}
+				language={language}
 				onMount={(editor) => (editorRef.current = editor)}
 				options={{
 					automaticLayout: true,

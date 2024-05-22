@@ -16,7 +16,7 @@
 @media screen(md) {
 	.container {
 		grid-template-areas: 'filelist details';
-		grid-template-rows: 1fr;
+		grid-template-rows: 100%;
 		grid-template-columns: minmax(20vw, 200px) 1fr;
 	}
 

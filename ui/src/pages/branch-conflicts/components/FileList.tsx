@@ -13,7 +13,12 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 	const location = useLocation();
 	const { t } = useTranslation('branch-conflicts', { keyPrefix: 'inspect' });
 	return (
-		<div className={twMerge('py-4 pl-4 hidden md:block', styles.filelist)}>
+		<div
+			className={twMerge(
+				'py-4 pl-4 hidden max-h-full md:block overflow-auto',
+				styles.filelist,
+			)}
+		>
 			<Link to={{ ...location, pathname: `/graph` }}>
 				<HiArrowLeft className="inline-block" /> {t('full-graph')}
 			</Link>

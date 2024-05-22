@@ -20,7 +20,7 @@ export function InspectConflictDetails({
 	// TODO - don't use the summary, but instead use a monaco editor
 	return (
 		<Container.Responsive
-			className={twMerge('px-0 md:py-0 grid', styles.container)}
+			className={twMerge('px-0 md:py-0 grid h-full', styles.container)}
 		>
 			<FileList conflict={conflict} selected={selectedFile?.path} />
 			<FileSelector conflict={conflict} selected={selectedFile?.path} />

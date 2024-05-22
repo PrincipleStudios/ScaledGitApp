@@ -37,7 +37,7 @@ export function InspectConflictDetails({
 			className={twMerge('px-0 md:py-0 grid h-full', styles.container)}
 		>
 			<div className={twMerge('md:py-4 md:pl-4 overflow-auto', styles.sidebar)}>
-				<Link to={{ ...location, pathname: `/graph` }}>
+				<Link to={{ ...location, pathname: `/branch` }}>
 					<HiArrowLeft className="inline-block" /> {t('full-graph')}
 				</Link>
 				<ConflictSelector conflicts={conflicts} selected={index} />

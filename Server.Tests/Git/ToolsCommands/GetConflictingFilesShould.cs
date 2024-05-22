@@ -164,7 +164,7 @@ public class GetConflictingFilesShould
 		);
 	}
 
-	static readonly string[] defaultSwitches = ["-z"];
+	static readonly string[] defaultSwitches = ["-z", "--write-tree"];
 	static bool VerifyCliArgs(string[] args, string[] branches)
 	{
 		if (args[0] != "merge-tree") return false;

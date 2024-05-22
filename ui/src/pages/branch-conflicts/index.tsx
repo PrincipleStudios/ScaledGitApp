@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import { useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes } from 'react-router-dom';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import {
 	withParam,
@@ -8,6 +8,7 @@ import {
 	withSearchParamsValue,
 } from '@/components/router';
 import { queries } from '@/utils/api/queries';
+import { toSearchString } from '@/utils/search-string';
 import { InspectConflictDetails } from './inspect';
 import { BranchConflictsSummary } from './summary';
 
@@ -24,6 +25,22 @@ export function BranchConflictsComponent({ name }: { name: string[] }) {
 		queries.getConflictDetails(name),
 	).data;
 
+	const defaultElement = useMemo(
+		() =>
+			conflictDetails.branches.length !== name.length ? (
+				<Navigate
+					to={{
+						search: toSearchString({
+							name: conflictDetails.branches.map((b) => b.name),
+						}),
+					}}
+				/>
+			) : (
+				<InspectConflictDetails conflicts={conflictDetails} />
+			),
+		[conflictDetails, name.length],
+	);
+
 	const route = useRoutes(
 		useMemo(
 			(): RouteObject[] => [
@@ -35,12 +52,9 @@ export function BranchConflictsComponent({ name }: { name: string[] }) {
 					)(inspectConflictDetails),
 				},
 				{ path: '/summary', Component: branchConflictsSummary },
-				{
-					path: '*',
-					element: <InspectConflictDetails conflicts={conflictDetails} />,
-				},
+				{ path: '*', element: defaultElement },
 			],
-			[conflictDetails],
+			[conflictDetails, defaultElement],
 		),
 	);
 

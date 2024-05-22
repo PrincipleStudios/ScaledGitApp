@@ -3,7 +3,19 @@
 	"conflict": {
 		"branches-label": "Conflicting branches:",
 		"messages-label": "Messages:",
-		"inspect": "Inspect conflicts"
+		"inspect": "Inspect conflicts",
+		"suggested-integration": "Suggested Integration branches:"
 	},
-	"to-branch-graph": "Back to Branch Graph"
+	"to-branch-graph": "Back to Branch Graph",
+	"inspect": {
+		"full-graph": "Original graph",
+		"list": "Showing conflicts for:",
+		"files-header": "Conflicting Files",
+		"fields": {
+			"filePath": {
+				"label": "Conflicting File"
+			}
+		},
+		"to-graph": "View this conflict on the graph"
+	}
 }

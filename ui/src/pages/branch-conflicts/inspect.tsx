@@ -1,18 +1,39 @@
-import { Container, Section } from '@/components/common';
+import { twMerge } from 'tailwind-merge';
+import { Container } from '@/components/common';
 import type { ConflictDetails } from '@/generated/api/models';
-import { ConflictSummary } from './summary';
+import { FileList } from './components/FileList';
+import { FileSelector } from './components/FileSelector';
+import { ShowFileConflicts } from './components/ShowFileConflicts';
+import { UnknownFile } from './components/UnknownFile';
+import styles from './inspect.module.css';
 
 export function InspectConflictDetails({
 	conflict,
+	filePath,
 }: {
 	conflict: ConflictDetails;
+	filePath?: string | undefined;
 }) {
+	const selectedFile =
+		conflict.files.find((f) => f.path === filePath) ?? conflict.files[0];
+
 	// TODO - don't use the summary, but instead use a monaco editor
 	return (
-		<Container.Flow>
-			<Section.SingleColumn>
-				<ConflictSummary conflict={conflict} />
-			</Section.SingleColumn>
-		</Container.Flow>
+		<Container.Responsive
+			className={twMerge('px-0 md:py-0 grid h-full', styles.container)}
+		>
+			<FileList conflict={conflict} selected={selectedFile?.path} />
+			<FileSelector conflict={conflict} selected={selectedFile?.path} />
+
+			{selectedFile ? (
+				<ShowFileConflicts
+					conflict={conflict}
+					file={selectedFile}
+					className={styles.details}
+				/>
+			) : (
+				<UnknownFile className={styles.details} />
+			)}
+		</Container.Responsive>
 	);
 }

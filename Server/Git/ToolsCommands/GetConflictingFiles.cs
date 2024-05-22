@@ -1,10 +1,9 @@
-﻿using PrincipleStudios.ScaledGitApp.Api;
-using PrincipleStudios.ScaledGitApp.ShellUtilities;
+﻿using PrincipleStudios.ScaledGitApp.ShellUtilities;
 using System.Text.RegularExpressions;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowerShellCommand<Task<GetConflictingFilesResult>>
+public class GetConflictingFiles(string LeftBranch, string RightBranch, IReadOnlyList<string>? HelpfulIntegrations = null) : IPowerShellCommand<Task<GetConflictingFilesResult>>
 {
 	// "stage" is a term used within git for merge information. From https://git-scm.com/docs/git-merge:
 	// stage 1 stores the version from the common ancestor, stage 2 from HEAD, and stage 3 from MERGE_HEAD
@@ -12,9 +11,49 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 	const string leftStage = "2";
 	const string rightStage = "3";
 
+	private record WriteTreeResult(
+		bool HasConflict,
+		string ResultTreeHash,
+		IReadOnlyList<FileConflictDetails> ConflictingFiles,
+		IReadOnlyList<ConflictRecord> ConflictMessages
+	);
+
 	// mode ' ' hash ' ' stage '\t' path
 	private static readonly Regex fileInfoRegex = new(@"^(?<mode>[^ ]+) (?<hash>[^ ]+) (?<stage>[^\t]+)\t(?<path>.+)$");
+
 	public async Task<GetConflictingFilesResult> Execute(IPowerShellCommandContext context)
+	{
+		var usedIntegrationBranches = new List<string>();
+		var remainingIntegration = (HelpfulIntegrations ?? []).ToList();
+		var currentLeft = LeftBranch;
+		while (remainingIntegration.Count > 0)
+		{
+			var allFailed = true;
+			for (var i = 0; i < remainingIntegration.Count; i++)
+			{
+				var next = await WriteTree(context, currentLeft, remainingIntegration[i]);
+				if (next.HasConflict) continue;
+				allFailed = false;
+				currentLeft = await Commit(context, next.ResultTreeHash, [currentLeft, remainingIntegration[i]]);
+				usedIntegrationBranches.Add(remainingIntegration[i]);
+				remainingIntegration.Remove(remainingIntegration[i]);
+				i--;
+			}
+			if (allFailed) break;
+		}
+
+		var result = await WriteTree(context, currentLeft, RightBranch);
+
+		return new GetConflictingFilesResult(
+			result.HasConflict,
+			result.ResultTreeHash,
+			result.ConflictingFiles,
+			result.ConflictMessages,
+			usedIntegrationBranches.Order().ToArray().AsReadOnly()
+		);
+	}
+
+	private static async Task<WriteTreeResult> WriteTree(IPowerShellCommandContext context, string LeftBranch, string RightBranch)
 	{
 		var cliResults = await context.InvokeCliAsync("git", "merge-tree", "-z", "--write-tree", LeftBranch, RightBranch);
 		var fullOutput = string.Join('\n', cliResults.ToResultStrings(allowErrors: true));
@@ -45,12 +84,19 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 			i += pathCount + 3;
 		}
 
-		return new GetConflictingFilesResult(
+		return new WriteTreeResult(
 			HasConflict: cliResults.HadErrors,
 			ResultTreeHash: treeHash,
 			ConflictingFiles: fileInfo,
 			ConflictMessages: conflictMessages.ToArray()
 		);
+	}
+
+	private static async Task<string> Commit(IPowerShellCommandContext context, string treeish, IReadOnlyList<string> commitishes)
+	{
+		var args = new[] { "commit-tree", treeish, "-m", "interim merge" }.Concat(commitishes.SelectMany(commitish => new[] { "-p", commitish })).ToArray();
+		var cliResults = await context.InvokeCliAsync("git", args);
+		return cliResults.ToResultStrings(allowErrors: false).Single();
 	}
 
 	private static FileConflictDetails ToFileConflictDetails(IGrouping<string, Match> grouping)
@@ -79,4 +125,18 @@ public record GetConflictingFiles(string LeftBranch, string RightBranch) : IPowe
 public record GitFileInfo(string Mode, string Hash);
 public record FileConflictDetails(string FilePath, GitFileInfo? MergeBase, GitFileInfo? Left, GitFileInfo? Right);
 public record ConflictRecord(IReadOnlyList<string> FilePaths, string ConflictType, string Message);
-public record GetConflictingFilesResult(bool HasConflict, string ResultTreeHash, IReadOnlyList<FileConflictDetails> ConflictingFiles, IReadOnlyList<ConflictRecord> ConflictMessages);
+public record GetConflictingFilesResult(
+	bool HasConflict,
+	string ResultTreeHash,
+	IReadOnlyList<FileConflictDetails> ConflictingFiles,
+	IReadOnlyList<ConflictRecord> ConflictMessages,
+	IReadOnlyList<string> IncludedIntegrationBranches)
+{
+	public static GetConflictingFilesResult Empty(string hash, IReadOnlyList<string> includedIntegrationBranches) => new GetConflictingFilesResult(
+		HasConflict: false,
+		ResultTreeHash: hash,
+		ConflictingFiles: [],
+		ConflictMessages: [],
+		IncludedIntegrationBranches: includedIntegrationBranches
+	);
+}

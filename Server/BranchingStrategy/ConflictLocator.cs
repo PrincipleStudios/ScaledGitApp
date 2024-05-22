@@ -20,11 +20,33 @@ public class ConflictLocator(IGitToolsCommandInvoker gitToolsPowerShell, IGitCon
 	{
 		var results = new List<IdentifiedConflict>();
 		var context = await ConstructContext();
+
+		await GatherInitialResolutions(branches, context);
+
 		for (var i = 0; i < branches.Count - 1; i++)
 		{
 			results.AddRange(await FindConflictsBetween([branches[i]], branches.Skip(i + 1).ToArray(), context));
 		}
 		return results.ToArray();
+	}
+
+	private static async Task GatherInitialResolutions(IReadOnlyList<string> branches, ConflictLocatorContext context)
+	{
+		for (var i = 0; i < branches.Count; i++)
+		{
+			var upstream = context.GetImmediateUpstream(branches[i]);
+			if (upstream.Count == 2)
+			{
+				var pair = new BranchPair(upstream[0], upstream[1]);
+
+				// TODO - get hash of branches[i]
+				await Task.Yield();
+
+				context.Results.Add(pair, [
+					new IdentifiedConflict(pair, GetConflictingFilesResult.Empty("TODO", [branches[i]]))
+				]);
+			}
+		}
 	}
 
 	public async Task<IReadOnlyList<IdentifiedConflict>> FindConflictsBetween(IReadOnlyList<string> leftBranches, IReadOnlyList<string> rightBranches)
@@ -59,17 +81,24 @@ public class ConflictLocator(IGitToolsCommandInvoker gitToolsPowerShell, IGitCon
 		var rightFullBranchName = await gitConfiguration.ToLocalTrackingBranchName(branchPair.RightBranch);
 		if (leftFullBranchName == null || rightFullBranchName == null) return returnValue;
 
-		var conflictResult = await gitToolsPowerShell.RunCommand(new GetConflictingFiles(leftFullBranchName, rightFullBranchName));
+		var conflictResult = await gitToolsPowerShell.RunCommand(new GetConflictingFiles(leftFullBranchName, rightFullBranchName, []));
 		if (!conflictResult.HasConflict) return returnValue;
 
 		var leftUpstream = context.GetImmediateUpstream(branchPair.LeftBranch);
 		var rightUpstream = context.GetImmediateUpstream(branchPair.RightBranch);
 
 		var subConflicts = await FindConflictsBetween(leftUpstream, rightUpstream, context);
-		if (subConflicts.Any())
-			result.AddRange(subConflicts);
+		var actualSubConflicts = subConflicts.Where(c => c.ConflictingFiles.HasConflict).ToArray();
+
+		if (actualSubConflicts.Length > 0)
+			result.AddRange(actualSubConflicts);
 		else
+		{
+			// retry the conflicts including the helper integration branches
+			var includedIntegrationBranches = subConflicts.SelectMany(c => c.ConflictingFiles.IncludedIntegrationBranches).ToArray();
+			conflictResult = await gitToolsPowerShell.RunCommand(new GetConflictingFiles(leftFullBranchName, rightFullBranchName, includedIntegrationBranches));
 			result.Add(new(branchPair, conflictResult));
+		}
 
 		return returnValue;
 	}

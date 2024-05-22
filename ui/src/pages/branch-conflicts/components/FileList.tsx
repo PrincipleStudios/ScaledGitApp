@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
 import { Link } from '@/components/common';
 import { Heading, HintText } from '@/components/text';
+import { toSearchString } from '@/utils/search-string';
 import styles from '../inspect.module.css';
 import { BranchNamesList } from './BranchNamesList';
 import type { FileSelectorProps } from './FileSelector';
@@ -16,6 +17,17 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 			<div className="flex flex-col gap-2">
 				<BranchNamesList branches={conflict.branches} />
 			</div>
+			<Link
+				to={{
+					pathname: `/branch`,
+					search: toSearchString({
+						name: conflict.branches.map((b) => b.name),
+					}),
+				}}
+				relative="route"
+			>
+				{t('to-graph')}
+			</Link>
 			<Heading.Section className="my-4">{t('files-header')}</Heading.Section>
 			<ul>
 				{conflict.files.map((f) => (

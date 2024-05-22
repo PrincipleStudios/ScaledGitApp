@@ -19,7 +19,7 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 				styles.filelist,
 			)}
 		>
-			<Link to={{ ...location, pathname: `/graph` }}>
+			<Link to={{ ...location, pathname: `/branch` }}>
 				<HiArrowLeft className="inline-block" /> {t('full-graph')}
 			</Link>
 			<HintText className="mt-0 mb-2">{t('list')}</HintText>

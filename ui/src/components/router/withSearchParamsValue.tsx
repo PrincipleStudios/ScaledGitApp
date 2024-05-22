@@ -1,20 +1,16 @@
 import { useSearchParams } from 'react-router-dom';
+import type { ComponentAutoBinder } from './component-auto-binder';
+import { componentAutoBinder } from './component-auto-binder';
 
-export function withSearchParamsValue<const T extends string>(prop: T) {
-	return <
-		TProps extends {
-			[P in T]: string[];
-		},
-	>(
-		Component: React.ComponentType<TProps>,
-	): React.ComponentType<Omit<TProps, T>> => {
-		function WithParams(props: Omit<TProps, T>) {
+export function withSearchParamsValue<const T extends string>(
+	prop: T,
+): ComponentAutoBinder<T, string[]> {
+	return componentAutoBinder(
+		prop,
+		function useSearchParam() {
 			const [params] = useSearchParams();
-			return (
-				<Component {...({ ...props, [prop]: params.getAll(prop) } as TProps)} />
-			);
-		}
-		WithParams.displayName = `WithParams(${prop})`;
-		return WithParams;
-	};
+			return params.getAll(prop);
+		},
+		'WithParams',
+	);
 }

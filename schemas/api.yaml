@@ -157,7 +157,7 @@ paths:
                   Contains the upstream branch details for branches that must be
                   updated before other conflicts may be detected.
                 items: { $ref: '#/components/schemas/BranchDetails' }
-  /api/git/object/{objectish}:
+  /api/git/object:
     get:
       x-dotnet-mvc-server-controller: GitRetrieveObject
       operationId: retrieveGitObject
@@ -165,7 +165,7 @@ paths:
         - AuthenticatedUser: []
       summary: Gets the specified object
       parameters:
-        - in: path
+        - in: query
           name: objectish
           schema: { type: string }
           required: true

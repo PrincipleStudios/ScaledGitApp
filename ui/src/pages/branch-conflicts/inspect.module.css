@@ -1,8 +1,21 @@
 
 .container {
-	grid-template-areas: 'fileselector' 'details';
-	grid-template-rows: auto 1fr;
+	grid-template-areas: 'conflictselector' 'fileselector' 'details';
+	grid-template-rows: auto auto 1fr;
 	grid-template-columns: 1fr;
+}
+
+.sidebar {
+	display: contents;
+}
+
+.sidebar > * {
+	padding-left: theme(space.4);
+	padding-right: theme(space.4);
+}
+
+.conflictselector {
+	grid-area: conflictselector;
 }
 
 .fileselector {
@@ -15,10 +28,19 @@
 
 @media screen(md) {
 	.container {
-		grid-template-areas: 'filelist details';
+		grid-template-areas: 'sidebar details';
 		grid-template-rows: 100%;
 		grid-template-columns: minmax(20vw, 200px) 1fr;
 	}
+
+	.sidebar {
+		display: initial;
+	}
+	.sidebar > * {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	
 
 	.fileselector {
 		display: none;

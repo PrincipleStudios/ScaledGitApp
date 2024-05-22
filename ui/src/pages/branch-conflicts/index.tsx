@@ -14,7 +14,10 @@ import { BranchConflictsSummary } from './summary';
 const withSearchParamsName = withSearchParamsValue('name');
 const branchConflictsSummary = withSearchParamsName(BranchConflictsSummary);
 const withFilePathSplat = withPathParamsValue('filePath', '*');
-const inspectConflictDetails = withFilePathSplat(InspectConflictDetails);
+const withIndex = withPathParamsValue('index');
+const inspectConflictDetails = withIndex(
+	withFilePathSplat(InspectConflictDetails),
+);
 
 export function BranchConflictsComponent({ name }: { name: string[] }) {
 	const conflictDetails = useSuspenseQuery(
@@ -23,14 +26,19 @@ export function BranchConflictsComponent({ name }: { name: string[] }) {
 
 	const route = useRoutes(
 		useMemo(
-			() => [
-				...conflictDetails.conflicts.flatMap((conflict, i): RouteObject[] => [
-					{
-						path: `/inspect/${i}/*`,
-						Component: withParam('conflict', conflict)(inspectConflictDetails),
-					},
-				]),
-				{ path: '*', Component: branchConflictsSummary },
+			(): RouteObject[] => [
+				{
+					path: `/inspect/:index/*`,
+					Component: withParam(
+						'conflicts',
+						conflictDetails,
+					)(inspectConflictDetails),
+				},
+				{ path: '/summary', Component: branchConflictsSummary },
+				{
+					path: '*',
+					element: <InspectConflictDetails conflicts={conflictDetails} />,
+				},
 			],
 			[conflictDetails],
 		),

@@ -9,11 +9,17 @@
 	"to-branch-graph": "Back to Branch Graph",
 	"inspect": {
 		"full-graph": "Original graph",
-		"list": "Showing conflicts for:",
+		"integrations-header": "Integration Branches",
+		"integrations-hint_one": "The following branch has an exact match of the conflicting branches; include this in the query to resolve this conflict.",
+		"integrations-hint_other": "The following branches have an exact match of the conflicting branches; include one of these in the query to resolve this conflict.",
 		"files-header": "Conflicting Files",
+		"conflict-index": "Conflict #{{index}}",
 		"fields": {
 			"filePath": {
 				"label": "Conflicting File"
+			},
+			"conflictIndex": {
+				"label": "Showing conflicts for:"
 			}
 		},
 		"to-graph": "View this conflict on the graph"

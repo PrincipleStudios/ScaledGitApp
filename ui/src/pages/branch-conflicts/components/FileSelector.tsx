@@ -33,7 +33,7 @@ export function FileSelector({ conflict, selected }: FileSelectorProps) {
 	useLocationAtom(form.fields.filePath.atom, selected);
 
 	return (
-		<div className={twMerge('p-4 md:hidden', styles.fileselector)}>
+		<div className={styles.fileselector}>
 			<SelectField
 				items={conflict.files.map((f) => f.path)}
 				translation={t}

@@ -8,6 +8,7 @@
 	},
 	"to-branch-graph": "Back to Branch Graph",
 	"inspect": {
+		"full-graph": "Original graph",
 		"list": "Showing conflicts for:",
 		"files-header": "Conflicting Files",
 		"fields": {

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { HiArrowLeft } from 'react-icons/hi2';
 import { twMerge } from 'tailwind-merge';
 import { Link } from '@/components/common';
 import { Heading, HintText } from '@/components/text';
@@ -13,6 +14,9 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 	const { t } = useTranslation('branch-conflicts', { keyPrefix: 'inspect' });
 	return (
 		<div className={twMerge('py-4 pl-4 hidden md:block', styles.filelist)}>
+			<Link to={{ ...location, pathname: `/graph` }}>
+				<HiArrowLeft className="inline-block" /> {t('full-graph')}
+			</Link>
 			<HintText className="mt-0 mb-2">{t('list')}</HintText>
 			<div className="flex flex-col gap-2">
 				<BranchNamesList branches={conflict.branches} />
@@ -24,7 +28,6 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 						name: conflict.branches.map((b) => b.name),
 					}),
 				}}
-				relative="route"
 			>
 				{t('to-graph')}
 			</Link>

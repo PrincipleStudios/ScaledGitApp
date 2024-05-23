@@ -1,5 +1,6 @@
 ﻿using Moq;
 using Moq.Language.Flow;
+using PrincipleStudios.ScaledGitApp.BranchingStrategy;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
@@ -279,14 +280,14 @@ public class GitBranchUpstreamDetailsShould
 
 	private void SetupNoConflict(string branch1, string branch2)
 	{
-		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new GetConflictingFiles(ToFullName(branch1), ToFullName(branch2))))
-			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: false, ResultTreeHash: "unused", [/*unused*/], [/*unused*/]));
+		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new GetConflictingFiles(ToFullName(branch1), ToFullName(branch2), null)))
+			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: false, ResultTreeHash: "unused", [/*unused*/], [/*unused*/], BranchSet.Empty));
 	}
 
 	private void SetupConflict(string branch1, string branch2, string[] conflictingFileNames)
 	{
-		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new GetConflictingFiles(ToFullName(branch1), ToFullName(branch2))))
-			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: true, ResultTreeHash: "unused", [/*unused*/], [/*unused*/]));
+		fixture.PowerShellCommandInvoker.Setup(i => i.RunCommand(new GetConflictingFiles(ToFullName(branch1), ToFullName(branch2), null)))
+			.ReturnsAsync(new GetConflictingFilesResult(HasConflict: true, ResultTreeHash: "unused", [/*unused*/], [/*unused*/], BranchSet.Empty));
 	}
 
 }

@@ -1,9 +1,11 @@
-﻿using PrincipleStudios.ScaledGitApp.ShellUtilities;
+﻿using PrincipleStudios.ScaledGitApp.BranchingStrategy;
+using PrincipleStudios.ScaledGitApp.ShellUtilities;
+using System;
 using System.Text.RegularExpressions;
 
 namespace PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
-public class GetConflictingFiles(string LeftBranch, string RightBranch, IReadOnlyList<string>? HelpfulIntegrations = null) : IPowerShellCommand<Task<GetConflictingFilesResult>>
+public record GetConflictingFiles(string LeftBranch, string RightBranch, BranchSet? Integrations = null) : IPowerShellCommand<Task<GetConflictingFilesResult>>
 {
 	// "stage" is a term used within git for merge information. From https://git-scm.com/docs/git-merge:
 	// stage 1 stores the version from the common ancestor, stage 2 from HEAD, and stage 3 from MERGE_HEAD
@@ -23,18 +25,36 @@ public class GetConflictingFiles(string LeftBranch, string RightBranch, IReadOnl
 
 	public async Task<GetConflictingFilesResult> Execute(IPowerShellCommandContext context)
 	{
+		var (currentLeft, usedIntegrationBranches) = Integrations == null
+			? (LeftBranch, BranchSet.Empty)
+			: await ApplyIntegrations(context, LeftBranch, Integrations.Branches);
+		var currentRight = RightBranch;
+
+		var result = await WriteTree(context, currentLeft, currentRight);
+
+		return new GetConflictingFilesResult(
+			result.HasConflict,
+			result.ResultTreeHash,
+			result.ConflictingFiles,
+			result.ConflictMessages,
+			usedIntegrationBranches
+		);
+	}
+
+	private static async Task<(string ResultCommit, BranchSet AppliedIntegrations)> ApplyIntegrations(IPowerShellCommandContext context, string initialCommit, IReadOnlyList<string> integrations)
+	{
+		var remainingIntegration = integrations.ToList();
+		var current = initialCommit;
 		var usedIntegrationBranches = new List<string>();
-		var remainingIntegration = (HelpfulIntegrations ?? []).ToList();
-		var currentLeft = LeftBranch;
-		while (remainingIntegration.Count > 0)
+		while (remainingIntegration != null && remainingIntegration.Count > 0)
 		{
 			var allFailed = true;
 			for (var i = 0; i < remainingIntegration.Count; i++)
 			{
-				var next = await WriteTree(context, currentLeft, remainingIntegration[i]);
+				var next = await WriteTree(context, current, remainingIntegration[i]);
 				if (next.HasConflict) continue;
 				allFailed = false;
-				currentLeft = await Commit(context, next.ResultTreeHash, [currentLeft, remainingIntegration[i]]);
+				current = await Commit(context, next.ResultTreeHash, [current, remainingIntegration[i]]);
 				usedIntegrationBranches.Add(remainingIntegration[i]);
 				remainingIntegration.Remove(remainingIntegration[i]);
 				i--;
@@ -42,15 +62,7 @@ public class GetConflictingFiles(string LeftBranch, string RightBranch, IReadOnl
 			if (allFailed) break;
 		}
 
-		var result = await WriteTree(context, currentLeft, RightBranch);
-
-		return new GetConflictingFilesResult(
-			result.HasConflict,
-			result.ResultTreeHash,
-			result.ConflictingFiles,
-			result.ConflictMessages,
-			usedIntegrationBranches.Order().ToArray().AsReadOnly()
-		);
+		return (current, new BranchSet(usedIntegrationBranches));
 	}
 
 	private static async Task<WriteTreeResult> WriteTree(IPowerShellCommandContext context, string LeftBranch, string RightBranch)
@@ -130,9 +142,9 @@ public record GetConflictingFilesResult(
 	string ResultTreeHash,
 	IReadOnlyList<FileConflictDetails> ConflictingFiles,
 	IReadOnlyList<ConflictRecord> ConflictMessages,
-	IReadOnlyList<string> IncludedIntegrationBranches)
+	BranchSet IncludedIntegrationBranches)
 {
-	public static GetConflictingFilesResult Empty(string hash, IReadOnlyList<string> includedIntegrationBranches) => new GetConflictingFilesResult(
+	public static GetConflictingFilesResult Empty(string hash, BranchSet includedIntegrationBranches) => new GetConflictingFilesResult(
 		HasConflict: false,
 		ResultTreeHash: hash,
 		ConflictingFiles: [],

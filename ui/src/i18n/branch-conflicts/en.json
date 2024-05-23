@@ -23,5 +23,9 @@
 			}
 		},
 		"to-graph": "View this conflict on the graph"
+	},
+	"no-conflicts": {
+		"no-conflicts": "No conflicts were found with your current selection.",
+		"to-graph": "Back to the graph"
 	}
 }

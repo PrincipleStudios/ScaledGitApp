@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { BranchName } from '@/components/branch-display/BranchName';
 import { Link } from '@/components/common';
 import { Prose } from '@/components/text';
 import { queries } from '@/utils/api/queries';
@@ -39,20 +40,36 @@ function InspectConflicts({ branches }: ActionComponentProps) {
 		queries.getConflictDetails(branches.map((b) => b.name)),
 	).data;
 	const branchNames = branches.map((b) => b.name);
+	const integrationBranches = conflictDetails.conflicts.flatMap(
+		(c) => c.candidateIntegrationBranch,
+	);
 
 	return (
 		<>
 			<Prose>
-				{t('conflict-count', { count: conflictDetails.conflicts.length })}
+				{t('conflict-count', { count: conflictDetails.conflicts.length })}{' '}
+				&mdash;{' '}
+				<Link
+					to={{
+						pathname: '/branch/conflicts',
+						search: toSearchString({ name: branchNames }),
+					}}
+				>
+					{t('see-conflicts')}
+				</Link>
 			</Prose>
-			<Link
-				to={{
-					pathname: '/branch/conflicts',
-					search: toSearchString({ name: branchNames }),
-				}}
-			>
-				{t('see-conflicts')}
-			</Link>
+			{integrationBranches.length > 0 ? (
+				<>
+					<Prose>{t('integration-branches')}</Prose>
+					<ul>
+						{integrationBranches.map((b) => (
+							<li key={b.name}>
+								<BranchName data={b} />
+							</li>
+						))}
+					</ul>
+				</>
+			) : null}
 		</>
 	);
 }

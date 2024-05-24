@@ -10,6 +10,7 @@ import {
 import { queries } from '@/utils/api/queries';
 import { toSearchString } from '@/utils/search-string';
 import { InspectConflictDetails } from './inspect';
+import { NoConflicts } from './NoConflicts';
 import { BranchConflictsSummary } from './summary';
 
 const withSearchParamsName = withSearchParamsValue('name');
@@ -35,10 +36,18 @@ export function BranchConflictsComponent({ name }: { name: string[] }) {
 						}),
 					}}
 				/>
+			) : conflictDetails.conflicts.length > 0 ? (
+				<Navigate
+					to={{
+						pathname: './inspect/0',
+						search: toSearchString({ name }),
+					}}
+					relative="route"
+				/>
 			) : (
-				<InspectConflictDetails conflicts={conflictDetails} />
+				<NoConflicts name={name} />
 			),
-		[conflictDetails, name.length],
+		[conflictDetails, name],
 	);
 
 	const route = useRoutes(

@@ -18,6 +18,7 @@
 		"description": "Conflicts have been detected with your branches (or between its upstreams).",
 		"see-conflicts": "See conflict details",
 		"conflict-count_one": "{{count}} conflict found",
-		"conflict-count_other": "{{count}} conflicts found"
+		"conflict-count_other": "{{count}} conflicts found",
+		"integration-branches": "Possible integration branches:"
 	}
 }

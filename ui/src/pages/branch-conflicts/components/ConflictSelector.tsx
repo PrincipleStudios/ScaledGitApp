@@ -72,10 +72,13 @@ function useLocationAtom(atom: PrimitiveAtom<number>, selected: number) {
 	// Ensure form and URL stay in sync
 	useAtomEffect(atom, (path) => {
 		if (selected === path) return;
-		navigate({
-			...location,
-			pathname: `/branch/conflicts/inspect/${path}`,
-		});
+		navigate(
+			{
+				...location,
+				pathname: `../inspect/${path}`,
+			},
+			{ relative: 'route' },
+		);
 	});
 	const store = useStore();
 	const actual = store.get(atom);

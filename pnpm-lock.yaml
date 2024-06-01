@@ -51,11 +51,11 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0(jotai@2.6.5)
       '@principlestudios/openapi-codegen-typescript':
-        specifier: ^0.7.0
-        version: 0.7.0
+        specifier: ^0.8.0
+        version: 0.8.0
       '@principlestudios/openapi-codegen-typescript-fetch':
         specifier: ^0.7.1
-        version: 0.7.1(@principlestudios/openapi-codegen-typescript@0.7.0)
+        version: 0.7.1(@principlestudios/openapi-codegen-typescript@0.8.0)
       '@principlestudios/react-jotai-form-components':
         specifier: ^0.2.0
         version: 0.2.0(jotai@2.6.5)(react@18.2.0)
@@ -2219,16 +2219,16 @@ packages:
       jotai: 2.6.5(@types/react@18.2.55)(react@18.2.0)
     dev: false
 
-  /@principlestudios/openapi-codegen-typescript-fetch@0.7.1(@principlestudios/openapi-codegen-typescript@0.7.0):
+  /@principlestudios/openapi-codegen-typescript-fetch@0.7.1(@principlestudios/openapi-codegen-typescript@0.8.0):
     resolution: {integrity: sha512-095d54wEeFobm1du7YwlPQ016xCBZhaNSsKzna9IJNv0dWeq0tvchTrSMaHNTJvAW6/Y2bD7G59I3wYlxy8SRw==}
     peerDependencies:
       '@principlestudios/openapi-codegen-typescript': '*'
     dependencies:
-      '@principlestudios/openapi-codegen-typescript': 0.7.0
+      '@principlestudios/openapi-codegen-typescript': 0.8.0
     dev: false
 
-  /@principlestudios/openapi-codegen-typescript@0.7.0:
-    resolution: {integrity: sha512-/9QrZAWeOdHygDuG51RIix1qVs9BNjIuA8GqIi5qNqGENuWLkLDz6atrpypq5kl+iPDSOCTRjJlzHm4oJ7S93w==}
+  /@principlestudios/openapi-codegen-typescript@0.8.0:
+    resolution: {integrity: sha512-p93SOez8hYm7C08W4/zxu/VRPXQC4iNEyaT+iSDgYJywHRxYzl1ztrouSbhgnglfIXGdvttFVfn0y2LBbtsRgA==}
     hasBin: true
     dev: false
 

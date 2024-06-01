@@ -19,7 +19,7 @@
 		"@monaco-editor/react": "^4.6.0",
 		"@principlestudios/jotai-react-signals": "^0.6.0",
 		"@principlestudios/jotai-utilities": "^0.6.0",
-		"@principlestudios/openapi-codegen-typescript": "^0.7.0",
+		"@principlestudios/openapi-codegen-typescript": "^0.8.0",
 		"@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
 		"@principlestudios/react-jotai-form-components": "^0.2.0",
 		"@principlestudios/react-jotai-forms": "^0.4.0",

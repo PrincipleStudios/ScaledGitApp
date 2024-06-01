@@ -55,8 +55,6 @@ RUN apt-get update \
     \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      # Add .NET 7 for OpenAPI generators
-      dotnet-runtime-7.0 \
       # Add .NET 8 for Build tooling
       dotnet-sdk-8.0 \
       # Easy copying of i18n files to output

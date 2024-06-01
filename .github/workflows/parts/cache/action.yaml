@@ -8,10 +8,6 @@ runs:
     # .NET install and cache
     - uses: actions/setup-dotnet@v3
       with:
-        # For use with the openapi generators
-        dotnet-version: '7.0.x'
-    - uses: actions/setup-dotnet@v3
-      with:
         # The main version this project uses
         dotnet-version: '8.0.x'
 

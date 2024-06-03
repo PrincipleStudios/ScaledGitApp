@@ -82,7 +82,7 @@ function useLocationAtom(atom: PrimitiveAtom<number>, selected: number) {
 	});
 	const store = useStore();
 	const actual = store.get(atom);
-	if (actual !== selected && selected) {
+	if (actual !== selected) {
 		setTimeout(() => store.set(atom, selected), 0);
 	}
 }

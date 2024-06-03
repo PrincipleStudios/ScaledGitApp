@@ -18,6 +18,10 @@
 			CA1311 - specify a culture or use invariant
 		-->
 		<NoWarn>$(NoWarn),CA1304,CA1305,CA1310,CA1311</NoWarn>
+		<!--
+			CS9057 - Analyzer assemblies can use different versions depending on the SDK version, which seems to be from using an older version of VS than installed SDKs.
+		-->
+		<NoWarn>$(NoWarn),CS9057</NoWarn>
 	</PropertyGroup>
 
 	<!-- The following are debug supressions -->

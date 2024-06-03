@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import { useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes } from 'react-router-dom';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import {
 	withParam,
@@ -8,31 +8,62 @@ import {
 	withSearchParamsValue,
 } from '@/components/router';
 import { queries } from '@/utils/api/queries';
+import { toSearchString } from '@/utils/search-string';
 import { InspectConflictDetails } from './inspect';
+import { NoConflicts } from './NoConflicts';
 import { BranchConflictsSummary } from './summary';
 
 const withSearchParamsName = withSearchParamsValue('name');
 const branchConflictsSummary = withSearchParamsName(BranchConflictsSummary);
 const withFilePathSplat = withPathParamsValue('filePath', '*');
-const inspectConflictDetails = withFilePathSplat(InspectConflictDetails);
+const withIndex = withPathParamsValue('index');
+const inspectConflictDetails = withIndex(
+	withFilePathSplat(InspectConflictDetails),
+);
 
 export function BranchConflictsComponent({ name }: { name: string[] }) {
 	const conflictDetails = useSuspenseQuery(
 		queries.getConflictDetails(name),
 	).data;
 
+	const defaultElement = useMemo(
+		() =>
+			conflictDetails.branches.length !== name.length ? (
+				<Navigate
+					to={{
+						search: toSearchString({
+							name: conflictDetails.branches.map((b) => b.name),
+						}),
+					}}
+				/>
+			) : conflictDetails.conflicts.length > 0 ? (
+				<Navigate
+					to={{
+						pathname: './inspect/0',
+						search: toSearchString({ name }),
+					}}
+					relative="route"
+				/>
+			) : (
+				<NoConflicts name={name} />
+			),
+		[conflictDetails, name],
+	);
+
 	const route = useRoutes(
 		useMemo(
-			() => [
-				...conflictDetails.conflicts.flatMap((conflict, i): RouteObject[] => [
-					{
-						path: `/inspect/${i}/*`,
-						Component: withParam('conflict', conflict)(inspectConflictDetails),
-					},
-				]),
-				{ path: '*', Component: branchConflictsSummary },
+			(): RouteObject[] => [
+				{
+					path: `/inspect/:index/*`,
+					Component: withParam(
+						'conflicts',
+						conflictDetails,
+					)(inspectConflictDetails),
+				},
+				{ path: '/summary', Component: branchConflictsSummary },
+				{ path: '*', element: defaultElement },
 			],
-			[conflictDetails],
+			[conflictDetails, defaultElement],
 		),
 	);
 

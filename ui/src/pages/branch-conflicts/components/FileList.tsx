@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { HiArrowLeft } from 'react-icons/hi2';
 import { twMerge } from 'tailwind-merge';
 import { Link } from '@/components/common';
 import { Heading, HintText } from '@/components/text';
@@ -13,19 +12,7 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 	const location = useLocation();
 	const { t } = useTranslation('branch-conflicts', { keyPrefix: 'inspect' });
 	return (
-		<div
-			className={twMerge(
-				'py-4 pl-4 hidden max-h-full md:block overflow-auto',
-				styles.filelist,
-			)}
-		>
-			<Link to={{ ...location, pathname: `/branch` }}>
-				<HiArrowLeft className="inline-block" /> {t('full-graph')}
-			</Link>
-			<HintText className="mt-0 mb-2">{t('list')}</HintText>
-			<div className="flex flex-col gap-2">
-				<BranchNamesList branches={conflict.branches} />
-			</div>
+		<div className={twMerge('py-4 hidden md:block', styles.filelist)}>
 			<Link
 				to={{
 					pathname: `/branch`,
@@ -36,6 +23,21 @@ export function FileList({ conflict, selected }: FileSelectorProps) {
 			>
 				{t('to-graph')}
 			</Link>
+
+			{conflict.candidateIntegrationBranch.length ? (
+				<>
+					<Heading.Section className="my-4">
+						{t('integrations-header')}
+					</Heading.Section>
+					<HintText>
+						{t('integrations-hint', {
+							count: conflict.candidateIntegrationBranch.length,
+						})}
+					</HintText>
+					<BranchNamesList branches={conflict.candidateIntegrationBranch} />
+				</>
+			) : null}
+
 			<Heading.Section className="my-4">{t('files-header')}</Heading.Section>
 			<ul>
 				{conflict.files.map((f) => (

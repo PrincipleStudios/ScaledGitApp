@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from '@principlestudios/react-jotai-forms';
 import type { PrimitiveAtom } from 'jotai';
 import { useStore } from 'jotai';
-import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import { SelectField } from '@/components/form/select-field';
 import type { ConflictDetails } from '@/generated/api/models';
@@ -33,7 +32,7 @@ export function FileSelector({ conflict, selected }: FileSelectorProps) {
 	useLocationAtom(form.fields.filePath.atom, selected);
 
 	return (
-		<div className={twMerge('p-4 md:hidden', styles.fileselector)}>
+		<div className={styles.fileselector}>
 			<SelectField
 				items={conflict.files.map((f) => f.path)}
 				translation={t}
@@ -55,10 +54,13 @@ function useLocationAtom(
 	// Ensure form and URL stay in sync
 	useAtomEffect(atom, (path) => {
 		if (selected === path) return;
-		navigate({
-			...location,
-			pathname: `./${path}`,
-		});
+		navigate(
+			{
+				...location,
+				pathname: `./${path}`,
+			},
+			{ relative: 'route' },
+		);
 	});
 	const store = useStore();
 	const actual = store.get(atom);

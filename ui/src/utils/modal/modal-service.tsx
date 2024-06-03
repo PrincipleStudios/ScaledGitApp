@@ -170,7 +170,7 @@ export function useLaunchModal(): ModalLauncher {
 			}
 
 			// This function is called after the modal finishes animating away
-			// (if mounted) or immediately (if not mounted.) It is declared
+			// (if mounted) or immediately (if not mounted). It is declared
 			// separately so it may be referenced both by `addEventListener` and
 			// `removeEventListener`.
 			function removeActiveModalFromStack() {

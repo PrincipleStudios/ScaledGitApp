@@ -1,7 +1,6 @@
 ﻿using PrincipleStudios.OpenApiCodegen.Json.Extensions;
 using PrincipleStudios.ScaledGitApp.Api.Git.Conversions;
 using PrincipleStudios.ScaledGitApp.BranchingStrategy;
-using PrincipleStudios.ScaledGitApp.Git;
 using PrincipleStudios.ScaledGitApp.Git.ToolsCommands;
 
 namespace PrincipleStudios.ScaledGitApp.Api.Git;
@@ -35,7 +34,9 @@ public class GitDetectConflictsController(IGitToolsCommandInvoker gitToolsPowerS
 
 		return GetConflictDetailsActionResult.Ok(new ConflictAnalysis(
 			Branches: branches.Select(ToBranch),
-			Conflicts: conflicts.Select(conflict => ToConflictDetails(conflict, upstreams))
+			Conflicts: from conflict in conflicts
+					   where conflict.ConflictingFiles.HasConflict
+					   select ToConflictDetails(conflict, upstreams)
 		));
 	}
 

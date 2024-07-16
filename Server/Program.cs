@@ -73,7 +73,7 @@ app.MapWhen(context => context.Request.Method == "GET" || context.Request.Method
 #if DEBUG
 		if (app.Environment.IsDevelopment())
 		{
-			spa.Options.SourcePath = "../ui";
+			spa.Options.SourcePath = "../ui-solid";
 
 			spa.UseViteDevelopmentServer("node_modules/.bin/vite", "--port {port}");
 		}

@@ -1,0 +1,30 @@
+{
+  "name": "ui-solid",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd ../Server && dotnet watch",
+    "serve": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.17",
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss": "^3.4.1",
+    "vite": "^4.0.4",
+    "vite-plugin-solid": "^2.5.0",
+    "vitest": "^1.2.2"
+  },
+  "dependencies": {
+    "@principlestudios/openapi-codegen-typescript": "^0.7.0",
+    "@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
+    "@tanstack/solid-query": "^5.51.2",
+    "@tanstack/solid-query-devtools": "^5.51.2",
+    "solid-js": "^1.6.9"
+  }
+}

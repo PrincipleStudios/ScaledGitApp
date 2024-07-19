@@ -21,6 +21,7 @@
     "vitest": "^1.2.2"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.0",
     "@principlestudios/openapi-codegen-typescript": "^0.7.0",
     "@principlestudios/openapi-codegen-typescript-fetch": "^0.7.1",
     "@tanstack/solid-query": "^5.51.2",

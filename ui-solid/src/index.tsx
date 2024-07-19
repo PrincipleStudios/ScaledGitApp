@@ -1,9 +1,13 @@
 /* @refresh reload */
-import { render } from 'solid-js/web';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import './index.css';
 import App from './App';
+import { setupRuntimeApi } from './runtime-api';
+import {
+	RealtimeApiProvider,
+	createRealtimeApi,
+} from './utils/realtime/realtime-api';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -13,12 +17,14 @@ const queryClient = new QueryClient({
 	},
 });
 
-render(
-	() => (
-		<QueryClientProvider client={queryClient}>
+const realtimeApi = createRealtimeApi(queryClient);
+setupRuntimeApi({ queryClient, realtimeApi });
+
+export const AppElement = (
+	<QueryClientProvider client={queryClient}>
+		<RealtimeApiProvider value={realtimeApi}>
 			<App />
-			<SolidQueryDevtools />
-		</QueryClientProvider>
-	),
-	document.getElementById('root') as HTMLElement,
+			<SolidQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+		</RealtimeApiProvider>
+	</QueryClientProvider>
 );

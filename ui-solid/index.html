@@ -11,6 +11,11 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
-    <script src="/src/index.tsx" type="module"></script>
-  </body>
+    <script type="module">
+		import { render } from 'solid-js/web';
+		import { AppElement } from './src/index.tsx'
+
+		render(() => AppElement, document.getElementById('root'));
+	</script>
+	</body>
 </html>

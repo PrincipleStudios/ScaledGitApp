@@ -204,6 +204,9 @@ importers:
 
   ui-solid:
     dependencies:
+      '@microsoft/signalr':
+        specifier: ^8.0.0
+        version: 8.0.0
       '@principlestudios/openapi-codegen-typescript':
         specifier: ^0.7.0
         version: 0.7.0
